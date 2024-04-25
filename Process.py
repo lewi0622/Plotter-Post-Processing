@@ -4,7 +4,7 @@ from tkinter import ttk
 from utils import *
 
 
-def main():
+def main(input_files=()):
 
 
     def on_closing(): #clean up any temp files hanging around
@@ -261,7 +261,8 @@ def main():
     last_shown_command = ""
     output_filename = ""
 
-    input_files = get_files()
+    if len(input_files) == 0:
+        input_files = get_files()
 
     svg_width_inches, svg_height_inches = get_svg_width_height(input_files[0])
 

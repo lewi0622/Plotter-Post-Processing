@@ -9,12 +9,14 @@ def main():
         main_app.destroy()
 
     def run_process():
-        Process.main()
+        Process.main(input_files)
 
 
     def run_paint():
-        Paint.main()
+        Paint.main(input_files)
 
+    input_files = get_files() #get input files on startup
+    
     #tk widgets and window
     current_row = 0 #helper row var, inc-ed every time used;
 
