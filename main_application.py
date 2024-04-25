@@ -11,10 +11,14 @@ def main():
     def run_process():
         Process.main(input_files)
 
-
     def run_paint():
         Paint.main(input_files)
 
+    def select_files():
+        global input_files
+        input_files = get_files() #get input files on startup
+
+    global input_files
     input_files = get_files() #get input files on startup
     
     #tk widgets and window
@@ -23,6 +27,10 @@ def main():
     main_app = Tk()
     Button(main_app, text="Process", command=run_process).grid(row=current_row, column=0)
     Button(main_app, text="Paint", command=run_paint).grid(row=current_row, column=1)
+    current_row += 1
+
+    Button(main_app, text="Re-Select Files", command=select_files).grid(row=current_row, column=0)
+    current_row += 1
 
     main_app.protocol("WM_DELETE_WINDOW", on_closing)
     main_app.mainloop()
