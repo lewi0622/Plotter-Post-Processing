@@ -4,261 +4,258 @@ from tkinter import ttk
 from utils import *
 
 
-def on_closing(): #clean up any temp files hanging around
-    delete_temp_file(occult_temp_file)
-    delete_temp_file(show_temp_file)
-    window.destroy()
-
-def add_unique_ids():
-    """For each file selected, add unique ids so occult maintains draw order and color info"""
-    path_id = 0
-    for input_file in input_files:
-        with open(input_file, "r+") as svg_file:
-            tree = ET.parse(svg_file)
-            for child in tree.iter():
-                if "path" in child.tag:
-                    child.set("id", str(path_id))
-                    path_id += 1
-            tree.write(input_file)
-            
-
-def run_vpypeline():
-    """calls vpype cli to process """
-
-    window.quit()
-    command = build_vpypeline(show=False)
-
-    if len(input_files) == 1 and last_shown_command == build_vpypeline(show=True):
-        rename_replace(show_temp_file, output_filename + ".svg")
-        print("Same command as shown file, not re-running Vpype pipeline")
-    else:
-        print("Running: \n", command)
-        subprocess.run(command, capture_output=True, shell=True)
-
-    delete_temp_file(occult_temp_file)
-    delete_temp_file(show_temp_file)
-
-
-def show_vpypeline():
-    """Runs given commands on first file, but only shows the output. Cleans up any Occult generated temp files."""
-    global last_shown_command
-
-    command = build_vpypeline(show=True)
-    last_shown_command = command
-    print("Showing: \n", command)
-    subprocess.run(command, capture_output=True, shell=True)
-    delete_temp_file(occult_temp_file)
-
-
-def build_vpypeline(show):
-    """Builds vpype command based on GUI selections"""
-    global show_temp_file
-    global occult_temp_file
-    global output_filename
-
-    #build output files list
-    input_file_list = list(input_files)
-    output_file_list = []
-    for filename in input_file_list:
-        file_parts = os.path.splitext(filename)
-        show_temp_file = file_parts[0] + "_show_temp_file.svg"
-        occult_temp_file = file_parts[0] + "_occult_temp_file.svg"
-        output_filename = file_parts[0] + "_PROCESSED" #file extension is appended after output filename can change for separating layers into separate files.
-        output_file_list.append(output_filename)
-
-    if occult_keep_lines.get():
-        color_list = []
-        for filename in input_file_list:
-            color_list.append(generate_random_color(filename))
-
-    args = r"vpype "
-
-    # determine if grid is necessary
-    cols = grid_col_entry.get()
-    rows = grid_row_entry.get()
-    width = grid_col_width_entry.get()
-    height = grid_row_height_entry.get()
-
-    cols = int(cols)
-    rows = int(rows)
-    col_size = float(width)
-    row_size = float(height)
-
-    slots = cols * rows
-    grid = slots > 1
-
-    # Declare globals before the block operator (grid or repeat)
-    if grid:
-        while len(input_file_list) < slots: #crude way to make sure there's enough files per grid slot
-            input_file_list = input_file_list + input_file_list
-            output_file_list = output_file_list + output_file_list
-            if occult_keep_lines.get():
-                color_list = color_list + color_list
-        args += r' eval "%grid_layer_count=1%" '
-
-    args += r' eval "files_in=' + f"{input_file_list}" + '"'
-    args += r' eval "files_out=' + f"{output_file_list}" + '"'
-    args += r' eval "file_ext=' + r"'.svg'" + '"'
-    if occult_keep_lines.get():
-        args += r' eval "random_colors=' + f"{color_list}" + '"'
-
-    #block operator grid or repeat
-    if grid:
-        args += f" grid -o {col_size}in {row_size}in {cols} {rows} "
-    else: #repeat for both single and batch operations
-        if show:
-            repeat_num = 1
-        else:
-            repeat_num = len(input_file_list)
-        args += f" repeat {repeat_num} "
-
-    if occult.get():
-        #Edit file to place a unique id for each path so that the draw order is maintained when performing occult
-        add_unique_ids()
-        args += r" read -a id --no-crop %files_in[_i]% "
-
-        if occult_keep_lines.get():
-            #random color is applied to the added -k kept lines layer if it exists
-            args += r' eval "%last_color=random_colors[_i]%" '
-            args += r' forlayer eval "%num_layers=_n%" end '
-
-        #occult function uses most recently drawn closed shapes to erase lines that are below the shape
-        # the flag -i ignores layers and occults everything
-        args += r" occult "
-        if occult_ignore.get():
-            args += r" -i "
-        elif occult_accross.get():
-            args += r" -a "
-        if occult_keep_lines.get():
-            args += r" -k "
-
-            #check if -k kept lines, and overwrite color of kept lines with random color
-            args += r' forlayer eval "%new_num_layers=_n%" '
-            args += r' eval "%if(new_num_layers<=num_layers):last_color=_color%" end '
-            args += r" color -l %new_num_layers% %last_color% "
-
-        #write to temp file
-        args += f' write "{occult_temp_file}" '
-
-        #delete all layers to avoid extra data hanging around
-        args += r" ldelete all "
-    args += r" read -a stroke "
-
-    if not crop_input.get():
-        args += r" --no-crop "
-
-    if occult.get():
-        args += f' "{occult_temp_file}" '
-    else:
-        args += r" %files_in[_i]% "
-
-    if scale_option.get():
-        args += f" scaleto {scale_width_entry.get()}in {scale_height_entry.get()}in "
-
-    if center_geometries.get():
-        args += f" layout {svg_width_inches}x{svg_height_inches}in "
-
-    crop_x_end = float(crop_x_end_entry.get())
-    crop_y_end = float(crop_y_end_entry.get())
-    if crop_x_end > 0 or crop_y_end > 0:
-        args += f" crop 0 0 {crop_x_end_entry.get()}in {crop_y_end_entry.get()}in "
-
-    if rotate_entry.get() != 0:
-        args += f" rotate {rotate_entry.get()} "
-
-    if linemerge.get():
-        args += f" linemerge "
-        if linemerge_tolerance_entry.get() != "0.0019685":
-            args += f" -t {linemerge_tolerance_entry.get()} "
-
-    if linesort.get():
-        args += r" linesort "
-
-    if reloop.get():
-        args += r" reloop "  
-
-    if linesimplify.get():
-        args += f" linesimplify "
-        if linesimplify_tolerance_entry.get() != "0.0019685":
-            args += f" -t {linesimplify_tolerance_entry.get()} "
-
-    if squiggle.get():
-        args += f" squiggles "
-        if squiggle_amplitude_entry.get() != "0.019685":
-            args += f" -a {squiggle_amplitude_entry.get()} "
-        if squiggle_period_entry.get() != "0.11811":
-            args += f" -p {squiggle_period_entry.get()} "
-
-    if multipass.get():
-        args += f" multipass "
-
-    if grid: 
-        args += r' forlayer '
-        args += r' lmove %_lid% %grid_layer_count% ' #moves each layer onto it's own unique layer so there's no merging
-        args += r' eval "%grid_layer_count=grid_layer_count+1%" end end' #inc the global layer counter
-    
-    #layout as letter centers graphics within given page size
-    if layout.get():
-        args += r" layout "
-        if layout_landscape.get():
-            args += r" -l "
-        args += f" {layout_width_entry.get()}x{layout_height_entry.get()}in "
-
-        if crop_to_page_size.get():
-            if layout_landscape.get():
-                args += f" crop 0 0 {layout_height_entry.get()}in {layout_width_entry.get()}in "
-            else:
-                args += f" crop 0 0 {layout_width_entry.get()}in {layout_height_entry.get()}in "
-    if show:
-        if not grid:
-            args += r" end "
-        args += f' write "{show_temp_file}" show '
-
-        return args
-    else:
-        if separate_files.get():
-            args += r' eval "k=_i" '
-            args += r" forlayer write " 
-            args += r' %files_out[k]+str(_i)+file_ext% '
-            args += r" end end"
-
-            return args
-        else:
-            if grid:
-                args += r' write %files_out[0]+file_ext% '
-            else:
-                args += r' write %files_out[_i]+file_ext% end'
-
-            return args
-
-
-def layout_selection_changed(event):
-    """Event from changing the layout dropdown box, sets the width and height accordingly"""
-    selection = layout_combobox.get()
-    layout_width_entry.delete(0,END)
-    layout_height_entry.delete(0,END)
-    if selection == "Letter":
-        layout_width_entry.insert(0,"8.5")
-        layout_height_entry.insert(0,"11")
-        layout.set(1)
-    elif selection == "A4":
-        layout_width_entry.insert(0,"8.3")
-        layout_height_entry.insert(0,"11.7")
-    elif selection == "A3":
-        layout_width_entry.insert(0,"11.7")
-        layout_height_entry.insert(0,"16.5")
-    elif selection == "A2":
-        layout_width_entry.insert(0,"16.5")
-        layout_height_entry.insert(0,"23.4")
-        layout.set(0)
-
-
 def main():
-    global occult_temp_file, show_temp_file, last_shown_command, output_filename, input_files, layout, layout_combobox, layout_height_entry, layout_width_entry, separate_files
-    global layout_landscape, crop_input, crop_to_page_size, linemerge, linesimplify, squiggle, rotate_entry, multipass, squiggle_amplitude_entry, squiggle_period_entry
-    global linesort, occult, occult_accross, occult_ignore, occult_keep_lines,scale_option, linesimplify_tolerance_entry, reloop, svg_height_inches, svg_width_inches
-    global center_geometries, scale_height_entry, scale_width_entry, window, linemerge_tolerance_entry, crop_x_end_entry, crop_y_end_entry, grid_col_entry, grid_row_entry
-    global grid_col_width_entry, grid_row_height_entry
+
+
+    def on_closing(): #clean up any temp files hanging around
+        delete_temp_file(occult_temp_file)
+        delete_temp_file(show_temp_file)
+        window.destroy()
+
+
+    def add_unique_ids():
+        """For each file selected, add unique ids so occult maintains draw order and color info"""
+        path_id = 0
+        for input_file in input_files:
+            with open(input_file, "r+") as svg_file:
+                tree = ET.parse(svg_file)
+                for child in tree.iter():
+                    if "path" in child.tag:
+                        child.set("id", str(path_id))
+                        path_id += 1
+                tree.write(input_file)
+                
+
+    def run_vpypeline():
+        """calls vpype cli to process """
+
+        window.quit()
+        command = build_vpypeline(show=False)
+
+        if len(input_files) == 1 and last_shown_command == build_vpypeline(show=True):
+            rename_replace(show_temp_file, output_filename + ".svg")
+            print("Same command as shown file, not re-running Vpype pipeline")
+        else:
+            print("Running: \n", command)
+            subprocess.run(command, capture_output=True, shell=True)
+
+        delete_temp_file(occult_temp_file)
+        delete_temp_file(show_temp_file)
+
+
+    def show_vpypeline():
+        """Runs given commands on first file, but only shows the output. Cleans up any Occult generated temp files."""
+        global last_shown_command
+
+        command = build_vpypeline(show=True)
+        last_shown_command = command
+        print("Showing: \n", command)
+        subprocess.run(command, capture_output=True, shell=True)
+        delete_temp_file(occult_temp_file)
+
+
+    def build_vpypeline(show):
+        """Builds vpype command based on GUI selections"""
+        global show_temp_file
+        global occult_temp_file
+        global output_filename
+
+        #build output files list
+        input_file_list = list(input_files)
+        output_file_list = []
+        for filename in input_file_list:
+            file_parts = os.path.splitext(filename)
+            show_temp_file = file_parts[0] + "_show_temp_file.svg"
+            occult_temp_file = file_parts[0] + "_occult_temp_file.svg"
+            output_filename = file_parts[0] + "_PROCESSED" #file extension is appended after output filename can change for separating layers into separate files.
+            output_file_list.append(output_filename)
+
+        if occult_keep_lines.get():
+            color_list = []
+            for filename in input_file_list:
+                color_list.append(generate_random_color(filename))
+
+        args = r"vpype "
+
+        # determine if grid is necessary
+        cols = grid_col_entry.get()
+        rows = grid_row_entry.get()
+        width = grid_col_width_entry.get()
+        height = grid_row_height_entry.get()
+
+        cols = int(cols)
+        rows = int(rows)
+        col_size = float(width)
+        row_size = float(height)
+
+        slots = cols * rows
+        grid = slots > 1
+
+        # Declare globals before the block operator (grid or repeat)
+        if grid:
+            while len(input_file_list) < slots: #crude way to make sure there's enough files per grid slot
+                input_file_list = input_file_list + input_file_list
+                output_file_list = output_file_list + output_file_list
+                if occult_keep_lines.get():
+                    color_list = color_list + color_list
+            args += r' eval "%grid_layer_count=1%" '
+
+        args += r' eval "files_in=' + f"{input_file_list}" + '"'
+        args += r' eval "files_out=' + f"{output_file_list}" + '"'
+        args += r' eval "file_ext=' + r"'.svg'" + '"'
+        if occult_keep_lines.get():
+            args += r' eval "random_colors=' + f"{color_list}" + '"'
+
+        #block operator grid or repeat
+        if grid:
+            args += f" grid -o {col_size}in {row_size}in {cols} {rows} "
+        else: #repeat for both single and batch operations
+            if show:
+                repeat_num = 1
+            else:
+                repeat_num = len(input_file_list)
+            args += f" repeat {repeat_num} "
+
+        if occult.get():
+            #Edit file to place a unique id for each path so that the draw order is maintained when performing occult
+            add_unique_ids()
+            args += r" read -a id --no-crop %files_in[_i]% "
+
+            if occult_keep_lines.get():
+                #random color is applied to the added -k kept lines layer if it exists
+                args += r' eval "%last_color=random_colors[_i]%" '
+                args += r' forlayer eval "%num_layers=_n%" end '
+
+            #occult function uses most recently drawn closed shapes to erase lines that are below the shape
+            # the flag -i ignores layers and occults everything
+            args += r" occult "
+            if occult_ignore.get():
+                args += r" -i "
+            elif occult_accross.get():
+                args += r" -a "
+            if occult_keep_lines.get():
+                args += r" -k "
+
+                #check if -k kept lines, and overwrite color of kept lines with random color
+                args += r' forlayer eval "%new_num_layers=_n%" '
+                args += r' eval "%if(new_num_layers<=num_layers):last_color=_color%" end '
+                args += r" color -l %new_num_layers% %last_color% "
+
+            #write to temp file
+            args += f' write "{occult_temp_file}" '
+
+            #delete all layers to avoid extra data hanging around
+            args += r" ldelete all "
+        args += r" read -a stroke "
+
+        if not crop_input.get():
+            args += r" --no-crop "
+
+        if occult.get():
+            args += f' "{occult_temp_file}" '
+        else:
+            args += r" %files_in[_i]% "
+
+        if scale_option.get():
+            args += f" scaleto {scale_width_entry.get()}in {scale_height_entry.get()}in "
+
+        if center_geometries.get():
+            args += f" layout {svg_width_inches}x{svg_height_inches}in "
+
+        crop_x_end = float(crop_x_end_entry.get())
+        crop_y_end = float(crop_y_end_entry.get())
+        if crop_x_end > 0 or crop_y_end > 0:
+            args += f" crop 0 0 {crop_x_end_entry.get()}in {crop_y_end_entry.get()}in "
+
+        if rotate_entry.get() != 0:
+            args += f" rotate {rotate_entry.get()} "
+
+        if linemerge.get():
+            args += f" linemerge "
+            if linemerge_tolerance_entry.get() != "0.0019685":
+                args += f" -t {linemerge_tolerance_entry.get()} "
+
+        if linesort.get():
+            args += r" linesort "
+
+        if reloop.get():
+            args += r" reloop "  
+
+        if linesimplify.get():
+            args += f" linesimplify "
+            if linesimplify_tolerance_entry.get() != "0.0019685":
+                args += f" -t {linesimplify_tolerance_entry.get()} "
+
+        if squiggle.get():
+            args += f" squiggles "
+            if squiggle_amplitude_entry.get() != "0.019685":
+                args += f" -a {squiggle_amplitude_entry.get()} "
+            if squiggle_period_entry.get() != "0.11811":
+                args += f" -p {squiggle_period_entry.get()} "
+
+        if multipass.get():
+            args += f" multipass "
+
+        if grid: 
+            args += r' forlayer '
+            args += r' lmove %_lid% %grid_layer_count% ' #moves each layer onto it's own unique layer so there's no merging
+            args += r' eval "%grid_layer_count=grid_layer_count+1%" end end' #inc the global layer counter
+        
+        #layout as letter centers graphics within given page size
+        if layout.get():
+            args += r" layout "
+            if layout_landscape.get():
+                args += r" -l "
+            args += f" {layout_width_entry.get()}x{layout_height_entry.get()}in "
+
+            if crop_to_page_size.get():
+                if layout_landscape.get():
+                    args += f" crop 0 0 {layout_height_entry.get()}in {layout_width_entry.get()}in "
+                else:
+                    args += f" crop 0 0 {layout_width_entry.get()}in {layout_height_entry.get()}in "
+        if show:
+            if not grid:
+                args += r" end "
+            args += f' write "{show_temp_file}" show '
+
+            return args
+        else:
+            if separate_files.get():
+                args += r' eval "k=_i" '
+                args += r" forlayer write " 
+                args += r' %files_out[k]+str(_i)+file_ext% '
+                args += r" end end"
+
+                return args
+            else:
+                if grid:
+                    args += r' write %files_out[0]+file_ext% '
+                else:
+                    args += r' write %files_out[_i]+file_ext% end'
+
+                return args
+
+
+    def layout_selection_changed(event):
+        """Event from changing the layout dropdown box, sets the width and height accordingly"""
+        selection = layout_combobox.get()
+        layout_width_entry.delete(0,END)
+        layout_height_entry.delete(0,END)
+        if selection == "Letter":
+            layout_width_entry.insert(0,"8.5")
+            layout_height_entry.insert(0,"11")
+            layout.set(1)
+        elif selection == "A4":
+            layout_width_entry.insert(0,"8.3")
+            layout_height_entry.insert(0,"11.7")
+        elif selection == "A3":
+            layout_width_entry.insert(0,"11.7")
+            layout_height_entry.insert(0,"16.5")
+        elif selection == "A2":
+            layout_width_entry.insert(0,"16.5")
+            layout_height_entry.insert(0,"23.4")
+            layout.set(0)
+
     occult_temp_file = ""
     show_temp_file = ""
     last_shown_command = ""

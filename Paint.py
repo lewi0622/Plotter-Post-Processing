@@ -4,69 +4,71 @@ from tkinter import ttk
 from utils import *
 
 
-def on_closing(): #clean up any temp files hanging around
-    delete_temp_file(show_temp_file)
-    window.destroy()
+def main():
+    def on_closing(): #clean up any temp files hanging around
+        delete_temp_file(show_temp_file)
+        window.destroy()
 
 
-def run_vpypeline():
-    window.quit()
-    command = build_vpypeline(False)
+    def run_vpypeline():
+        window.quit()
+        command = build_vpypeline(False)
 
-    if len(input_files) == 1 and last_shown_command == build_vpypeline(True):
-        rename_replace(show_temp_file, output_filename)
-        print("Same command as shown file, not re-running Vpype pipeline")
-    else:
-        print("Running: \n", command)
-        subprocess.run(command, capture_output=True, shell=True)
+        if len(input_files) == 1 and last_shown_command == build_vpypeline(True):
+            rename_replace(show_temp_file, output_filename)
+            print("Same command as shown file, not re-running Vpype pipeline")
+        else:
+            print("Running: \n", command)
+            subprocess.run(command, capture_output=True, shell=True)
 
-    delete_temp_file(show_temp_file)
-
-def show_vpypeline():
-    """Runs given commands on first file, but only shows the output."""
-    global last_shown_command
-    command = build_vpypeline(True)
-    last_shown_command = command
-    print("Showing: \n", command)
-    subprocess.run(command)
+        delete_temp_file(show_temp_file)
 
 
-def build_vpypeline(show):
-    global show_temp_file
-    global output_filename
+    def show_vpypeline():
+        """Runs given commands on first file, but only shows the output."""
+        global last_shown_command
+        command = build_vpypeline(True)
+        last_shown_command = command
+        print("Showing: \n", command)
+        subprocess.run(command)
 
-    #build output files list
-    input_file_list = list(input_files)
-    output_file_list = []
-    for filename in input_file_list:
-        file_parts = os.path.splitext(filename)
-        show_temp_file = file_parts[0] + "_show_temp_file.svg"
-        output_filename = file_parts[0] + "_PAINT.svg"
-        output_file_list.append(output_filename)
-    
-    dip_detail_list = []
-    for i in range(max_num_colors):
-        file_name = os.path.join(directory_name, "Dip_Locations", dip_details[i]['layer'].get())
-        dip_detail_list.append([
-            file_name,
-            dip_details[i]["x"].get(), 
-            dip_details[i]["y"].get()
-            ])
-    if split_all.get():
-        splitall = "splitall"
-        linemerge = "linemerge"
-    else:
-        splitall = ""
-        linemerge = ""
 
-    if show:
-        repeat_num = 1
-        show_or_write = f' end write "{show_temp_file}" show '
-    else:
-        repeat_num = len(input_file_list)
-        show_or_write = r"write %files_out[_i]% end"
+    def build_vpypeline(show):
+        global show_temp_file
+        global output_filename
 
-    return f"""vpype \
+        #build output files list
+        input_file_list = list(input_files)
+        output_file_list = []
+        for filename in input_file_list:
+            file_parts = os.path.splitext(filename)
+            show_temp_file = file_parts[0] + "_show_temp_file.svg"
+            output_filename = file_parts[0] + "_PAINT.svg"
+            output_file_list.append(output_filename)
+        
+        dip_detail_list = []
+        for i in range(max_num_colors):
+            file_name = os.path.join(directory_name, "Dip_Locations", dip_details[i]['layer'].get())
+            dip_detail_list.append([
+                file_name,
+                dip_details[i]["x"].get(), 
+                dip_details[i]["y"].get()
+                ])
+        if split_all.get():
+            splitall = "splitall"
+            linemerge = "linemerge"
+        else:
+            splitall = ""
+            linemerge = ""
+
+        if show:
+            repeat_num = 1
+            show_or_write = f' end write "{show_temp_file}" show '
+        else:
+            repeat_num = len(input_file_list)
+            show_or_write = r"write %files_out[_i]% end"
+
+        return f"""vpype \
 eval "files_in={input_file_list}" \
 eval "files_out={output_file_list}" \
 eval "dip_details={dip_detail_list}" \
@@ -86,9 +88,7 @@ lmove all %_lid% \
 end \
 {show_or_write}"""
 
-
-def main():
-    global show_temp_file, last_shown_command, output_filename, window, input_files, dip_details, split_dist_entry, split_all, max_num_colors, directory_name
+    # global show_temp_file, last_shown_command, output_filename, window, input_files, dip_details, split_dist_entry, split_all, max_num_colors, directory_name
     directory_name = get_directory_name("Paint.py")
     dip_options = os.listdir(os.path.join(directory_name, "Dip_Locations"))
 
