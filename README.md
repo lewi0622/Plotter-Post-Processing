@@ -1,5 +1,5 @@
 # Plotter-Post-Processing
-My personal approach to post processing my plotter files.
+My personal approach to post processing my svg plotter files.
 
 ## Issues
 If you have an issue or feature request, feel free to submit it. I will choose to fulfill feature requests if they are useful to me. Pull requests are always welcome.
