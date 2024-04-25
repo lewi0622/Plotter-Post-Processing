@@ -154,6 +154,7 @@ end \
 
         Label(window, text="Dip Layer").grid(row=current_row, column=0)
         dip_layer_combobox = ttk.Combobox(
+            window,
             width=15,
             state="readonly",
             values=dip_options

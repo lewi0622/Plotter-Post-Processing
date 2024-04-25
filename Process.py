@@ -463,7 +463,7 @@ def main():
     ttk.Separator(window, orient='horizontal').grid(sticky="we", row=current_row, column=0, columnspan=4)
     current_row += 1
 
-    layout_label = Label(text="Layout centers scaled\ndesign in page size)", fg="blue", cursor="hand2")
+    layout_label = Label(window, text="Layout centers scaled\ndesign in page size)", fg="blue", cursor="hand2")
     layout_label.bind("<Button-1>", lambda e: open_url_in_browser("https://vpype.readthedocs.io/en/latest/reference.html#layout"))
     layout_label.grid(row=current_row, column=0)
     layout = IntVar(value=1)
@@ -477,6 +477,7 @@ def main():
 
     Label(window, text="Page Size").grid(row=current_row, column=0)
     layout_combobox = ttk.Combobox(
+        window,
         width=7,
         state="readonly",
         values=["Letter", "A4", "A3", "A2"]
