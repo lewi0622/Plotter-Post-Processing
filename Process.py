@@ -2,6 +2,7 @@ import subprocess, os
 from tkinter import *
 from tkinter import ttk
 from utils import *
+import sv_ttk
 
 
 def main(input_files=()):
@@ -276,44 +277,45 @@ def main(input_files=()):
 
     global window
     window = Tk()
-    title = Label(window, text="Vpype Options", fg="blue", cursor="hand2")
+
+    title = ttk.Label(window, text="Vpype Options", foreground="#14AEEA", cursor="hand2")
     title.bind("<Button-1>", lambda e: open_url_in_browser("https://vpype.readthedocs.io/en/latest/index.html"))
-    title.grid(row=current_row,column=0, columnspan=4)
+    title.grid(pady=(10,0), row=current_row,column=0, columnspan=4)
     current_row += 1
 
-    Label(window, text=f"{len(input_files)} file(s) selected,\nInput file Width(in): {svg_width_inches}, Height(in): {svg_height_inches}").grid(row=current_row, column=0, columnspan=2)
-    crop_input_label = Label(window, text="Crop to input\ndimensions on read", fg="blue", cursor="hand2")
+    ttk.Label(window, justify=CENTER, text=f"{len(input_files)} file(s) selected,\nInput file Width(in): {svg_width_inches}, Height(in): {svg_height_inches}").grid(row=current_row, column=0, columnspan=2)
+    crop_input_label = ttk.Label(window, justify=CENTER, text="Crop to input\ndimensions on read", foreground="#14AEEA", cursor="hand2")
     crop_input_label.bind("<Button-1>", lambda e: open_url_in_browser("https://vpype.readthedocs.io/en/latest/reference.html#cmdoption-read-c"))
     crop_input_label.grid(row=current_row,column=2)
     crop_input = IntVar(window, value=0)
-    Checkbutton(window, text="Crop input", variable=crop_input).grid(sticky="w", row=current_row,column=3)
+    ttk.Checkbutton(window, text="Crop input", variable=crop_input).grid(sticky="w", row=current_row,column=3)
     current_row +=1 
 
-    ttk.Separator(window, orient='horizontal').grid(sticky="we", row=current_row, column=0, columnspan=4)
+    ttk.Separator(window, orient='horizontal').grid(sticky="we", row=current_row, column=0, columnspan=4, pady=10)
     current_row += 1
 
-    occult_label = Label(window, text="Remove occluded geometries", fg="blue", cursor="hand2")
+    occult_label = ttk.Label(window, justify=CENTER, text="Remove occluded geometries", foreground="#14AEEA", cursor="hand2")
     occult_label.bind("<Button-1>", lambda e: open_url_in_browser("https://github.com/LoicGoulefert/occult"))
     occult_label.grid(row=current_row, column=0)
     occult = IntVar(window, value=0)
-    Checkbutton(window, text="Occult", variable=occult).grid(sticky="w", row=current_row, column=1)
+    ttk.Checkbutton(window, text="Occult", variable=occult).grid(sticky="w", row=current_row, column=1)
     occult_keep_lines = IntVar(window, value=0)
-    Checkbutton(window, text="Keep occulted lines", variable=occult_keep_lines).grid(sticky="w", row=current_row, column=2)
+    ttk.Checkbutton(window, text="Keep occulted lines", variable=occult_keep_lines).grid(sticky="w", row=current_row, column=2)
     current_row += 1 
 
     occult_ignore = IntVar(window, value=1)
-    Checkbutton(window, text="Ignores Layers", variable=occult_ignore).grid(sticky="w", row=current_row, column=1)
+    ttk.Checkbutton(window, text="Ignores Layers", variable=occult_ignore).grid(sticky="w", row=current_row, column=1)
     occult_accross = IntVar(window, value=0)
-    Checkbutton(window, text="Occult accross layers,\nnot within", variable=occult_accross).grid(sticky="w", row=current_row, column=2)
+    ttk.Checkbutton(window, text="Occult accross layers,\nnot within", variable=occult_accross).grid(sticky="w", row=current_row, column=2)
     current_row +=1 
 
-    ttk.Separator(window, orient='horizontal').grid(sticky="we", row=current_row, column=0, columnspan=4)
+    ttk.Separator(window, orient='horizontal').grid(sticky="we", row=current_row, column=0, columnspan=4, pady=10)
     current_row += 1
 
-    grid_label = Label(window, text="Merge Multiple SVGs into Grid", fg="blue", cursor="hand2")
+    grid_label = ttk.Label(window, justify=CENTER, text="Merge Multiple SVGs into Grid", foreground="#14AEEA", cursor="hand2")
     grid_label.bind("<Button-1>", lambda e: open_url_in_browser("https://vpype.readthedocs.io/en/latest/cookbook.html#faq-merge-to-grid"))
     grid_label.grid(row=current_row, column=0, columnspan=4)
-    # Label(window, text="Color Options:").grid(row=current_row, column=1)
+    # ttk.Label(window, justify=CENTER, text="Color Options:").grid(row=current_row, column=1)
     # grid_color_options_combobox = ttk.Combobox(
     #     width=20,
     #     state="readonly",
@@ -323,21 +325,21 @@ def main(input_files=()):
     # grid_color_options_combobox.grid(sticky="w", row=current_row, column=2, columnspan=2)
     current_row += 1
 
-    Label(window, text="Grid Col Width(in):").grid(row=current_row, column=0)
-    grid_col_width_entry = Entry(window, width=7)
+    ttk.Label(window, justify=CENTER, text="Grid Col Width(in):").grid(row=current_row, column=0)
+    grid_col_width_entry = ttk.Entry(window, width=7)
     grid_col_width_entry.grid(sticky="w", row=current_row, column=1)
 
-    Label(window, text="Grid Row Height(in):").grid(row=current_row, column=2)
-    grid_row_height_entry = Entry(window, width=7)
+    ttk.Label(window, justify=CENTER, text="Grid Row Height(in):").grid(row=current_row, column=2)
+    grid_row_height_entry = ttk.Entry(window, width=7)
     grid_row_height_entry.grid(sticky="w", row=current_row, column=3)
     current_row += 1 
 
-    Label(window, text="Grid Columns:").grid(row=current_row, column=0)
-    grid_col_entry = Entry(window, width=7)
+    ttk.Label(window, justify=CENTER, text="Grid Columns:").grid(row=current_row, column=0)
+    grid_col_entry = ttk.Entry(window, width=7)
     grid_col_entry.grid(sticky="w", row=current_row, column=1)
 
-    Label(window, text="Grid Rows:").grid(row=current_row, column=2)
-    grid_row_entry = Entry(window, width=7)
+    ttk.Label(window, justify=CENTER, text="Grid Rows:").grid(row=current_row, column=2)
+    grid_row_entry = ttk.Entry(window, width=7)
     grid_row_entry.grid(sticky="w", row=current_row, column=3)
     current_row += 1 
 
@@ -347,142 +349,142 @@ def main(input_files=()):
     grid_col_entry.insert(0, "1")
     grid_row_entry.insert(0, "1")
 
-    ttk.Separator(window, orient='horizontal').grid(sticky="we", row=current_row, column=0, columnspan=4)
+    ttk.Separator(window, orient='horizontal').grid(sticky="we", row=current_row, column=0, columnspan=4, pady=10)
     current_row += 1
 
-    scale_label = Label(window, text="Scale options\n(default: input file size)", fg="blue", cursor="hand2")
+    scale_label = ttk.Label(window, justify=CENTER, text="Scale options\n(default: input file size)", foreground="#14AEEA", cursor="hand2")
     scale_label.bind("<Button-1>", lambda e: open_url_in_browser("https://vpype.readthedocs.io/en/latest/reference.html#scaleto"))
     scale_label.grid(row=current_row, column=0)
     scale_option = IntVar(window, value=1)
-    Checkbutton(window, text="Scale?", variable=scale_option).grid(sticky="w", row=current_row,column=1)
+    ttk.Checkbutton(window, text="Scale?", variable=scale_option).grid(sticky="w", row=current_row,column=1)
 
-    Label(window, text="Width Scale to (in):").grid(row=current_row, column=2)
-    scale_width_entry = Entry(window, width=7)
+    ttk.Label(window, justify=CENTER, text="Width Scale to (in):").grid(row=current_row, column=2)
+    scale_width_entry = ttk.Entry(window, width=7)
     scale_width_entry.insert(0,f"{svg_width_inches}")
     scale_width_entry.grid(sticky="w", row=current_row, column=3)
     current_row +=1 
 
-    Label(window, text="Height Scale to (in):").grid(row=current_row, column=2)
-    scale_height_entry = Entry(window, width=7)
+    ttk.Label(window, justify=CENTER, text="Height Scale to (in):").grid(row=current_row, column=2)
+    scale_height_entry = ttk.Entry(window, width=7)
     scale_height_entry.insert(0,f"{svg_height_inches}")
     scale_height_entry.grid(sticky="w", row=current_row, column=3)
     current_row +=1 
 
-    ttk.Separator(window, orient='horizontal').grid(sticky="we", row=current_row, column=0, columnspan=4)
+    ttk.Separator(window, orient='horizontal').grid(sticky="we", row=current_row, column=0, columnspan=4, pady=10)
     current_row += 1
 
     center_geometries = IntVar(window, value=1)
-    Checkbutton(window, text="Center Geometries to Input File Size", variable=center_geometries).grid(row=current_row, column=0, columnspan=2)
+    ttk.Checkbutton(window, text="Center Geometries to Input File Size", variable=center_geometries).grid(row=current_row, column=0, columnspan=2)
 
-    crop_label = Label(window, text="Crop X (in):", fg="blue", cursor="hand2")
+    crop_label = ttk.Label(window, justify=CENTER, text="Crop X (in):", foreground="#14AEEA", cursor="hand2")
     crop_label.bind("<Button-1>", lambda e: open_url_in_browser("https://vpype.readthedocs.io/en/stable/reference.html#crop"))
     crop_label.grid(row=current_row, column=2)
-    crop_x_end_entry = Entry(window, width=7)
+    crop_x_end_entry = ttk.Entry(window, width=7)
     crop_x_end_entry.insert(0, str(0))
     crop_x_end_entry.grid(sticky="w", row=current_row, column=3)
     current_row += 1
 
-    rotate_label = Label(window, text="Rotate Clockwise (deg):", fg="blue", cursor="hand2")
+    rotate_label = ttk.Label(window, justify=CENTER, text="Rotate Clockwise (deg):", foreground="#14AEEA", cursor="hand2")
     rotate_label.bind("<Button-1>", lambda e: open_url_in_browser("https://vpype.readthedocs.io/en/latest/reference.html#rotate"))
     rotate_label.grid(row=current_row, column=0)
-    rotate_entry = Entry(window, width=7)
+    rotate_entry = ttk.Entry(window, width=7)
     if float(svg_width_inches) < float(svg_height_inches) and float(svg_width_inches)<12:
         rotate_entry.insert(0, "90") #autorotate for small axidraw designs where the width is the long side
     else:
         rotate_entry.insert(0, "0") 
     rotate_entry.grid(sticky="w", row=current_row, column=1)
 
-    Label(window, text="Crop Y (in):").grid(row=current_row, column=2)
-    crop_y_end_entry = Entry(window, width=7)
+    ttk.Label(window, justify=CENTER, text="Crop Y (in):").grid(row=current_row, column=2)
+    crop_y_end_entry = ttk.Entry(window, width=7)
     crop_y_end_entry.insert(0, str(0))
     crop_y_end_entry.grid(sticky="w", row=current_row, column=3)
     current_row +=1 
 
-    ttk.Separator(window, orient='horizontal').grid(sticky="we", row=current_row, column=0, columnspan=4)
+    ttk.Separator(window, orient='horizontal').grid(sticky="we", row=current_row, column=0, columnspan=4, pady=10)
     current_row += 1
 
-    linemerge_label = Label(window, text="Merge Lines with\noverlapping line endings", fg="blue", cursor="hand2")
+    linemerge_label = ttk.Label(window, justify=CENTER, text="Merge Lines with\noverlapping line endings", foreground="#14AEEA", cursor="hand2")
     linemerge_label.bind("<Button-1>", lambda e: open_url_in_browser("https://vpype.readthedocs.io/en/latest/reference.html#linemerge"))
     linemerge_label.grid(row=current_row, column=0)
     linemerge = IntVar(window, value=1)
-    Checkbutton(window, text="linemerge", variable=linemerge).grid(sticky="w", row=current_row, column=1)
-    linemerge_tolerance_label = Label(window, text="Linemerge tolerance (in):").grid(row=current_row, column=2)
-    linemerge_tolerance_entry = Entry(window, width=7)
+    ttk.Checkbutton(window, text="linemerge", variable=linemerge).grid(sticky="w", row=current_row, column=1)
+    ttk.Label(window, justify=CENTER, text="Linemerge tolerance (in):").grid(row=current_row, column=2)
+    linemerge_tolerance_entry = ttk.Entry(window, width=7)
     linemerge_tolerance_entry.insert(0, "0.0019")
     linemerge_tolerance_entry.grid(sticky="w", row=current_row, column=3)
     current_row +=1 
 
-    linesort_label = Label(window, text="Sort Lines", fg="blue", cursor="hand2")
+    linesort_label = ttk.Label(window, justify=CENTER, text="Sort Lines", foreground="#14AEEA", cursor="hand2")
     linesort_label.bind("<Button-1>", lambda e: open_url_in_browser("https://vpype.readthedocs.io/en/latest/reference.html#linesort"))
     linesort_label.grid(row=current_row, column=0)
     linesort = IntVar(window, value=1)
-    Checkbutton(window, text="linesort", variable=linesort).grid(sticky="w", row=current_row, column=1)
+    ttk.Checkbutton(window, text="linesort", variable=linesort).grid(sticky="w", row=current_row, column=1)
 
-    reloop_label = Label(window, text="Randomize seam location\non closed paths", fg="blue", cursor="hand2")
+    reloop_label = ttk.Label(window, justify=CENTER, text="Randomize seam location\non closed paths", foreground="#14AEEA", cursor="hand2")
     reloop_label.bind("<Button-1>", lambda e: open_url_in_browser("https://vpype.readthedocs.io/en/latest/reference.html#reloop"))
     reloop_label.grid(row=current_row, column=2)
     reloop = IntVar(window, value=1)
-    Checkbutton(window, text="reloop", variable=reloop).grid(sticky="w", row=current_row, column=3)
+    ttk.Checkbutton(window, text="reloop", variable=reloop).grid(sticky="w", row=current_row, column=3)
     current_row +=1 
 
-    linesimplify_label = Label(window, text="Reduce geometry complexity", fg="blue", cursor="hand2")
+    linesimplify_label = ttk.Label(window, justify=CENTER, text="Reduce geometry complexity", foreground="#14AEEA", cursor="hand2")
     linesimplify_label.bind("<Button-1>", lambda e: open_url_in_browser("https://vpype.readthedocs.io/en/latest/reference.html#linesimplify"))
     linesimplify_label.grid(row=current_row, column=0)
     linesimplify = IntVar(window, value=1)
-    Checkbutton(window, text="linesimplify", variable=linesimplify).grid(sticky="w", row=current_row, column=1)
-    Label(window, text="Linesimplify tolerance (in):").grid(row=current_row, column=2)
-    linesimplify_tolerance_entry = Entry(window, width=7)
+    ttk.Checkbutton(window, text="linesimplify", variable=linesimplify).grid(sticky="w", row=current_row, column=1)
+    ttk.Label(window, justify=CENTER, text="Linesimplify tolerance (in):").grid(row=current_row, column=2)
+    linesimplify_tolerance_entry = ttk.Entry(window, width=7)
     linesimplify_tolerance_entry.insert(0, "0.0019")
     linesimplify_tolerance_entry.grid(sticky="w", row=current_row, column=3)
     current_row +=1 
 
-    squiggle_label = Label(window, text="Add squiggle filter", fg="blue", cursor="hand2")
+    squiggle_label = ttk.Label(window, justify=CENTER, text="Add squiggle filter", foreground="#14AEEA", cursor="hand2")
     squiggle_label.bind("<Button-1>", lambda e: open_url_in_browser("https://vpype.readthedocs.io/en/latest/reference.html#squiggles"))
     squiggle_label.grid(row=current_row, column=0)
     squiggle = IntVar(window, value=0)
-    Checkbutton(window, text="squiggle", variable=squiggle).grid(sticky="w", row=current_row, column=1)
+    ttk.Checkbutton(window, text="squiggle", variable=squiggle).grid(sticky="w", row=current_row, column=1)
 
-    Label(window, text="Amplitude of squiggle (in):").grid(row=current_row, column=2)
-    squiggle_amplitude_entry = Entry(window, width=7)
+    ttk.Label(window, justify=CENTER, text="Amplitude of squiggle (in):").grid(row=current_row, column=2)
+    squiggle_amplitude_entry = ttk.Entry(window, width=7)
     squiggle_amplitude_entry.insert(0, "0.0196")
     squiggle_amplitude_entry.grid(sticky="w", row=current_row, column=3)
     current_row +=1 
 
-    Label(window, text="Period of squiggle (in):").grid(row=current_row, column=2)
-    squiggle_period_entry = Entry(window, width=7)
+    ttk.Label(window, justify=CENTER, text="Period of squiggle (in):").grid(row=current_row, column=2)
+    squiggle_period_entry = ttk.Entry(window, width=7)
     squiggle_period_entry.insert(0, "0.1181")
     squiggle_period_entry.grid(sticky="w", row=current_row, column=3)
     current_row +=1 
 
-    multipass_label = Label(window, text="Add multiple passes to all lines", fg="blue", cursor="hand2")
+    multipass_label = ttk.Label(window, justify=CENTER, text="Add multiple passes to all lines", foreground="#14AEEA", cursor="hand2")
     multipass_label.bind("<Button-1>", lambda e: open_url_in_browser("https://vpype.readthedocs.io/en/latest/reference.html#multipass"))
     multipass_label.grid(row=current_row, column=0)
     multipass = IntVar(window, value=0)
-    Checkbutton(window, text="multipass", variable=multipass).grid(sticky="w", row=current_row, column=1)
+    ttk.Checkbutton(window, text="multipass", variable=multipass).grid(sticky="w", row=current_row, column=1)
 
-    separate_files_label = Label(window, text="Separate SVG Layers\ninto individual files", fg="blue", cursor="hand2")
+    separate_files_label = ttk.Label(window, justify=CENTER, text="Separate SVG Layers\ninto individual files", foreground="#14AEEA", cursor="hand2")
     separate_files_label.bind("<Button-1>", lambda e: open_url_in_browser("https://vpype.readthedocs.io/en/latest/cookbook.html#saving-each-layer-as-a-separate-file"))
     separate_files_label.grid(row=current_row, column=2)
     separate_files = IntVar(window, value=0)
-    Checkbutton(window, text="Separate\nFiles", variable=separate_files).grid(sticky="w", row=current_row, column=3)
+    ttk.Checkbutton(window, text="Separate\nFiles", variable=separate_files).grid(sticky="w", row=current_row, column=3)
     current_row += 1
 
-    ttk.Separator(window, orient='horizontal').grid(sticky="we", row=current_row, column=0, columnspan=4)
+    ttk.Separator(window, orient='horizontal').grid(sticky="we", row=current_row, column=0, columnspan=4, pady=10)
     current_row += 1
 
-    layout_label = Label(window, text="Layout centers scaled\ndesign in page size)", fg="blue", cursor="hand2")
+    layout_label = ttk.Label(window, justify=CENTER, text="Layout centers scaled\ndesign in page size)", foreground="#14AEEA", cursor="hand2")
     layout_label.bind("<Button-1>", lambda e: open_url_in_browser("https://vpype.readthedocs.io/en/latest/reference.html#layout"))
     layout_label.grid(row=current_row, column=0)
     layout = IntVar(window, value=1)
-    Checkbutton(window, text="Layout?", variable=layout).grid(sticky="w", row=current_row, column=1)
+    ttk.Checkbutton(window, text="Layout?", variable=layout).grid(sticky="w", row=current_row, column=1)
 
-    Label(window, text="Page Layout Width(in):").grid(row=current_row, column=2)
-    layout_width_entry = Entry(window, width=7)
+    ttk.Label(window, justify=CENTER, text="Page Layout Width(in):").grid(row=current_row, column=2)
+    layout_width_entry = ttk.Entry(window, width=7)
     layout_width_entry.insert(0,f"8.5")
     layout_width_entry.grid(sticky="w", row=current_row, column=3)
     current_row +=1 
 
-    Label(window, text="Page Size").grid(row=current_row, column=0)
+    ttk.Label(window, justify=CENTER, text="Page Size").grid(row=current_row, column=0)
     layout_combobox = ttk.Combobox(
         window,
         width=7,
@@ -493,31 +495,33 @@ def main(input_files=()):
     layout_combobox.grid(sticky="w", row=current_row, column=1)
     layout_combobox.bind("<<ComboboxSelected>>", layout_selection_changed)
 
-    Label(window, text="Page Layout Height(in):").grid(row=current_row, column=2)
-    layout_height_entry = Entry(window, width=7)
+    ttk.Label(window, justify=CENTER, text="Page Layout Height(in):").grid(row=current_row, column=2)
+    layout_height_entry = ttk.Entry(window, width=7)
     layout_height_entry.insert(0,f"11")
     layout_height_entry.grid(sticky="w", row=current_row, column=3)
     current_row +=1
 
-    layout_landscape_label = Label(window, text="By default, the larger layout size is the height,\nLandscape flips the orientation")
+    layout_landscape_label = ttk.Label(window, justify=CENTER, text="By default, the larger layout size is the height,\nLandscape flips the orientation")
     layout_landscape_label.grid(row=current_row, column=0, columnspan=2)
     layout_landscape = IntVar(window, value=1)
-    Checkbutton(window, text="Landscape", variable=layout_landscape).grid(sticky="w", row=current_row, column=2)
+    ttk.Checkbutton(window, text="Landscape", variable=layout_landscape).grid(sticky="w", row=current_row, column=2)
 
     crop_to_page_size = IntVar(window, value=1)
-    Checkbutton(window, text="Crop to\nPage Size", variable=crop_to_page_size).grid(sticky="w", row=current_row, column=3)
+    ttk.Checkbutton(window, text="Crop to\nPage Size", variable=crop_to_page_size).grid(sticky="w", row=current_row, column=3)
     current_row +=1 
 
-    ttk.Separator(window, orient='horizontal').grid(sticky="we", row=current_row, column=0, columnspan=4)
+    ttk.Separator(window, orient='horizontal').grid(sticky="we", row=current_row, column=0, columnspan=4, pady=10)
     current_row += 1
 
-    Button(window, text="Show Output", command=show_vpypeline).grid(row=current_row, column=2)
+    ttk.Button(window, text="Show Output", command=show_vpypeline).grid(pady=(0,10), row=current_row, column=2)
     if len(input_files)>1:
-        Button(window, text="Apply to All", command=run_vpypeline).grid(row=current_row, column=3)
+        ttk.Button(window, text="Apply to All", command=run_vpypeline).grid(pady=(0,10), row=current_row, column=3)
     else:
-        Button(window, text="Confirm", command=run_vpypeline).grid(row=current_row, column=3)
+        ttk.Button(window, text="Confirm", command=run_vpypeline).grid(pady=(0,10), row=current_row, column=3)
 
     window.protocol("WM_DELETE_WINDOW", on_closing)
+
+    sv_ttk.set_theme("dark")
     window.mainloop()
 
     for index, filename in enumerate(return_val):

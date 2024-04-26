@@ -2,7 +2,7 @@ import subprocess, os
 from tkinter import *
 from tkinter import ttk
 from utils import *
-
+import sv_ttk
 
 def main(input_files=()):
     def on_closing(): #clean up any temp files hanging around
@@ -113,28 +113,28 @@ end \
 
     global window
     window = Tk()
-    title = Label(window, text="Vpype Paint", fg="blue", cursor="hand2")
+    title = ttk.Label(window, text="Vpype Paint", foreground="#14AEEA", cursor="hand2")
     title.bind("<Button-1>", lambda e: open_url_in_browser("https://vpype.readthedocs.io/en/latest/cookbook.html#inserting-regular-dipping-patterns-for-plotting-with-paint"))
-    title.grid(row=current_row,column=0, columnspan=4)
+    title.grid(pady=(10,0), row=current_row,column=0, columnspan=4)
     current_row += 1
 
-    Label(window, text="Input files should have already been processed\nand laid out with enough space for dipping trays").grid(row=current_row, column=0, columnspan=4)
+    ttk.Label(window, text="Input files should have already been processed\nand laid out with enough space for dipping trays").grid(row=current_row, column=0, columnspan=4)
     current_row +=1 
 
-    Label(window, text=f"{len(input_files)} file(s) selected, Input file Width(in): {svg_width_inches}, Height(in): {svg_height_inches}, Max colors in file(s): {max_num_colors}").grid(row=current_row, column=0, columnspan=4)
+    ttk.Label(window, text=f"{len(input_files)} file(s) selected, Input file Width(in): {svg_width_inches}, Height(in): {svg_height_inches}, Max colors in file(s): {max_num_colors}").grid(row=current_row, column=0, columnspan=4)
     current_row +=1 
 
-    split_all_label = Label(window, text="Split All and Merge?", fg="blue", cursor="hand2")
+    split_all_label = ttk.Label(window, text="Split All and Merge", foreground="#14AEEA", cursor="hand2")
     split_all_label.bind("<Button-1>", lambda e: open_url_in_browser("https://vpype.readthedocs.io/en/latest/reference.html#splitall"))
     split_all_label.grid(row=current_row, column=0)
     split_all = IntVar(window, value=0)
-    Checkbutton(window, text="splitall", variable=split_all).grid(sticky="w", row=current_row,column=1)
+    ttk.Checkbutton(window, text="splitall", variable=split_all).grid(sticky="w", row=current_row,column=1)
 
-    split_dist_label = Label(window, text="Split Distance (in)", fg="blue", cursor="hand2")
+    split_dist_label = ttk.Label(window, text="Split Distance (in)", foreground="#14AEEA", cursor="hand2")
     split_dist_label.bind("<Button-1>", lambda e: open_url_in_browser("https://vpype.readthedocs.io/en/latest/reference.html#cmd-splitdist"))
     split_dist_label.grid(row=current_row, column=2)
 
-    split_dist_entry = Entry(window, width=7)
+    split_dist_entry = ttk.Entry(window, width=7)
     split_dist_entry.insert(0,"4")
     split_dist_entry.grid(row=current_row, column=3)
     current_row +=1
@@ -142,24 +142,24 @@ end \
     dip_details = []
 
     for i in range(max_num_colors):
-        ttk.Separator(window, orient='horizontal').grid(sticky="we", row=current_row, column=0, columnspan=4)
+        ttk.Separator(window, orient='horizontal').grid(sticky="we", row=current_row, column=0, columnspan=4, pady=10)
         current_row += 1
 
-        Label(window, text=f"Dip Loc {i}").grid(row=current_row, column=0, columnspan=4)
+        ttk.Label(window, text=f"Dip Loc {i}").grid(row=current_row, column=0, columnspan=4)
         current_row += 1
 
-        Label(window, text="X (in)").grid(row=current_row, column=0)
-        dip_loc_x_entry = Entry(window, width=7)
+        ttk.Label(window, text="X (in)").grid(row=current_row, column=0)
+        dip_loc_x_entry = ttk.Entry(window, width=7)
         dip_loc_x_entry.insert(0,f"{i * 2 + 1}")
         dip_loc_x_entry.grid(row=current_row, column=1)
 
-        Label(window, text="Y (in)").grid(row=current_row, column=2)
-        dip_loc_y_entry = Entry(window, width=7)
+        ttk.Label(window, text="Y (in)").grid(row=current_row, column=2)
+        dip_loc_y_entry = ttk.Entry(window, width=7)
         dip_loc_y_entry.insert(0,"0")
         dip_loc_y_entry.grid(row=current_row, column=3)
         current_row += 1
 
-        Label(window, text="Dip Layer").grid(row=current_row, column=0)
+        ttk.Label(window, text="Dip Layer").grid(row=current_row, column=0)
         dip_layer_combobox = ttk.Combobox(
             window,
             width=15,
@@ -177,16 +177,18 @@ end \
             "layer": dip_layer_combobox,
         })
 
-    ttk.Separator(window, orient='horizontal').grid(sticky="we", row=current_row, column=0, columnspan=4)
+    ttk.Separator(window, orient='horizontal').grid(sticky="we", row=current_row, column=0, columnspan=4, pady=10)
     current_row += 1
 
-    Button(window, text="Show Output", command=show_vpypeline).grid(row=current_row, column=2)
+    ttk.Button(window, text="Show Output", command=show_vpypeline).grid(pady=(0,10), row=current_row, column=2)
     if len(input_files)>1:
-        Button(window, text="Apply to All", command=run_vpypeline).grid(row=current_row, column=3)
+        ttk.Button(window, text="Apply to All", command=run_vpypeline).grid(pady=(0,10), row=current_row, column=3)
     else:
-        Button(window, text="Confirm", command=run_vpypeline).grid(row=current_row, column=3)
+        ttk.Button(window, text="Confirm", command=run_vpypeline).grid(pady=(0,10), row=current_row, column=3)
 
     window.protocol("WM_DELETE_WINDOW", on_closing)
+
+    sv_ttk.set_theme("dark")
     window.mainloop()
 
     return tuple(return_val)
