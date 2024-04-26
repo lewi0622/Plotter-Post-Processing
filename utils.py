@@ -47,8 +47,11 @@ def get_files():
     list_of_files = glob.glob(initial_dir + r"\*.svg")
     latest_file = max(list_of_files, key=os.path.getctime)
 
-    return askopenfilenames(initialdir=initial_dir, filetypes=(("SVG files","*.svg*"),("all files","*.*")), initialfile=latest_file)
-
+    recieved_files = askopenfilenames(initialdir=initial_dir, filetypes=(("SVG files","*.svg*"),("all files","*.*")), initialfile=latest_file)
+    if recieved_files == "":
+        return ()
+    else:
+        return recieved_files
 
 def get_hex_value(rgb):
     """rgb must be in the form of a tubple of integers"""
