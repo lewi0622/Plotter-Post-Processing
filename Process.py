@@ -4,12 +4,6 @@ from tkinter import ttk
 from utils import *
 import settings
 
-global theme
-try:
-    import sv_ttk
-except ImportError:
-    theme = None
-    pass
 
 def main(input_files=()):
     def on_closing(): #clean up any temp files hanging around
