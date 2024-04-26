@@ -5,12 +5,11 @@ from utils import *
 
 
 def main(input_files=()):
-
-
     def on_closing(): #clean up any temp files hanging around
         delete_temp_file(occult_temp_file)
         delete_temp_file(show_temp_file)
-        window.destroy()
+        print("Closing Process")
+        window.quit()
 
 
     def add_unique_ids():
@@ -28,8 +27,8 @@ def main(input_files=()):
 
     def run_vpypeline():
         """calls vpype cli to process """
+        global return_val
 
-        window.quit()
         command = build_vpypeline(show=False)
 
         if len(input_files) == 1 and last_shown_command == build_vpypeline(show=True):
@@ -41,7 +40,9 @@ def main(input_files=()):
 
         delete_temp_file(occult_temp_file)
         delete_temp_file(show_temp_file)
-
+        
+        return_val = output_file_list
+        on_closing()
 
     def show_vpypeline():
         """Runs given commands on first file, but only shows the output. Cleans up any Occult generated temp files."""
@@ -59,6 +60,7 @@ def main(input_files=()):
         global show_temp_file
         global occult_temp_file
         global output_filename
+        global output_file_list
 
         #build output files list
         input_file_list = list(input_files)
@@ -256,6 +258,9 @@ def main(input_files=()):
             layout_height_entry.insert(0,"23.4")
             layout.set(0)
 
+    global return_val
+    return_val = ()
+
     occult_temp_file = ""
     show_temp_file = ""
     last_shown_command = ""
@@ -269,6 +274,7 @@ def main(input_files=()):
     #tk widgets and window
     current_row = 0 #helper row var, inc-ed every time used;
 
+    global window
     window = Tk()
     title = Label(window, text="Vpype Options", fg="blue", cursor="hand2")
     title.bind("<Button-1>", lambda e: open_url_in_browser("https://vpype.readthedocs.io/en/latest/index.html"))
@@ -279,7 +285,7 @@ def main(input_files=()):
     crop_input_label = Label(window, text="Crop to input\ndimensions on read", fg="blue", cursor="hand2")
     crop_input_label.bind("<Button-1>", lambda e: open_url_in_browser("https://vpype.readthedocs.io/en/latest/reference.html#cmdoption-read-c"))
     crop_input_label.grid(row=current_row,column=2)
-    crop_input = IntVar(value=0)
+    crop_input = IntVar(window, value=0)
     Checkbutton(window, text="Crop input", variable=crop_input).grid(sticky="w", row=current_row,column=3)
     current_row +=1 
 
@@ -289,15 +295,15 @@ def main(input_files=()):
     occult_label = Label(window, text="Remove occluded geometries", fg="blue", cursor="hand2")
     occult_label.bind("<Button-1>", lambda e: open_url_in_browser("https://github.com/LoicGoulefert/occult"))
     occult_label.grid(row=current_row, column=0)
-    occult = IntVar(value=0)
+    occult = IntVar(window, value=0)
     Checkbutton(window, text="Occult", variable=occult).grid(sticky="w", row=current_row, column=1)
-    occult_keep_lines = IntVar(value=0)
+    occult_keep_lines = IntVar(window, value=0)
     Checkbutton(window, text="Keep occulted lines", variable=occult_keep_lines).grid(sticky="w", row=current_row, column=2)
     current_row += 1 
 
-    occult_ignore = IntVar(value=1)
+    occult_ignore = IntVar(window, value=1)
     Checkbutton(window, text="Ignores Layers", variable=occult_ignore).grid(sticky="w", row=current_row, column=1)
-    occult_accross = IntVar(value=0)
+    occult_accross = IntVar(window, value=0)
     Checkbutton(window, text="Occult accross layers,\nnot within", variable=occult_accross).grid(sticky="w", row=current_row, column=2)
     current_row +=1 
 
@@ -347,7 +353,7 @@ def main(input_files=()):
     scale_label = Label(window, text="Scale options\n(default: input file size)", fg="blue", cursor="hand2")
     scale_label.bind("<Button-1>", lambda e: open_url_in_browser("https://vpype.readthedocs.io/en/latest/reference.html#scaleto"))
     scale_label.grid(row=current_row, column=0)
-    scale_option = IntVar(value=1)
+    scale_option = IntVar(window, value=1)
     Checkbutton(window, text="Scale?", variable=scale_option).grid(sticky="w", row=current_row,column=1)
 
     Label(window, text="Width Scale to (in):").grid(row=current_row, column=2)
@@ -365,7 +371,7 @@ def main(input_files=()):
     ttk.Separator(window, orient='horizontal').grid(sticky="we", row=current_row, column=0, columnspan=4)
     current_row += 1
 
-    center_geometries = IntVar(value=1)
+    center_geometries = IntVar(window, value=1)
     Checkbutton(window, text="Center Geometries to Input File Size", variable=center_geometries).grid(row=current_row, column=0, columnspan=2)
 
     crop_label = Label(window, text="Crop X (in):", fg="blue", cursor="hand2")
@@ -398,7 +404,7 @@ def main(input_files=()):
     linemerge_label = Label(window, text="Merge Lines with\noverlapping line endings", fg="blue", cursor="hand2")
     linemerge_label.bind("<Button-1>", lambda e: open_url_in_browser("https://vpype.readthedocs.io/en/latest/reference.html#linemerge"))
     linemerge_label.grid(row=current_row, column=0)
-    linemerge = IntVar(value=1)
+    linemerge = IntVar(window, value=1)
     Checkbutton(window, text="linemerge", variable=linemerge).grid(sticky="w", row=current_row, column=1)
     linemerge_tolerance_label = Label(window, text="Linemerge tolerance (in):").grid(row=current_row, column=2)
     linemerge_tolerance_entry = Entry(window, width=7)
@@ -409,20 +415,20 @@ def main(input_files=()):
     linesort_label = Label(window, text="Sort Lines", fg="blue", cursor="hand2")
     linesort_label.bind("<Button-1>", lambda e: open_url_in_browser("https://vpype.readthedocs.io/en/latest/reference.html#linesort"))
     linesort_label.grid(row=current_row, column=0)
-    linesort = IntVar(value=1)
+    linesort = IntVar(window, value=1)
     Checkbutton(window, text="linesort", variable=linesort).grid(sticky="w", row=current_row, column=1)
 
     reloop_label = Label(window, text="Randomize seam location\non closed paths", fg="blue", cursor="hand2")
     reloop_label.bind("<Button-1>", lambda e: open_url_in_browser("https://vpype.readthedocs.io/en/latest/reference.html#reloop"))
     reloop_label.grid(row=current_row, column=2)
-    reloop = IntVar(value=1)
+    reloop = IntVar(window, value=1)
     Checkbutton(window, text="reloop", variable=reloop).grid(sticky="w", row=current_row, column=3)
     current_row +=1 
 
     linesimplify_label = Label(window, text="Reduce geometry complexity", fg="blue", cursor="hand2")
     linesimplify_label.bind("<Button-1>", lambda e: open_url_in_browser("https://vpype.readthedocs.io/en/latest/reference.html#linesimplify"))
     linesimplify_label.grid(row=current_row, column=0)
-    linesimplify = IntVar(value=1)
+    linesimplify = IntVar(window, value=1)
     Checkbutton(window, text="linesimplify", variable=linesimplify).grid(sticky="w", row=current_row, column=1)
     Label(window, text="Linesimplify tolerance (in):").grid(row=current_row, column=2)
     linesimplify_tolerance_entry = Entry(window, width=7)
@@ -433,7 +439,7 @@ def main(input_files=()):
     squiggle_label = Label(window, text="Add squiggle filter", fg="blue", cursor="hand2")
     squiggle_label.bind("<Button-1>", lambda e: open_url_in_browser("https://vpype.readthedocs.io/en/latest/reference.html#squiggles"))
     squiggle_label.grid(row=current_row, column=0)
-    squiggle = IntVar(value=0)
+    squiggle = IntVar(window, value=0)
     Checkbutton(window, text="squiggle", variable=squiggle).grid(sticky="w", row=current_row, column=1)
 
     Label(window, text="Amplitude of squiggle (in):").grid(row=current_row, column=2)
@@ -451,13 +457,13 @@ def main(input_files=()):
     multipass_label = Label(window, text="Add multiple passes to all lines", fg="blue", cursor="hand2")
     multipass_label.bind("<Button-1>", lambda e: open_url_in_browser("https://vpype.readthedocs.io/en/latest/reference.html#multipass"))
     multipass_label.grid(row=current_row, column=0)
-    multipass = IntVar(value=0)
+    multipass = IntVar(window, value=0)
     Checkbutton(window, text="multipass", variable=multipass).grid(sticky="w", row=current_row, column=1)
 
     separate_files_label = Label(window, text="Separate SVG Layers\ninto individual files", fg="blue", cursor="hand2")
     separate_files_label.bind("<Button-1>", lambda e: open_url_in_browser("https://vpype.readthedocs.io/en/latest/cookbook.html#saving-each-layer-as-a-separate-file"))
     separate_files_label.grid(row=current_row, column=2)
-    separate_files = IntVar(value=0)
+    separate_files = IntVar(window, value=0)
     Checkbutton(window, text="Separate\nFiles", variable=separate_files).grid(sticky="w", row=current_row, column=3)
     current_row += 1
 
@@ -467,7 +473,7 @@ def main(input_files=()):
     layout_label = Label(window, text="Layout centers scaled\ndesign in page size)", fg="blue", cursor="hand2")
     layout_label.bind("<Button-1>", lambda e: open_url_in_browser("https://vpype.readthedocs.io/en/latest/reference.html#layout"))
     layout_label.grid(row=current_row, column=0)
-    layout = IntVar(value=1)
+    layout = IntVar(window, value=1)
     Checkbutton(window, text="Layout?", variable=layout).grid(sticky="w", row=current_row, column=1)
 
     Label(window, text="Page Layout Width(in):").grid(row=current_row, column=2)
@@ -495,10 +501,10 @@ def main(input_files=()):
 
     layout_landscape_label = Label(window, text="By default, the larger layout size is the height,\nLandscape flips the orientation")
     layout_landscape_label.grid(row=current_row, column=0, columnspan=2)
-    layout_landscape = IntVar(value=1)
+    layout_landscape = IntVar(window, value=1)
     Checkbutton(window, text="Landscape", variable=layout_landscape).grid(sticky="w", row=current_row, column=2)
 
-    crop_to_page_size = IntVar(value=1)
+    crop_to_page_size = IntVar(window, value=1)
     Checkbutton(window, text="Crop to\nPage Size", variable=crop_to_page_size).grid(sticky="w", row=current_row, column=3)
     current_row +=1 
 
@@ -514,6 +520,10 @@ def main(input_files=()):
     window.protocol("WM_DELETE_WINDOW", on_closing)
     window.mainloop()
 
+    for index, filename in enumerate(return_val):
+        return_val[index] = filename + ".svg"
+
+    return tuple(return_val)
 
 if __name__ == "__main__":
     main()

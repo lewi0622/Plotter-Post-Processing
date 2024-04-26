@@ -7,11 +7,12 @@ from utils import *
 def main(input_files=()):
     def on_closing(): #clean up any temp files hanging around
         delete_temp_file(show_temp_file)
-        window.destroy()
+        print("Closing Paint")
+        window.quit()
 
 
     def run_vpypeline():
-        window.quit()
+        global return_val
         command = build_vpypeline(False)
 
         if len(input_files) == 1 and last_shown_command == build_vpypeline(True):
@@ -21,7 +22,8 @@ def main(input_files=()):
             print("Running: \n", command)
             subprocess.run(command, capture_output=True, shell=True)
 
-        delete_temp_file(show_temp_file)
+        return_val = output_file_list
+        on_closing()
 
 
     def show_vpypeline():
@@ -36,6 +38,7 @@ def main(input_files=()):
     def build_vpypeline(show):
         global show_temp_file
         global output_filename
+        global output_file_list
 
         #build output files list
         input_file_list = list(input_files)
@@ -88,7 +91,9 @@ lmove all %_lid% \
 end \
 {show_or_write}"""
 
-    # global show_temp_file, last_shown_command, output_filename, window, input_files, dip_details, split_dist_entry, split_all, max_num_colors, directory_name
+    global return_val
+    return_val = ()
+    
     directory_name = get_directory_name("Paint.py")
     dip_options = os.listdir(os.path.join(directory_name, "Dip_Locations"))
 
@@ -106,6 +111,7 @@ end \
     #tk widgets and window
     current_row = 0 #helper row var, inc-ed every time used;
 
+    global window
     window = Tk()
     title = Label(window, text="Vpype Paint", fg="blue", cursor="hand2")
     title.bind("<Button-1>", lambda e: open_url_in_browser("https://vpype.readthedocs.io/en/latest/cookbook.html#inserting-regular-dipping-patterns-for-plotting-with-paint"))
@@ -121,7 +127,7 @@ end \
     split_all_label = Label(window, text="Split All and Merge?", fg="blue", cursor="hand2")
     split_all_label.bind("<Button-1>", lambda e: open_url_in_browser("https://vpype.readthedocs.io/en/latest/reference.html#splitall"))
     split_all_label.grid(row=current_row, column=0)
-    split_all = IntVar(value=0)
+    split_all = IntVar(window, value=0)
     Checkbutton(window, text="splitall", variable=split_all).grid(sticky="w", row=current_row,column=1)
 
     split_dist_label = Label(window, text="Split Distance (in)", fg="blue", cursor="hand2")
@@ -182,6 +188,8 @@ end \
 
     window.protocol("WM_DELETE_WINDOW", on_closing)
     window.mainloop()
+
+    return tuple(return_val)
 
 if __name__ == "__main__":
     main()

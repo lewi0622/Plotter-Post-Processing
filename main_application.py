@@ -9,14 +9,28 @@ def main():
         main_app.destroy()
 
     def run_process():
-        Process.main(input_files)
+        processed_files = Process.main(input_files)
+        Process.window.destroy()
+        if len(processed_files) == 0:
+            print("Files unchanged from Process")
+        else:
+            select_files(processed_files)
 
     def run_paint():
-        Paint.main(input_files)
+        painted_files = Paint.main(input_files)
+        Paint.window.destroy()
+        if len(painted_files) == 0:
+            print("Files unchanged from Paint")
+        else:
+            select_files(painted_files)
 
-    def select_files():
-        global input_files, svg_height_inches, svg_width_inches, file_info_text
-        input_files = get_files() #get input files on startup
+    def select_files(files=()):
+        global input_files, file_info_text
+        if len(files) == 0:
+            input_files = get_files() #prompt user to select files
+        else:
+            input_files = files
+        print("main app: ", input_files)
         svg_width_inches, svg_height_inches = get_svg_width_height(input_files[0])
         max_num_colors = max_colors_per_file(input_files)
         file_info_text.set(f"{len(input_files)} file(s) selected, Input file Width(in): {svg_width_inches}, Height(in): {svg_height_inches}, Max colors in file(s): {max_num_colors}")
@@ -27,7 +41,7 @@ def main():
     main_app = Tk()
 
     global file_info_text
-    file_info_text = StringVar()
+    file_info_text = StringVar(main_app)
     Label(main_app, textvariable= file_info_text).grid(row=current_row, column=0, columnspan=2)
     current_row += 1
 
