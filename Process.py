@@ -2,8 +2,14 @@ import subprocess, os
 from tkinter import *
 from tkinter import ttk
 from utils import *
-import sv_ttk
+import settings
 
+global theme
+try:
+    import sv_ttk
+except ImportError:
+    theme = None
+    pass
 
 def main(input_files=()):
     def on_closing(): #clean up any temp files hanging around
@@ -278,13 +284,13 @@ def main(input_files=()):
     global window
     window = Tk()
 
-    title = ttk.Label(window, text="Vpype Options", foreground="#14AEEA", cursor="hand2")
+    title = ttk.Label(window, text="Vpype Options", foreground=settings.link_color, cursor="hand2")
     title.bind("<Button-1>", lambda e: open_url_in_browser("https://vpype.readthedocs.io/en/latest/index.html"))
     title.grid(pady=(10,0), row=current_row,column=0, columnspan=4)
     current_row += 1
 
     ttk.Label(window, justify=CENTER, text=f"{len(input_files)} file(s) selected,\nInput file Width(in): {svg_width_inches}, Height(in): {svg_height_inches}").grid(row=current_row, column=0, columnspan=2)
-    crop_input_label = ttk.Label(window, justify=CENTER, text="Crop to input\ndimensions on read", foreground="#14AEEA", cursor="hand2")
+    crop_input_label = ttk.Label(window, justify=CENTER, text="Crop to input\ndimensions on read", foreground=settings.link_color, cursor="hand2")
     crop_input_label.bind("<Button-1>", lambda e: open_url_in_browser("https://vpype.readthedocs.io/en/latest/reference.html#cmdoption-read-c"))
     crop_input_label.grid(row=current_row,column=2)
     crop_input = IntVar(window, value=0)
@@ -294,7 +300,7 @@ def main(input_files=()):
     ttk.Separator(window, orient='horizontal').grid(sticky="we", row=current_row, column=0, columnspan=4, pady=10)
     current_row += 1
 
-    occult_label = ttk.Label(window, justify=CENTER, text="Remove occluded geometries", foreground="#14AEEA", cursor="hand2")
+    occult_label = ttk.Label(window, justify=CENTER, text="Remove occluded geometries", foreground=settings.link_color, cursor="hand2")
     occult_label.bind("<Button-1>", lambda e: open_url_in_browser("https://github.com/LoicGoulefert/occult"))
     occult_label.grid(row=current_row, column=0)
     occult = IntVar(window, value=0)
@@ -312,7 +318,7 @@ def main(input_files=()):
     ttk.Separator(window, orient='horizontal').grid(sticky="we", row=current_row, column=0, columnspan=4, pady=10)
     current_row += 1
 
-    grid_label = ttk.Label(window, justify=CENTER, text="Merge Multiple SVGs into Grid", foreground="#14AEEA", cursor="hand2")
+    grid_label = ttk.Label(window, justify=CENTER, text="Merge Multiple SVGs into Grid", foreground=settings.link_color, cursor="hand2")
     grid_label.bind("<Button-1>", lambda e: open_url_in_browser("https://vpype.readthedocs.io/en/latest/cookbook.html#faq-merge-to-grid"))
     grid_label.grid(row=current_row, column=0, columnspan=4)
     # ttk.Label(window, justify=CENTER, text="Color Options:").grid(row=current_row, column=1)
@@ -352,7 +358,7 @@ def main(input_files=()):
     ttk.Separator(window, orient='horizontal').grid(sticky="we", row=current_row, column=0, columnspan=4, pady=10)
     current_row += 1
 
-    scale_label = ttk.Label(window, justify=CENTER, text="Scale options\n(default: input file size)", foreground="#14AEEA", cursor="hand2")
+    scale_label = ttk.Label(window, justify=CENTER, text="Scale options\n(default: input file size)", foreground=settings.link_color, cursor="hand2")
     scale_label.bind("<Button-1>", lambda e: open_url_in_browser("https://vpype.readthedocs.io/en/latest/reference.html#scaleto"))
     scale_label.grid(row=current_row, column=0)
     scale_option = IntVar(window, value=1)
@@ -376,7 +382,7 @@ def main(input_files=()):
     center_geometries = IntVar(window, value=1)
     ttk.Checkbutton(window, text="Center Geometries to Input File Size", variable=center_geometries).grid(row=current_row, column=0, columnspan=2)
 
-    crop_label = ttk.Label(window, justify=CENTER, text="Crop X (in):", foreground="#14AEEA", cursor="hand2")
+    crop_label = ttk.Label(window, justify=CENTER, text="Crop X (in):", foreground=settings.link_color, cursor="hand2")
     crop_label.bind("<Button-1>", lambda e: open_url_in_browser("https://vpype.readthedocs.io/en/stable/reference.html#crop"))
     crop_label.grid(row=current_row, column=2)
     crop_x_end_entry = ttk.Entry(window, width=7)
@@ -384,7 +390,7 @@ def main(input_files=()):
     crop_x_end_entry.grid(sticky="w", row=current_row, column=3)
     current_row += 1
 
-    rotate_label = ttk.Label(window, justify=CENTER, text="Rotate Clockwise (deg):", foreground="#14AEEA", cursor="hand2")
+    rotate_label = ttk.Label(window, justify=CENTER, text="Rotate Clockwise (deg):", foreground=settings.link_color, cursor="hand2")
     rotate_label.bind("<Button-1>", lambda e: open_url_in_browser("https://vpype.readthedocs.io/en/latest/reference.html#rotate"))
     rotate_label.grid(row=current_row, column=0)
     rotate_entry = ttk.Entry(window, width=7)
@@ -403,7 +409,7 @@ def main(input_files=()):
     ttk.Separator(window, orient='horizontal').grid(sticky="we", row=current_row, column=0, columnspan=4, pady=10)
     current_row += 1
 
-    linemerge_label = ttk.Label(window, justify=CENTER, text="Merge Lines with\noverlapping line endings", foreground="#14AEEA", cursor="hand2")
+    linemerge_label = ttk.Label(window, justify=CENTER, text="Merge Lines with\noverlapping line endings", foreground=settings.link_color, cursor="hand2")
     linemerge_label.bind("<Button-1>", lambda e: open_url_in_browser("https://vpype.readthedocs.io/en/latest/reference.html#linemerge"))
     linemerge_label.grid(row=current_row, column=0)
     linemerge = IntVar(window, value=1)
@@ -414,20 +420,20 @@ def main(input_files=()):
     linemerge_tolerance_entry.grid(sticky="w", row=current_row, column=3)
     current_row +=1 
 
-    linesort_label = ttk.Label(window, justify=CENTER, text="Sort Lines", foreground="#14AEEA", cursor="hand2")
+    linesort_label = ttk.Label(window, justify=CENTER, text="Sort Lines", foreground=settings.link_color, cursor="hand2")
     linesort_label.bind("<Button-1>", lambda e: open_url_in_browser("https://vpype.readthedocs.io/en/latest/reference.html#linesort"))
     linesort_label.grid(row=current_row, column=0)
     linesort = IntVar(window, value=1)
     ttk.Checkbutton(window, text="linesort", variable=linesort).grid(sticky="w", row=current_row, column=1)
 
-    reloop_label = ttk.Label(window, justify=CENTER, text="Randomize seam location\non closed paths", foreground="#14AEEA", cursor="hand2")
+    reloop_label = ttk.Label(window, justify=CENTER, text="Randomize seam location\non closed paths", foreground=settings.link_color, cursor="hand2")
     reloop_label.bind("<Button-1>", lambda e: open_url_in_browser("https://vpype.readthedocs.io/en/latest/reference.html#reloop"))
     reloop_label.grid(row=current_row, column=2)
     reloop = IntVar(window, value=1)
     ttk.Checkbutton(window, text="reloop", variable=reloop).grid(sticky="w", row=current_row, column=3)
     current_row +=1 
 
-    linesimplify_label = ttk.Label(window, justify=CENTER, text="Reduce geometry complexity", foreground="#14AEEA", cursor="hand2")
+    linesimplify_label = ttk.Label(window, justify=CENTER, text="Reduce geometry complexity", foreground=settings.link_color, cursor="hand2")
     linesimplify_label.bind("<Button-1>", lambda e: open_url_in_browser("https://vpype.readthedocs.io/en/latest/reference.html#linesimplify"))
     linesimplify_label.grid(row=current_row, column=0)
     linesimplify = IntVar(window, value=1)
@@ -438,7 +444,7 @@ def main(input_files=()):
     linesimplify_tolerance_entry.grid(sticky="w", row=current_row, column=3)
     current_row +=1 
 
-    squiggle_label = ttk.Label(window, justify=CENTER, text="Add squiggle filter", foreground="#14AEEA", cursor="hand2")
+    squiggle_label = ttk.Label(window, justify=CENTER, text="Add squiggle filter", foreground=settings.link_color, cursor="hand2")
     squiggle_label.bind("<Button-1>", lambda e: open_url_in_browser("https://vpype.readthedocs.io/en/latest/reference.html#squiggles"))
     squiggle_label.grid(row=current_row, column=0)
     squiggle = IntVar(window, value=0)
@@ -456,13 +462,13 @@ def main(input_files=()):
     squiggle_period_entry.grid(sticky="w", row=current_row, column=3)
     current_row +=1 
 
-    multipass_label = ttk.Label(window, justify=CENTER, text="Add multiple passes to all lines", foreground="#14AEEA", cursor="hand2")
+    multipass_label = ttk.Label(window, justify=CENTER, text="Add multiple passes to all lines", foreground=settings.link_color, cursor="hand2")
     multipass_label.bind("<Button-1>", lambda e: open_url_in_browser("https://vpype.readthedocs.io/en/latest/reference.html#multipass"))
     multipass_label.grid(row=current_row, column=0)
     multipass = IntVar(window, value=0)
     ttk.Checkbutton(window, text="multipass", variable=multipass).grid(sticky="w", row=current_row, column=1)
 
-    separate_files_label = ttk.Label(window, justify=CENTER, text="Separate SVG Layers\ninto individual files", foreground="#14AEEA", cursor="hand2")
+    separate_files_label = ttk.Label(window, justify=CENTER, text="Separate SVG Layers\ninto individual files", foreground=settings.link_color, cursor="hand2")
     separate_files_label.bind("<Button-1>", lambda e: open_url_in_browser("https://vpype.readthedocs.io/en/latest/cookbook.html#saving-each-layer-as-a-separate-file"))
     separate_files_label.grid(row=current_row, column=2)
     separate_files = IntVar(window, value=0)
@@ -472,7 +478,7 @@ def main(input_files=()):
     ttk.Separator(window, orient='horizontal').grid(sticky="we", row=current_row, column=0, columnspan=4, pady=10)
     current_row += 1
 
-    layout_label = ttk.Label(window, justify=CENTER, text="Layout centers scaled\ndesign in page size)", foreground="#14AEEA", cursor="hand2")
+    layout_label = ttk.Label(window, justify=CENTER, text="Layout centers scaled\ndesign in page size)", foreground=settings.link_color, cursor="hand2")
     layout_label.bind("<Button-1>", lambda e: open_url_in_browser("https://vpype.readthedocs.io/en/latest/reference.html#layout"))
     layout_label.grid(row=current_row, column=0)
     layout = IntVar(window, value=1)
@@ -521,7 +527,7 @@ def main(input_files=()):
 
     window.protocol("WM_DELETE_WINDOW", on_closing)
 
-    sv_ttk.set_theme("dark")
+    settings.set_theme(window)
     window.mainloop()
 
     for index, filename in enumerate(return_val):
@@ -530,4 +536,5 @@ def main(input_files=()):
     return tuple(return_val)
 
 if __name__ == "__main__":
+    settings.init()
     main()

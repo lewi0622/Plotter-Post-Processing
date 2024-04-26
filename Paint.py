@@ -2,7 +2,7 @@ import subprocess, os
 from tkinter import *
 from tkinter import ttk
 from utils import *
-import sv_ttk
+import settings
 
 def main(input_files=()):
     def on_closing(): #clean up any temp files hanging around
@@ -113,7 +113,7 @@ end \
 
     global window
     window = Tk()
-    title = ttk.Label(window, text="Vpype Paint", foreground="#14AEEA", cursor="hand2")
+    title = ttk.Label(window, text="Vpype Paint", foreground=settings.link_color, cursor="hand2")
     title.bind("<Button-1>", lambda e: open_url_in_browser("https://vpype.readthedocs.io/en/latest/cookbook.html#inserting-regular-dipping-patterns-for-plotting-with-paint"))
     title.grid(pady=(10,0), row=current_row,column=0, columnspan=4)
     current_row += 1
@@ -124,13 +124,13 @@ end \
     ttk.Label(window, text=f"{len(input_files)} file(s) selected, Input file Width(in): {svg_width_inches}, Height(in): {svg_height_inches}, Max colors in file(s): {max_num_colors}").grid(row=current_row, column=0, columnspan=4)
     current_row +=1 
 
-    split_all_label = ttk.Label(window, text="Split All and Merge", foreground="#14AEEA", cursor="hand2")
+    split_all_label = ttk.Label(window, text="Split All and Merge", foreground=settings.link_color, cursor="hand2")
     split_all_label.bind("<Button-1>", lambda e: open_url_in_browser("https://vpype.readthedocs.io/en/latest/reference.html#splitall"))
     split_all_label.grid(row=current_row, column=0)
     split_all = IntVar(window, value=0)
     ttk.Checkbutton(window, text="splitall", variable=split_all).grid(sticky="w", row=current_row,column=1)
 
-    split_dist_label = ttk.Label(window, text="Split Distance (in)", foreground="#14AEEA", cursor="hand2")
+    split_dist_label = ttk.Label(window, text="Split Distance (in)", foreground=settings.link_color, cursor="hand2")
     split_dist_label.bind("<Button-1>", lambda e: open_url_in_browser("https://vpype.readthedocs.io/en/latest/reference.html#cmd-splitdist"))
     split_dist_label.grid(row=current_row, column=2)
 
@@ -188,10 +188,11 @@ end \
 
     window.protocol("WM_DELETE_WINDOW", on_closing)
 
-    sv_ttk.set_theme("dark")
+    settings.set_theme(window)
     window.mainloop()
 
     return tuple(return_val)
 
 if __name__ == "__main__":
+    settings.init()
     main()

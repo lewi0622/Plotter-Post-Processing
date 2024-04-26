@@ -2,8 +2,7 @@ import subprocess, os
 from tkinter import *
 from tkinter import ttk
 from utils import *
-import Paint, Process
-import sv_ttk
+import Paint, Process, settings
 
 def main():
     def on_closing():
@@ -28,10 +27,12 @@ def main():
     def select_files(files=()):
         global input_files, file_info_text
         if len(files) == 0:
-            input_files = get_files() #prompt user to select files
+            recieved_files = get_files() #prompt user to select files
+            if len(recieved_files) > 0:
+                input_files = recieved_files
         else:
             input_files = files
-        print("main app: ", input_files)
+        print("Currently Loaded Files: ", input_files)
         svg_width_inches, svg_height_inches = get_svg_width_height(input_files[0])
         max_num_colors = max_colors_per_file(input_files)
         file_info_text.set(f"{len(input_files)} file(s) selected, Input file Width(in): {svg_width_inches}, Height(in): {svg_height_inches}, Max colors in file(s): {max_num_colors}")
@@ -57,11 +58,12 @@ def main():
 
     main_app.protocol("WM_DELETE_WINDOW", on_closing)
 
-    sv_ttk.set_theme("dark")
+    settings.set_theme(main_app)
     main_app.mainloop()
 
     #find ways to make common functions for TK interface shit
 
 
 if __name__ == "__main__":
+    settings.init()
     main()
