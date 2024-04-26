@@ -1,4 +1,3 @@
-import subprocess, os
 from tkinter import *
 from tkinter import ttk
 from utils import *
