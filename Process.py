@@ -7,24 +7,9 @@ import settings
 
 def main(input_files=()):
     def on_closing(): #clean up any temp files hanging around
-        delete_temp_file(occult_temp_file)
         delete_temp_file(show_temp_file)
         print("Closing Process")
-        window.quit()
-
-
-    def add_unique_ids():
-        """For each file selected, add unique ids so occult maintains draw order and color info"""
-        path_id = 0
-        for input_file in input_files:
-            with open(input_file, "r+") as svg_file:
-                tree = ET.parse(svg_file)
-                for child in tree.iter():
-                    if "path" in child.tag:
-                        child.set("id", str(path_id))
-                        path_id += 1
-                tree.write(input_file)
-                
+        window.quit()                
 
     def run_vpypeline():
         """calls vpype cli to process """
@@ -39,27 +24,24 @@ def main(input_files=()):
             print("Running: \n", command)
             subprocess.run(command, capture_output=True, shell=True)
 
-        delete_temp_file(occult_temp_file)
         delete_temp_file(show_temp_file)
         
         return_val = output_file_list
         on_closing()
 
     def show_vpypeline():
-        """Runs given commands on first file, but only shows the output. Cleans up any Occult generated temp files."""
+        """Runs given commands on first file, but only shows the output."""
         global last_shown_command
 
         command = build_vpypeline(show=True)
         last_shown_command = command
         print("Showing: \n", command)
         subprocess.run(command, capture_output=True, shell=True)
-        delete_temp_file(occult_temp_file)
 
 
     def build_vpypeline(show):
         """Builds vpype command based on GUI selections"""
         global show_temp_file
-        global occult_temp_file
         global output_filename
         global output_file_list
 
@@ -69,14 +51,8 @@ def main(input_files=()):
         for filename in input_file_list:
             file_parts = os.path.splitext(filename)
             show_temp_file = file_parts[0] + "_show_temp_file.svg"
-            occult_temp_file = file_parts[0] + "_occult_temp_file.svg"
             output_filename = file_parts[0] + "_PROCESSED" #file extension is appended after output filename can change for separating layers into separate files.
             output_file_list.append(output_filename)
-
-        if occult_keep_lines.get():
-            color_list = []
-            for filename in input_file_list:
-                color_list.append(generate_random_color(filename))
 
         args = r"vpype "
 
@@ -99,15 +75,12 @@ def main(input_files=()):
             while len(input_file_list) < slots: #crude way to make sure there's enough files per grid slot
                 input_file_list = input_file_list + input_file_list
                 output_file_list = output_file_list + output_file_list
-                if occult_keep_lines.get():
-                    color_list = color_list + color_list
+
             args += r' eval "%grid_layer_count=1%" '
 
         args += r' eval "files_in=' + f"{input_file_list}" + '"'
         args += r' eval "files_out=' + f"{output_file_list}" + '"'
         args += r' eval "file_ext=' + r"'.svg'" + '"'
-        if occult_keep_lines.get():
-            args += r' eval "random_colors=' + f"{color_list}" + '"'
 
         #block operator grid or repeat
         if grid:
@@ -119,45 +92,12 @@ def main(input_files=()):
                 repeat_num = len(input_file_list)
             args += f" repeat {repeat_num} "
 
-        if occult.get():
-            #Edit file to place a unique id for each path so that the draw order is maintained when performing occult
-            add_unique_ids()
-            args += r" read -a id --no-crop %files_in[_i]% "
-
-            if occult_keep_lines.get():
-                #random color is applied to the added -k kept lines layer if it exists
-                args += r' eval "%last_color=random_colors[_i]%" '
-                args += r' forlayer eval "%num_layers=_n%" end '
-
-            #occult function uses most recently drawn closed shapes to erase lines that are below the shape
-            # the flag -i ignores layers and occults everything
-            args += r" occult "
-            if occult_ignore.get():
-                args += r" -i "
-            elif occult_accross.get():
-                args += r" -a "
-            if occult_keep_lines.get():
-                args += r" -k "
-
-                #check if -k kept lines, and overwrite color of kept lines with random color
-                args += r' forlayer eval "%new_num_layers=_n%" '
-                args += r' eval "%if(new_num_layers<=num_layers):last_color=_color%" end '
-                args += r" color -l %new_num_layers% %last_color% "
-
-            #write to temp file
-            args += f' write "{occult_temp_file}" '
-
-            #delete all layers to avoid extra data hanging around
-            args += r" ldelete all "
         args += r" read -a stroke "
 
         if not crop_input.get():
             args += r" --no-crop "
 
-        if occult.get():
-            args += f' "{occult_temp_file}" '
-        else:
-            args += r" %files_in[_i]% "
+        args += r" %files_in[_i]% "
 
         if scale_option.get():
             args += f" scaleto {scale_width_entry.get()}in {scale_height_entry.get()}in "
@@ -262,7 +202,6 @@ def main(input_files=()):
     global return_val
     return_val = ()
 
-    occult_temp_file = ""
     show_temp_file = ""
     last_shown_command = ""
     output_filename = ""
@@ -289,24 +228,6 @@ def main(input_files=()):
     crop_input_label.grid(row=current_row,column=2)
     crop_input = IntVar(window, value=0)
     ttk.Checkbutton(window, text="Crop input", variable=crop_input).grid(sticky="w", row=current_row,column=3)
-    current_row +=1 
-
-    ttk.Separator(window, orient='horizontal').grid(sticky="we", row=current_row, column=0, columnspan=4, pady=10)
-    current_row += 1
-
-    occult_label = ttk.Label(window, justify=CENTER, text="Remove occluded geometries", foreground=settings.link_color, cursor="hand2")
-    occult_label.bind("<Button-1>", lambda e: open_url_in_browser("https://github.com/LoicGoulefert/occult"))
-    occult_label.grid(row=current_row, column=0)
-    occult = IntVar(window, value=0)
-    ttk.Checkbutton(window, text="Occult", variable=occult).grid(sticky="w", row=current_row, column=1)
-    occult_keep_lines = IntVar(window, value=0)
-    ttk.Checkbutton(window, text="Keep occulted lines", variable=occult_keep_lines).grid(sticky="w", row=current_row, column=2)
-    current_row += 1 
-
-    occult_ignore = IntVar(window, value=1)
-    ttk.Checkbutton(window, text="Ignores Layers", variable=occult_ignore).grid(sticky="w", row=current_row, column=1)
-    occult_accross = IntVar(window, value=0)
-    ttk.Checkbutton(window, text="Occult accross layers,\nnot within", variable=occult_accross).grid(sticky="w", row=current_row, column=2)
     current_row +=1 
 
     ttk.Separator(window, orient='horizontal').grid(sticky="we", row=current_row, column=0, columnspan=4, pady=10)
