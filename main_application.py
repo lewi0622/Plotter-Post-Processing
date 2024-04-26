@@ -1,11 +1,19 @@
 from tkinter import *
 from tkinter import ttk
 from utils import *
-import Paint, Process, settings
+import Occult, Paint, Process, settings
 
 def main():
     def on_closing():
         main_app.destroy()
+
+    def run_occult():
+        occulted_files = Occult.main(input_files)
+        Occult.window.destroy()
+        if len(occulted_files) == 0:
+            print("Files unchanged from Process")
+        else:
+            select_files(occulted_files)
 
     def run_process():
         processed_files = Process.main(input_files)
@@ -43,13 +51,15 @@ def main():
 
     global file_info_text
     file_info_text = StringVar(main_app)
-    ttk.Label(main_app, textvariable= file_info_text).grid(pady=(10,0), row=current_row, column=0, columnspan=2)
+    ttk.Label(main_app, textvariable= file_info_text).grid(pady=(10,0), row=current_row, column=0, columnspan=3)
     current_row += 1
 
     select_files()
 
-    ttk.Button(main_app, text="Process", command=run_process).grid(row=current_row, column=0)
-    ttk.Button(main_app, text="Paint", command=run_paint).grid(row=current_row, column=1)
+    ttk.Button(main_app, text="Occult", command=run_occult).grid(row=current_row, column=0)
+    ttk.Button(main_app, text="Process", command=run_process).grid(row=current_row, column=1)
+    ttk.Button(main_app, text="Paint", command=run_paint).grid(row=current_row, column=2)
+
     current_row += 1
 
     ttk.Button(main_app, text="Re-Select Files", command=select_files).grid(row=current_row, column=0)
