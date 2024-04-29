@@ -29,12 +29,11 @@ def main(input_files=()):
         """calls vpype cli to process """
         global return_val
 
-        command = build_vpypeline(show=False)
-
         if len(input_files) == 1 and last_shown_command == build_vpypeline(show=True):
-            rename_replace(show_temp_file, output_filename + ".svg")
+            rename_replace(show_temp_file, output_filename)
             print("Same command as shown file, not re-running Vpype pipeline")
         else:
+            command = build_vpypeline(show=False)
             print("Running: \n", command)
             subprocess.run(command, capture_output=True, shell=True)
 
@@ -121,7 +120,7 @@ def main(input_files=()):
             return args
 
 
-    global return_val
+    global return_val, show_temp_file, last_shown_command, output_filename
     return_val = ()
 
     occult_temp_file = ""

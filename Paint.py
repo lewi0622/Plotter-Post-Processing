@@ -13,12 +13,12 @@ def main(input_files=()):
 
     def run_vpypeline():
         global return_val
-        command = build_vpypeline(False)
 
         if len(input_files) == 1 and last_shown_command == build_vpypeline(True):
             rename_replace(show_temp_file, output_filename)
             print("Same command as shown file, not re-running Vpype pipeline")
         else:
+            command = build_vpypeline(False)
             print("Running: \n", command)
             subprocess.run(command, capture_output=True, shell=True)
 
@@ -91,7 +91,7 @@ lmove all %_lid% \
 end \
 {show_or_write}"""
 
-    global return_val
+    global return_val, show_temp_file, last_shown_command, output_filename
     return_val = ()
     
     directory_name = get_directory_name("Paint.py")
