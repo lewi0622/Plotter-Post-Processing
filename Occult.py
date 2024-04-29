@@ -11,20 +11,6 @@ def main(input_files=()):
         print("Closing Occult")
         window.quit()
 
-
-    def add_unique_ids():
-        """For each file selected, add unique ids so occult maintains draw order and color info"""
-        path_id = 0
-        for input_file in input_files:
-            with open(input_file, "r+") as svg_file:
-                tree = ET.parse(svg_file)
-                for child in tree.iter():
-                    if "path" in child.tag:
-                        child.set("id", str(path_id))
-                        path_id += 1
-                tree.write(input_file)
-                
-
     def run_vpypeline():
         """calls vpype cli to process """
         global return_val
@@ -86,9 +72,13 @@ def main(input_files=()):
         args += f" repeat {repeat_num} " #repeat for both single and batch operations
 
         if occult.get():
-            #Edit file to place a unique id for each path so that the draw order is maintained when performing occult
-            add_unique_ids()
-            args += r" read -a id --no-crop %files_in[_i]% "
+
+            if attribute.get() == 0:
+                parse = "-a d -a points"
+            elif attribute.get() == 1:
+                parse = "-a stroke"
+
+            args += f" read {parse} --no-crop %files_in[_i]% "
 
             if occult_keep_lines.get():
                 #random color is applied to the added -k kept lines layer if it exists
@@ -146,6 +136,12 @@ def main(input_files=()):
 
     ttk.Label(window, justify=CENTER, text=f"{len(input_files)} file(s) selected,\nInput file Width(in): {svg_width_inches}, Height(in): {svg_height_inches}").grid(row=current_row, column=0, columnspan=2)
     current_row +=1 
+
+    ttk.Label(window, text="Parse file using: ").grid(row=current_row, column=0)
+    attribute = IntVar(window, value=0)
+    ttk.Radiobutton(window, text="d/point", variable=attribute, value=0).grid(row=current_row, column=1)
+    ttk.Radiobutton(window, text="stroke", variable=attribute, value=1).grid(row=current_row, column=2)
+    current_row += 1
 
     ttk.Separator(window, orient='horizontal').grid(sticky="we", row=current_row, column=0, columnspan=4, pady=10)
     current_row += 1
