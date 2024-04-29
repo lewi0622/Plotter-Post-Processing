@@ -7,29 +7,26 @@ def main():
     def on_closing():
         main_app.destroy()
 
+    def verify_output_files(files, util_name):
+        if len(files) == 0:
+            print(f"Files unchanged from {util_name}")
+        else:
+            select_files(files)
+
     def run_occult():
         occulted_files = Occult.main(input_files)
         Occult.window.destroy()
-        if len(occulted_files) == 0:
-            print("Files unchanged from Process")
-        else:
-            select_files(occulted_files)
+        verify_output_files(occulted_files, "Occult")
 
     def run_process():
         processed_files = Process.main(input_files)
         Process.window.destroy()
-        if len(processed_files) == 0:
-            print("Files unchanged from Process")
-        else:
-            select_files(processed_files)
+        verify_output_files(processed_files, "Process")
 
     def run_paint():
         painted_files = Paint.main(input_files)
         Paint.window.destroy()
-        if len(painted_files) == 0:
-            print("Files unchanged from Paint")
-        else:
-            select_files(painted_files)
+        verify_output_files(painted_files, "Paint")
 
     def select_files(files=()):
         global input_files, file_info_text
