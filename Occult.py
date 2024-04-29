@@ -36,8 +36,6 @@ def main(input_files=()):
         last_shown_command = command
         print("Showing: \n", command)
         subprocess.run(command, capture_output=True, shell=True)
-        delete_temp_file(occult_temp_file)
-
 
     def build_vpypeline(show):
         """Builds vpype command based on GUI selections"""
@@ -117,7 +115,6 @@ def main(input_files=()):
     global return_val, show_temp_file, last_shown_command, output_filename
     return_val = ()
 
-    occult_temp_file = ""
     show_temp_file = ""
     last_shown_command = ""
     output_filename = ""
