@@ -101,7 +101,11 @@ def main(input_files=()):
                 args += r" color -l %new_num_layers% %last_color% "
         
         if show:
-            args += f' write "{show_temp_file}" end show '
+            reread_file_cmd = ""
+            if attribute.get() == 0:
+                reread_file_cmd = f'ldelete all read -a stroke --no-crop "{show_temp_file}"'
+
+            args += f' write "{show_temp_file}" end {reread_file_cmd} show '
 
             return args
         else:
