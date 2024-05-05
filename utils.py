@@ -42,12 +42,12 @@ def get_svg_width_height(path):
     return svg_width_inches, svg_height_inches
 
 
-def get_files():
+def get_files(title=""):
     initial_dir = os.path.expandvars(R"C:\Users\$USERNAME\Downloads")
     list_of_files = glob.glob(initial_dir + r"\*.svg")
     latest_file = max(list_of_files, key=os.path.getctime)
 
-    recieved_files = askopenfilenames(initialdir=initial_dir, filetypes=(("SVG files","*.svg*"),("all files","*.*")), initialfile=latest_file)
+    recieved_files = askopenfilenames(title=title, initialdir=initial_dir, filetypes=(("SVG files","*.svg*"),("all files","*.*")), initialfile=latest_file)
     if recieved_files == "":
         return ()
     else:
@@ -97,8 +97,10 @@ def max_colors_per_file(input_files):
     return max_num_color
 
 
-def generate_random_color(input_file):
+def generate_random_color(input_file, do_not_use=[]):
     color_dict = build_color_dict(input_file)
+    for color in do_not_use:
+        color_dict[str(color)] = 0
     rgb_hex = "#000000"
     while(rgb_hex in color_dict):
         rgb = (
