@@ -42,6 +42,7 @@ def main(input_files=()):
         global show_temp_file
         global output_filename
         global output_file_list
+        global color_list
 
         #build output files list
         input_file_list = list(input_files)
@@ -52,16 +53,12 @@ def main(input_files=()):
             output_filename = file_parts[0] + "_OCCLUDED.svg"
             output_file_list.append(output_filename)
 
-        if occult_keep_lines.get():
-            color_list = []
-            for filename in input_file_list:
-                color_list.append(generate_random_color(filename))
+        sorted_occult_info_list = sorted(occult_info_list, key=lambda d: d['order'].get())
 
         args = r"vpype "
         args += r' eval "files_in=' + f"{input_file_list}" + '"'
         args += r' eval "files_out=' + f"{output_file_list}" + '"'
-        if occult_keep_lines.get():
-            args += r' eval "random_colors=' + f"{color_list}" + '"'
+        args += r' eval "random_colors=' + f"{color_list}" + '"'
 
         if show:
             repeat_num = 1
@@ -69,34 +66,33 @@ def main(input_files=()):
             repeat_num = len(input_file_list)
         args += f" repeat {repeat_num} " #repeat for both single and batch operations
 
-        if occult.get():
+        # FILE READING
+        if attribute.get() == 0:
+            parse = "-a d -a points"
+        elif attribute.get() == 1:
+            parse = "-a stroke"
 
-            if attribute.get() == 0:
-                parse = "-a d -a points"
-            elif attribute.get() == 1:
-                parse = "-a stroke"
+        args += f" read {parse} --no-crop %files_in[_i]% "
 
-            args += f" read {parse} --no-crop %files_in[_i]% "
+        for occult_info in sorted_occult_info_list:
+            if "file" in occult_info:
+                args += r' forlayer eval "%last_layer=_lid%" end '
+                args += r' read --layer "%last_layer+1%" '
+                args += f' "{occult_info["file"]}" '
 
-            if occult_keep_lines.get():
-                #random color is applied to the added -k kept lines layer if it exists
-                args += r' eval "%last_color=random_colors[_i]%" '
-                args += r' forlayer eval "%num_layers=_n%" end '
-
-            #occult function uses most recently drawn closed shapes to erase lines that are below the shape
-            # the flag -i ignores layers and occults everything
-            args += r" occult "
-            if occult_ignore.get():
-                args += r" -i "
-            elif occult_accross.get():
-                args += r" -a "
-            if occult_keep_lines.get():
-                args += r" -k "
-
-                #check if -k kept lines, and overwrite color of kept lines with random color
-                args += r' forlayer eval "%new_num_layers=_n%" '
-                args += r' eval "%if(new_num_layers<=num_layers):last_color=_color%" end '
-                args += r" color -l %new_num_layers% %last_color% "
+            args += r' forlayer eval "%last_layer=_lid%" end '
+            if occult_info["occult"].get():
+                args += r" occult "
+                if occult_info["ignore"].get():
+                    args += r" -i "
+                elif occult_info["across"].get():
+                    args += r" -a "
+                if occult_info["keep"].get():
+                    args += r" -k "
+                    args += r' forlayer eval "%kept_layer=_lid%" end '
+                    args += f' eval "%last_color=random_colors[{occult_info["order"].get()}]%" '
+                    args += r' forlayer eval "%if(kept_layer<last_layer+1):last_color=_color%" end ' #recolor kept lines if there are any kept lines
+                    args += r' color -l %kept_layer% %last_color% '
         
         if show:
             reread_file_cmd = ""
@@ -112,17 +108,32 @@ def main(input_files=()):
             return args
 
 
-    global return_val, show_temp_file, last_shown_command, output_filename
+    global return_val, show_temp_file, last_shown_command, output_filename, color_list
     return_val = ()
-
     show_temp_file = ""
     last_shown_command = ""
     output_filename = ""
 
     if len(input_files) == 0:
-        input_files = get_files()
+        input_files = get_files("SELECT DESIGN FILE(s)")
+        if len(input_files) == 0:
+            print("No Design Files Selected")
+            return ()
+        else:
+            print(f"Currently Loaded Design Files: {input_files}")
+
+    occlusion_file_list = get_files("SELECT OCCLUSION FILE(s) (OPTIONAL)")
+    if len(occlusion_file_list) > 0:
+        print(f"Currently Loaded Occlusion Files: {occlusion_file_list}")
+    else:
+        print("No Occlusion files selected")
 
     svg_width_inches, svg_height_inches = get_svg_width_height(input_files[0])
+
+    color_list = []
+    #generate color list for each potential -k
+    for file in input_files + occlusion_file_list:
+        color_list.append(generate_random_color(file, color_list))
 
     #tk widgets and window
     current_row = 0 #helper row var, inc-ed every time used;
@@ -135,32 +146,94 @@ def main(input_files=()):
     title.grid(pady=(10,0), row=current_row,column=0, columnspan=4)
     current_row += 1
 
-    ttk.Label(window, justify=CENTER, text=f"{len(input_files)} file(s) selected,\nInput file Width(in): {svg_width_inches}, Height(in): {svg_height_inches}").grid(row=current_row, column=0, columnspan=2)
+    ttk.Label(window, justify=CENTER, text=f"{len(input_files)} Design file(s) selected, {len(occlusion_file_list)} Occlusion file(s) selected, \nDesign file Width(in): {svg_width_inches}, Height(in): {svg_height_inches}").grid(row=current_row, column=0, columnspan=4)
     current_row +=1 
 
-    ttk.Label(window, text="Parse file using: ").grid(row=current_row, column=0)
+    ttk.Label(window, text="Parse Design file using: ").grid(row=current_row, column=0)
     attribute = IntVar(window, value=0)
+    if max_colors_per_file(input_files) == 1 or len(occlusion_file_list) > 0:
+        attribute = IntVar(window, value=1)
     ttk.Radiobutton(window, text="d/point", variable=attribute, value=0).grid(row=current_row, column=1)
     ttk.Radiobutton(window, text="stroke", variable=attribute, value=1).grid(row=current_row, column=2)
+
+    if len(occlusion_file_list) > 0:
+        #separately perform occult pipeline on each stroke layer in turn.
+        separate_stroke_layers = IntVar(window, value=0)
+        ttk.Checkbutton(window, text="Occult per Stroke Layer", variable=separate_stroke_layers).grid(sticky="w", row=current_row, column=3)
     current_row += 1
 
     ttk.Separator(window, orient='horizontal').grid(sticky="we", row=current_row, column=0, columnspan=4, pady=10)
     current_row += 1
 
-    occult = IntVar(window, value=1)
-    ttk.Checkbutton(window, text="Occult", variable=occult).grid(sticky="w", row=current_row, column=0)
-    occult_keep_lines = IntVar(window, value=0)
-    ttk.Checkbutton(window, text="Keep occulted lines", variable=occult_keep_lines).grid(sticky="w", row=current_row, column=1)
-    current_row += 1 
+    occult_info_list = []
 
-    occult_ignore = IntVar(window, value=1)
-    ttk.Checkbutton(window, text="Ignores layers", variable=occult_ignore).grid(sticky="w", row=current_row, column=0)
-    occult_accross = IntVar(window, value=0)
-    ttk.Checkbutton(window, text="Occult accross layers,\nnot within", variable=occult_accross).grid(sticky="w", row=current_row, column=1)
-    current_row +=1 
+    if len(occlusion_file_list) == 0:
+        occult_file_info = {}
+        occult_order = ttk.Combobox(
+            window,
+            values=[0]
+        )
+        occult_order.current(0)
+        occult_file_info["order"] = occult_order
 
-    ttk.Separator(window, orient='horizontal').grid(sticky="we", row=current_row, column=0, columnspan=4, pady=10)
-    current_row += 1
+        occult = IntVar(window, value=1)
+        occult_file_info["occult"] = occult
+        ttk.Checkbutton(window, text="Occult", variable=occult).grid(sticky="w", row=current_row, column=0)
+        occult_keep_lines = IntVar(window, value=0)
+        occult_file_info["keep"] = occult_keep_lines
+        ttk.Checkbutton(window, text="Keep occulted lines", variable=occult_keep_lines).grid(sticky="w", row=current_row, column=1)
+        current_row += 1 
+
+        occult_ignore = IntVar(window, value=1)
+        occult_file_info["ignore"] = occult_ignore
+        ttk.Checkbutton(window, text="Ignores layers", variable=occult_ignore).grid(sticky="w", row=current_row, column=0)
+        occult_across = IntVar(window, value=0)
+        occult_file_info["across"] = occult_across
+        ttk.Checkbutton(window, text="Occult across layers,\nnot within", variable=occult_across).grid(sticky="w", row=current_row, column=1)
+        current_row +=1 
+
+        ttk.Separator(window, orient='horizontal').grid(sticky="we", row=current_row, column=0, columnspan=4, pady=10)
+        current_row += 1
+
+        occult_info_list.append(occult_file_info)
+    else:
+        for index,file in enumerate(occlusion_file_list):
+            occult_file_info = {"file": file}
+
+            name = os.path.basename(os.path.normpath(file))
+            ttk.Label(window, text=f"File: {name}").grid(row=current_row, column=0, columnspan=2)
+
+            ttk.Label(window, text=f"Order: ").grid(row=current_row, column=2)
+            occult_order = ttk.Combobox(
+                window,
+                width=4,
+                state="readonly",
+                values=[*range(len(occlusion_file_list))]
+            )
+            occult_order.current(index)
+            occult_order.grid(sticky="w", row=current_row, column=3)
+            occult_file_info["order"] = occult_order
+
+            current_row += 1
+
+            occult = IntVar(window, value=1)
+            occult_file_info["occult"] = occult
+            ttk.Checkbutton(window, text="Occult", variable=occult).grid(sticky="e", row=current_row, column=0)
+            occult_keep_lines = IntVar(window, value=0)
+            occult_file_info["keep"] = occult_keep_lines
+            ttk.Checkbutton(window, text="Keep occulted lines", variable=occult_keep_lines).grid(sticky="w", row=current_row, column=1)
+            occult_ignore = IntVar(window, value=1)
+            occult_file_info["ignore"] = occult_ignore
+            ttk.Checkbutton(window, text="Ignores layers", variable=occult_ignore).grid(sticky="w", row=current_row, column=2)
+            occult_across = IntVar(window, value=0)
+            occult_file_info["across"] = occult_across
+            ttk.Checkbutton(window, text="Occult across layers,\nnot within", variable=occult_across).grid(sticky="w", row=current_row, column=3)
+            current_row +=1 
+
+            ttk.Separator(window, orient='horizontal').grid(sticky="we", row=current_row, column=0, columnspan=4, pady=10)
+            current_row += 1
+
+            occult_info_list.append(occult_file_info)
 
     ttk.Button(window, text="Show Output", command=show_vpypeline).grid(pady=(0,10), row=current_row, column=0)
     if len(input_files)>1:
