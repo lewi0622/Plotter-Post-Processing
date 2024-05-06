@@ -6,6 +6,7 @@ import settings
 
 
 def main(input_files=()):
+    global on_closing
     def on_closing(): #clean up any temp files hanging around
         delete_temp_file(show_temp_file)
         print("Closing Process")

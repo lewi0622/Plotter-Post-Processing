@@ -6,6 +6,23 @@ import Occult, Paint, Process, deCompose, settings
 def main():
     def on_closing():
         main_app.destroy()
+        print("HERE")
+        try:
+            Occult.on_closing()
+        except:
+            pass
+        try:
+            Process.on_closing()
+        except:
+            pass
+        try:
+            Paint.on_closing()
+        except:
+            pass
+        try:
+            deCompose.on_closing()
+        except:
+            pass
 
     def verify_output_files(files, util_name):
         if len(files) == 0:
