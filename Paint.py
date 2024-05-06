@@ -29,10 +29,9 @@ def main(input_files=()):
     def show_vpypeline():
         """Runs given commands on first file, but only shows the output."""
         global last_shown_command
-        command = build_vpypeline(True)
-        last_shown_command = command
-        print("Showing: \n", command)
-        subprocess.run(command)
+        last_shown_command = build_vpypeline(True)
+        print("Showing: \n", last_shown_command)
+        subprocess.run(last_shown_command)
 
 
     def build_vpypeline(show):
