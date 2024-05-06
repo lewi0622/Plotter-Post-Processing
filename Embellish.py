@@ -7,7 +7,7 @@ import settings
 def main(input_files=()):
     def on_closing(): #clean up any temp files hanging around
         delete_temp_file(show_temp_file)
-        print("Closing Embellish")
+        print("Closing deCompose")
         window.quit()
 
 
@@ -46,7 +46,7 @@ def main(input_files=()):
         for filename in input_file_list:
             file_parts = os.path.splitext(filename)
             show_temp_file = file_parts[0] + "_show_temp_file.svg"
-            output_filename = file_parts[0] + "_EMBELLISH.svg"
+            output_filename = file_parts[0] + "_deCOMPOSE.svg"
             output_file_list.append(output_filename)
 
         args = f'vpype eval "files_in={input_file_list}" eval "files_out={output_file_list}" '
@@ -57,11 +57,32 @@ def main(input_files=()):
         repeat_num = len(input_file_list)
         if show:
             repeat_num = 1
-
         args += f" repeat {repeat_num} "
-        args += r" read -a d -a points --no-crop  %files_in[_i]% "
 
+        # remove color layers
+        remove_any = False
+        for index, layer in enumerate(remove_layer_list):
+            if layer.get():
+                remove_any = True
+        if remove_any:
+            args += r" read -a stroke --no-crop %files_in[_i]% "
+            for index, layer in enumerate(remove_layer_list):
+                if layer.get():
+                    args += f' ldelete {index+1}'
+
+            if show and not remove_any and not separate.get():
+                args += " end show "
+                return args
+
+            args += f' write "{show_temp_file}" ldelete all ' #save to temp so it can be read by the separate step
+
+        # separate
         if separate.get():
+            file_input = r'%files_in[_i]%'
+            if remove_any:
+                file_input = show_temp_file
+
+            args += f" read -a d -a points --no-crop  {file_input} "
             args += f" filter --min-length {min_line_len_entry.get()}in "
             args += r" forlayer "
             if override_colors.get():
@@ -71,14 +92,17 @@ def main(input_files=()):
             if linesort.get():
                 args += r' linesort '
 
+            if show:
+                args += f' write "{show_temp_file}" '
+
         if show:
-            args += f' end write "{show_temp_file}" show '
+            args += f' end ldelete all read -a stroke --no-crop "{show_temp_file}" show '
         else:
             args += r"write %files_out[_i]% end"
 
         return args
 
-    global return_val, show_temp_file, last_shown_command, output_filename
+    global return_val, show_temp_file, last_shown_command, output_filename, remove_layer_list
     return_val = ()
 
     show_temp_file = ""
@@ -97,7 +121,7 @@ def main(input_files=()):
 
     global window
     window = Tk()
-    title = ttk.Label(window, text="Embellish", foreground=settings.link_color, cursor="hand2")
+    title = ttk.Label(window, text="deCompose", foreground=settings.link_color, cursor="hand2")
     title.grid(pady=(10,0), row=current_row,column=0, columnspan=4)
     current_row += 1
 
@@ -107,7 +131,18 @@ def main(input_files=()):
     ttk.Separator(window, orient='horizontal').grid(sticky="we", row=current_row, column=0, columnspan=4, pady=10)
     current_row += 1
 
-    separate = IntVar(window, value=1)
+    ttk.Label(window, justify=CENTER, text="Remove Layers").grid(row=current_row, column=0)
+    remove_layer_list = []
+    for index in range(max_num_colors):
+        remove_layer = IntVar(window, value=0)
+        remove_layer_list.append(remove_layer)
+        ttk.Checkbutton(window, text=f"Layer {index + 1}", variable=remove_layer).grid(sticky="w", row=current_row, column=3)
+        current_row += 1
+
+    ttk.Separator(window, orient='horizontal').grid(sticky="we", row=current_row, column=0, columnspan=4, pady=10)
+    current_row += 1
+
+    separate = IntVar(window, value=0)
     ttk.Checkbutton(window, text="Separate design in N equal layers", variable=separate).grid(sticky="w", row=current_row, column=0)
 
     ttk.Label(window, justify=CENTER, text="N").grid(row=current_row, column=1)
