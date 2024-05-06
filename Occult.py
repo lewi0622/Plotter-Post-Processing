@@ -32,10 +32,9 @@ def main(input_files=()):
         """Runs given commands on first file, but only shows the output. Cleans up any Occult generated temp files."""
         global last_shown_command
 
-        command = build_vpypeline(show=True)
-        last_shown_command = command
-        print("Showing: \n", command)
-        subprocess.run(command, capture_output=True, shell=True)
+        last_shown_command = build_vpypeline(show=True)
+        print("Showing: \n", last_shown_command)
+        subprocess.run(last_shown_command, capture_output=True, shell=True)
 
     def build_vpypeline(show):
         """Builds vpype command based on GUI selections"""
@@ -162,10 +161,6 @@ def main(input_files=()):
     ttk.Radiobutton(window, text="d/point", variable=attribute, value=0).grid(row=current_row, column=1)
     ttk.Radiobutton(window, text="stroke", variable=attribute, value=1).grid(row=current_row, column=2)
 
-    if len(occlusion_file_list) > 0:
-        #separately perform occult pipeline on each stroke layer in turn.
-        separate_stroke_layers = IntVar(window, value=0)
-        ttk.Checkbutton(window, text="Occult per Stroke Layer", variable=separate_stroke_layers).grid(sticky="w", row=current_row, column=3)
     current_row += 1
 
     ttk.Separator(window, orient='horizontal').grid(sticky="we", row=current_row, column=0, columnspan=4, pady=10)
