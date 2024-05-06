@@ -161,9 +161,9 @@ def main(input_files=()):
             return args
         else:
             if grid:
-                args += r' write %files_out[0]+file_ext% '
+                args += r' write %files_out[0]% '
             else:
-                args += r' write %files_out[_i]+file_ext% end'
+                args += r' write %files_out[_i]% end'
 
             return args
 
