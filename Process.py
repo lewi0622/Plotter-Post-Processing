@@ -16,7 +16,7 @@ def main(input_files=()):
         global return_val
 
         if len(input_files) == 1 and last_shown_command == build_vpypeline(show=True):
-            rename_replace(show_temp_file, output_filename + ".svg")
+            rename_replace(show_temp_file, output_filename)
             print("Same command as shown file, not re-running Vpype pipeline")
         else:
             command = build_vpypeline(show=False)
@@ -32,10 +32,9 @@ def main(input_files=()):
         """Runs given commands on first file, but only shows the output."""
         global last_shown_command
 
-        command = build_vpypeline(show=True)
-        last_shown_command = command
-        print("Showing: \n", command)
-        subprocess.run(command, capture_output=True, shell=True)
+        last_shown_command = build_vpypeline(show=True)
+        print("Showing: \n", last_shown_command)
+        subprocess.run(last_shown_command, capture_output=True, shell=True)
 
 
     def build_vpypeline(show):
@@ -50,7 +49,7 @@ def main(input_files=()):
         for filename in input_file_list:
             file_parts = os.path.splitext(filename)
             show_temp_file = file_parts[0] + "_show_temp_file.svg"
-            output_filename = file_parts[0] + "_PROCESSED" #file extension is appended after output filename can change for separating layers into separate files.
+            output_filename = file_parts[0] + "_PROCESSED.svg"
             output_file_list.append(output_filename)
 
         args = r"vpype "
@@ -79,7 +78,6 @@ def main(input_files=()):
 
         args += r' eval "files_in=' + f"{input_file_list}" + '"'
         args += r' eval "files_out=' + f"{output_file_list}" + '"'
-        args += r' eval "file_ext=' + r"'.svg'" + '"'
 
         #block operator grid or repeat
         if grid:
@@ -162,20 +160,12 @@ def main(input_files=()):
 
             return args
         else:
-            if separate_files.get():
-                args += r' eval "k=_i" '
-                args += r" forlayer write " 
-                args += r' %files_out[k]+str(_i)+file_ext% '
-                args += r" end end"
-
-                return args
+            if grid:
+                args += r' write %files_out[0]+file_ext% '
             else:
-                if grid:
-                    args += r' write %files_out[0]+file_ext% '
-                else:
-                    args += r' write %files_out[_i]+file_ext% end'
+                args += r' write %files_out[_i]+file_ext% end'
 
-                return args
+            return args
 
 
     def layout_selection_changed(event):
@@ -382,11 +372,6 @@ def main(input_files=()):
     multipass = IntVar(window, value=0)
     ttk.Checkbutton(window, text="multipass", variable=multipass).grid(sticky="w", row=current_row, column=1)
 
-    separate_files_label = ttk.Label(window, justify=CENTER, text="Separate SVG Layers\ninto individual files", foreground=settings.link_color, cursor="hand2")
-    separate_files_label.bind("<Button-1>", lambda e: open_url_in_browser("https://vpype.readthedocs.io/en/latest/cookbook.html#saving-each-layer-as-a-separate-file"))
-    separate_files_label.grid(row=current_row, column=2)
-    separate_files = IntVar(window, value=0)
-    ttk.Checkbutton(window, text="Separate\nFiles", variable=separate_files).grid(sticky="w", row=current_row, column=3)
     current_row += 1
 
     ttk.Separator(window, orient='horizontal').grid(sticky="we", row=current_row, column=0, columnspan=4, pady=10)
@@ -443,9 +428,6 @@ def main(input_files=()):
 
     settings.set_theme(window)
     window.mainloop()
-
-    for index, filename in enumerate(return_val):
-        return_val[index] = filename + ".svg"
 
     return tuple(return_val)
 
