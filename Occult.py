@@ -79,6 +79,8 @@ def main(input_files=()):
                 args += r' forlayer eval "%last_layer=_lid%" end '
                 args += r' read --layer "%last_layer+1%" '
                 args += f' "{occult_info["file"]}" '
+                if occult_info["color"].get():
+                    args += f' color -l "%last_layer+1%" {occult_info["color_info"].get()} '
 
             args += r' forlayer eval "%last_layer=_lid%" end '
             if occult_info["occult"].get():
@@ -108,7 +110,7 @@ def main(input_files=()):
             return args
 
 
-    global return_val, show_temp_file, last_shown_command, output_filename, color_list
+    global return_val, show_temp_file, last_shown_command, output_filename, color_list, occult_color_list
     return_val = ()
     show_temp_file = ""
     last_shown_command = ""
@@ -134,6 +136,10 @@ def main(input_files=()):
     #generate color list for each potential -k
     for file in input_files + occlusion_file_list:
         color_list.append(generate_random_color(file, color_list))
+
+    occult_color_list = []
+    for file in occlusion_file_list:
+        occult_color_list.append(generate_random_color(file, color_list+occult_color_list))
 
     #tk widgets and window
     current_row = 0 #helper row var, inc-ed every time used;
@@ -213,7 +219,16 @@ def main(input_files=()):
             occult_order.current(index)
             occult_order.grid(sticky="w", row=current_row, column=3)
             occult_file_info["order"] = occult_order
+            current_row += 1
 
+            occult_color = IntVar(window, value=0)
+            occult_file_info["color"] = occult_color
+            ttk.Radiobutton(window, text="Use File Color", variable=occult_color, value=0).grid(row=current_row, column=0)
+            ttk.Radiobutton(window, text="Overwrite Color", variable=occult_color, value=1).grid(row=current_row, column=1)
+            occult_color_entry = ttk.Entry(window, width=7)
+            occult_file_info["color_info"] = occult_color_entry
+            occult_color_entry.insert(0,f"{occult_color_list[index]}")
+            occult_color_entry.grid(sticky="w", row=current_row, column=2)
             current_row += 1
 
             occult = IntVar(window, value=1)
