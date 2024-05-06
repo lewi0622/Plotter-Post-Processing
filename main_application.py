@@ -1,7 +1,7 @@
 from tkinter import *
 from tkinter import ttk
 from utils import *
-import Occult, Paint, Process, Embellish, settings
+import Occult, Paint, Process, deCompose, settings
 
 def main():
     def on_closing():
@@ -28,10 +28,10 @@ def main():
         Paint.window.destroy()
         verify_output_files(painted_files, "Paint")
 
-    def run_embellish():
-        painted_files = Embellish.main(input_files)
-        Embellish.window.destroy()
-        verify_output_files(painted_files, "Embellish")
+    def run_deCompose():
+        painted_files = deCompose.main(input_files)
+        deCompose.window.destroy()
+        verify_output_files(painted_files, "deCompose")
 
     def select_files(files=()):
         global input_files, file_info_text
@@ -61,7 +61,7 @@ def main():
     ttk.Button(main_app, text="Occult", command=run_occult).grid(row=current_row, column=0)
     ttk.Button(main_app, text="Process", command=run_process).grid(row=current_row, column=1)
     ttk.Button(main_app, text="Paint", command=run_paint).grid(row=current_row, column=2)
-    ttk.Button(main_app, text="Embellish", command=run_embellish).grid(row=current_row, column=3)
+    ttk.Button(main_app, text="deCompose", command=run_deCompose).grid(row=current_row, column=3)
 
     current_row += 1
 
