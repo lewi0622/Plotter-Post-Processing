@@ -75,14 +75,17 @@ def main():
 
     select_files()
 
-    ttk.Button(main_app, text="Occult", command=run_occult).grid(row=current_row, column=0)
-    ttk.Button(main_app, text="Process", command=run_process).grid(row=current_row, column=1)
-    ttk.Button(main_app, text="Paint", command=run_paint).grid(row=current_row, column=2)
-    ttk.Button(main_app, text="deCompose", command=run_deCompose).grid(row=current_row, column=3)
+    ttk.Button(main_app, text="Occult", command=run_occult).grid(pady=(2,2), row=current_row, column=0)
+    ttk.Button(main_app, text="Process", command=run_process).grid(pady=(2,2), row=current_row, column=1)
+    ttk.Button(main_app, text="Paint", command=run_paint).grid(pady=(2,2), row=current_row, column=2)
+    current_row += 1
+    
+    ttk.Button(main_app, text="deCompose", command=run_deCompose).grid(pady=(2,2), row=current_row, column=1)
 
     current_row += 1
 
-    ttk.Button(main_app, text="Re-Select Files", command=select_files).grid(row=current_row, column=0)
+    ttk.Button(main_app, text="Re-Select Files", command=select_files).grid(pady=(0,10), row=current_row, column=0)
+    ttk.Label(main_app, text="By default, output files from one utility are taken as\nthe new input files. Reselect files if necessary.").grid(pady=(0,10), row=current_row, column=1, columnspan=2)
     current_row += 1
 
     main_app.protocol("WM_DELETE_WINDOW", on_closing)
