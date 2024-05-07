@@ -80,16 +80,17 @@ def main(input_files=()):
             args += r" read -a stroke --no-crop %files_in[_i]% "
             for index, layer in enumerate(remove_layer_list):
                 if layer.get():
-                    args += f' ldelete {index+1}'
+                    args += f' ldelete {index+1} '
 
-            if show and not remove_any and not separate.get():
+            if show and not separate.get():
                 args += " end show "
                 return args
 
-            args += f' write "{show_temp_file}" ldelete all ' #save to temp so it can be read by the separate step
-
         # separate
         if separate.get():
+            if remove_any:
+                args += f' write "{show_temp_file}" ldelete all ' #save to temp so it can be read by the separate step
+
             file_input = r'%files_in[_i]%'
             if remove_any:
                 file_input = show_temp_file
@@ -123,7 +124,7 @@ def main(input_files=()):
         if show:
             args += f' end ldelete all read -a stroke --no-crop "{show_temp_file}" show '
         else:
-            args += r"write %files_out[_i]% end"
+            args += r" write %files_out[_i]% end "
 
         return args
 
