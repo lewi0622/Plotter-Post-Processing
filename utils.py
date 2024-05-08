@@ -80,9 +80,10 @@ def build_color_dict(input_file):
                 elif "#" in stroke:
                     hex_value = stroke
                 elif "none" in stroke:
-                    pass
+                    continue
                 else:
                     print("Can't parse: ", stroke)
+                    continue
                 color_dict[hex_value] = 0
     return color_dict
 
