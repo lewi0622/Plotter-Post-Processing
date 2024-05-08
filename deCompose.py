@@ -83,7 +83,7 @@ def main(input_files=()):
                     args += f' ldelete {index+1} '
 
             if show and not separate.get():
-                args += " end show "
+                args += f' write "{show_temp_file}" end show '
                 return args
 
         # separate
