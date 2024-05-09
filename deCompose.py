@@ -48,7 +48,7 @@ def main(input_files=()):
         for filename in input_file_list:
             file_parts = os.path.splitext(filename)
             show_temp_file = file_parts[0] + "_show_temp_file.svg"
-            output_filename = file_parts[0] + "_deCOMPOSE"
+            output_filename = file_parts[0] + "_deC"
             if separate_files.get():
                 for i in range(max_colors_per_file([filename])):
                     output_file_list.append(output_filename + str(i) + ".svg")

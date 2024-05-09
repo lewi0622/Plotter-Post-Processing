@@ -50,7 +50,7 @@ def main(input_files=()):
         for filename in input_file_list:
             file_parts = os.path.splitext(filename)
             show_temp_file = file_parts[0] + "_show_temp_file.svg"
-            output_filename = file_parts[0] + "_PROCESSED.svg"
+            output_filename = file_parts[0] + "_P.svg"
             output_file_list.append(output_filename)
 
         args = r"vpype "

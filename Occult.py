@@ -50,7 +50,7 @@ def main(input_files=()):
         for filename in input_file_list:
             file_parts = os.path.splitext(filename)
             show_temp_file = file_parts[0] + "_show_temp_file.svg"
-            output_filename = file_parts[0] + "_OCCLUDED.svg"
+            output_filename = file_parts[0] + "_O.svg"
             output_file_list.append(output_filename)
 
         sorted_occult_info_list = sorted(occult_info_list, key=lambda d: d['order'].get())
