@@ -1,7 +1,7 @@
 from tkinter import *
 from tkinter import ttk
 from utils import *
-import Occult, Paint, Process, deCompose, settings
+import Occult, Paint, Process, Compose, deCompose, settings
 
 def main():
     def on_closing():
@@ -21,6 +21,10 @@ def main():
             pass
         try:
             deCompose.on_closing()
+        except:
+            pass
+        try:
+            Compose.on_closing()
         except:
             pass
 
@@ -44,6 +48,11 @@ def main():
         painted_files = Paint.main(input_files)
         Paint.window.destroy()
         verify_output_files(painted_files, "Paint")
+
+    def run_compose():
+        painted_files = Compose.main(input_files)
+        Compose.window.destroy()
+        verify_output_files(painted_files, "Compose")
 
     def run_deCompose():
         painted_files = deCompose.main(input_files)
@@ -79,7 +88,7 @@ def main():
     ttk.Button(main_app, text="Process", command=run_process).grid(pady=(2,2), row=current_row, column=1)
     ttk.Button(main_app, text="Paint", command=run_paint).grid(pady=(2,2), row=current_row, column=2)
     current_row += 1
-    
+    ttk.Button(main_app, text="Compose", command=run_compose).grid(pady=(2,2), row=current_row, column=0)
     ttk.Button(main_app, text="deCompose", command=run_deCompose).grid(pady=(2,2), row=current_row, column=1)
 
     current_row += 1
