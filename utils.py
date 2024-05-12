@@ -102,7 +102,16 @@ def generate_random_color(input_file, do_not_use=[]):
     color_dict = build_color_dict(input_file)
     for color in do_not_use:
         color_dict[str(color)] = 0
-    rgb_hex = "#123456"
+
+    #generate first color
+    rgb = (
+    math.floor(random.random()*256), 
+    math.floor(random.random()*256), 
+    math.floor(random.random()*256)
+    )
+    rgb_hex = get_hex_value(rgb)
+
+    # keep generating colors if matching
     while(rgb_hex in color_dict):
         rgb = (
             math.floor(random.random()*256), 
