@@ -55,7 +55,14 @@ def main(input_files=()):
             else:
                 output_file_list.append(output_filename + ".svg")
 
+        #build color list
+        color_list = []
+        #generate color list for 
+        for _n in range(int(n_layers_entry.get())):
+            color_list.append(generate_random_color(input_files[0], color_list))
+
         args = f'vpype eval "files_in={input_file_list}" eval "files_out={output_file_list}" '
+        args += r' eval "random_colors=' + f"{color_list}" + '"'
 
         if separate.get():
             args += f' eval "%num_layers={n_layers_entry.get()}%" '
@@ -99,7 +106,7 @@ def main(input_files=()):
             args += f" filter --min-length {min_line_len_entry.get()}in "
             args += r" forlayer "
             if override_colors.get():
-                args += r' color -l %_lid% "%255-_lid%%num_layers%" '
+                args += r' color -l %_lid% "%random_colors[_lid%%num_layers]%" '
             args += r' lmove %_lid% "%_lid%%num_layers+1%" '
             args += r' end '
             if linesort.get():
