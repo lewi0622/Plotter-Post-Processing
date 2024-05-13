@@ -41,6 +41,7 @@ def main(input_files=()):
         global show_temp_file
         global output_filename
         global output_file_list
+        global color_list
 
         #build output files list
         input_file_list = list(input_files)
@@ -56,10 +57,12 @@ def main(input_files=()):
                 output_file_list.append(output_filename + ".svg")
 
         #build color list
-        color_list = []
-        #generate color list for 
-        for _n in range(int(n_layers_entry.get())):
-            color_list.append(generate_random_color(input_files[0], color_list))
+        num_layers = int(n_layers_entry.get())
+        if len(color_list) != num_layers:
+            color_list = []
+            #generate color list for 
+            for _n in range(num_layers):
+                color_list.append(generate_random_color(input_files[0], color_list))
 
         args = f'vpype eval "files_in={input_file_list}" eval "files_out={output_file_list}" '
         args += r' eval "random_colors=' + f"{color_list}" + '"'
@@ -102,13 +105,20 @@ def main(input_files=()):
             if remove_any:
                 file_input = show_temp_file
 
-            args += f" read -a d -a points --no-crop {file_input} "
-            args += f" filter --min-length {min_line_len_entry.get()}in "
-            args += r" forlayer "
-            if override_colors.get():
+            if separator_type.get():
+                args += f" read --no-crop {file_input} "
+                args += f" splitdist {split_dist_entry.get()}in "
+                args += r' forlayer eval "%new_id=_i%%num_layers+1%" '
+                args += r' lmove %_lid% "%new_id%" '
+                args += r' color -l "%new_id%" "%random_colors[_lid%%num_layers]%" end '
+            else:
+                args += f" read -a d -a points --no-crop {file_input} "
+                args += f" filter --min-length {min_line_len_entry.get()}in "
+                args += r" forlayer "
                 args += r' color -l %_lid% "%random_colors[_lid%%num_layers]%" '
-            args += r' lmove %_lid% "%_lid%%num_layers+1%" '
-            args += r' end '
+                args += r' lmove %_lid% "%_lid%%num_layers+1%" '
+                args += r' end '
+            
             if linesort.get():
                 args += r' linesort '
 
@@ -135,12 +145,13 @@ def main(input_files=()):
 
         return args
 
-    global return_val, show_temp_file, last_shown_command, output_filename, remove_layer_list
+    global return_val, show_temp_file, last_shown_command, output_filename, remove_layer_list, color_list
     return_val = ()
 
     show_temp_file = ""
     last_shown_command = ""
     output_filename = ""
+    color_list = []
 
     if len(input_files) == 0:
         input_files = get_files()
@@ -176,26 +187,38 @@ def main(input_files=()):
     current_row += 1
 
     separate = IntVar(window, value=0)
-    ttk.Checkbutton(window, text="Separate design in N equal layers", variable=separate).grid(sticky="w", row=current_row, column=0)
+    ttk.Checkbutton(window, text="Separate design in N layers", variable=separate).grid(sticky="w", row=current_row, column=0)
 
     ttk.Label(window, justify=CENTER, text="N").grid(row=current_row, column=1)
     n_layers_entry = ttk.Entry(window, width=7)
-    n_layers_entry.insert(0, "8")
+    n_layers_entry.insert(0, "2")
     n_layers_entry.grid(sticky="w", row=current_row, column=2)
     current_row += 1
 
-    ttk.Label(window, justify=CENTER, text="Min. line length (inches)").grid(row=current_row, column=1)
-    min_line_len_entry = ttk.Entry(window, width=7)
-    min_line_len_entry.insert(0, "0.2")
-    min_line_len_entry.grid(sticky="w", row=current_row, column=2)
+    ttk.Separator(window, orient='horizontal').grid(sticky="we", row=current_row, column=0, columnspan=4, padx=10, pady=10)
     current_row += 1
 
-    override_colors = IntVar(window, value=1)
-    ttk.Checkbutton(window, text="Override layers with new colors", variable=override_colors).grid(sticky="w", row=current_row, column=1, columnspan=2)
+    separator_type = IntVar(window, value=1)
+    ttk.Radiobutton(window, text="Uniform", variable=separator_type, value=0).grid(row=current_row, column=0)
+    ttk.Radiobutton(window, text="By Distance", variable=separator_type, value=1).grid(row=current_row, column=2)
+    current_row += 1
+
+    ttk.Label(window, justify=CENTER, text="Min. line length (inches)").grid(row=current_row, column=0)
+    min_line_len_entry = ttk.Entry(window, width=7)
+    min_line_len_entry.insert(0, "0.2")
+    min_line_len_entry.grid(sticky="w", row=current_row, column=1)
+
+    ttk.Label(window, justify=CENTER, text="SplitDist (inches)").grid(row=current_row, column=2)
+    split_dist_entry = ttk.Entry(window, width=7)
+    split_dist_entry.insert(0, "20")
+    split_dist_entry.grid(sticky="w", row=current_row, column=3)
+    current_row += 1
+
+    ttk.Separator(window, orient='horizontal').grid(sticky="we", row=current_row, column=0, columnspan=4, padx=10, pady=10)
     current_row += 1
 
     linesort = IntVar(window, value=1)
-    ttk.Checkbutton(window, text="Sort after splitting into layers", variable=linesort).grid(sticky="w", row=current_row, column=1, columnspan=2)
+    ttk.Checkbutton(window, text="Sort after splitting into layers", variable=linesort).grid(sticky="w", row=current_row, column=0, columnspan=2)
     current_row += 1
 
     ttk.Separator(window, orient='horizontal').grid(sticky="we", row=current_row, column=0, columnspan=4, pady=10)
