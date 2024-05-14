@@ -6,7 +6,6 @@ import Occult, Paint, Process, Compose, deCompose, settings
 def main():
     def on_closing():
         main_app.destroy()
-        print("HERE")
         try:
             Occult.on_closing()
         except:
