@@ -13,7 +13,6 @@ def main(input_files=()):
         window.quit()                
 
     def run_vpypeline():
-        """calls vpype cli to process """
         global return_val
 
         if len(input_files) == 1 and last_shown_command == build_vpypeline(show=True):
@@ -54,41 +53,14 @@ def main(input_files=()):
             output_file_list.append(output_filename)
 
         args = r"vpype "
-
-        # determine if grid is necessary
-        cols = grid_col_entry.get()
-        rows = grid_row_entry.get()
-        width = grid_col_width_entry.get()
-        height = grid_row_height_entry.get()
-
-        cols = int(cols)
-        rows = int(rows)
-        col_size = float(width)
-        row_size = float(height)
-
-        slots = cols * rows
-        grid = slots > 1
-
-        # Declare globals before the block operator (grid or repeat)
-        if grid:
-            while len(input_file_list) < slots: #crude way to make sure there's enough files per grid slot
-                input_file_list = input_file_list + input_file_list
-                output_file_list = output_file_list + output_file_list
-
-            args += r' eval "%grid_layer_count=1%" '
-
         args += r' eval "files_in=' + f"{input_file_list}" + '"'
         args += r' eval "files_out=' + f"{output_file_list}" + '"'
 
-        #block operator grid or repeat
-        if grid:
-            args += f" grid -o {col_size}in {row_size}in {cols} {rows} "
-        else: #repeat for both single and batch operations
-            if show:
-                repeat_num = 1
-            else:
-                repeat_num = len(input_file_list)
-            args += f" repeat {repeat_num} "
+        if show:
+            repeat_num = 1
+        else:
+            repeat_num = len(input_file_list)
+        args += f" repeat {repeat_num} "
 
         args += r" read -a stroke "
 
@@ -137,11 +109,6 @@ def main(input_files=()):
         if multipass.get():
             args += f" multipass "
 
-        if grid: 
-            args += r' forlayer '
-            args += r' lmove %_lid% %grid_layer_count% ' #moves each layer onto it's own unique layer so there's no merging
-            args += r' eval "%grid_layer_count=grid_layer_count+1%" end end' #inc the global layer counter
-        
         #layout as letter centers graphics within given page size
         if layout.get():
             args += r" layout "
@@ -155,18 +122,12 @@ def main(input_files=()):
                 else:
                     args += f" crop 0 0 {layout_width_entry.get()}in {layout_height_entry.get()}in "
         if show:
-            if not grid:
-                args += r" end "
+            args += r" end "
             args += f' write "{show_temp_file}" show '
-
-            return args
         else:
-            if grid:
-                args += r' write %files_out[0]% '
-            else:
-                args += r' write %files_out[_i]% end'
+            args += r' write %files_out[_i]% end'
 
-            return args
+        return args
 
 
     def layout_selection_changed(event):
@@ -222,43 +183,6 @@ def main(input_files=()):
 
     ttk.Separator(window, orient='horizontal').grid(sticky="we", row=current_row, column=0, columnspan=4, pady=10)
     current_row += 1
-
-    grid_label = ttk.Label(window, justify=CENTER, text="Merge Multiple SVGs into Grid", foreground=settings.link_color, cursor="hand2")
-    grid_label.bind("<Button-1>", lambda e: open_url_in_browser("https://vpype.readthedocs.io/en/latest/cookbook.html#faq-merge-to-grid"))
-    grid_label.grid(row=current_row, column=0, columnspan=4)
-    # ttk.Label(window, justify=CENTER, text="Color Options:").grid(row=current_row, column=1)
-    # grid_color_options_combobox = ttk.Combobox(
-    #     width=20,
-    #     state="readonly",
-    #     values=["Keep Original Colors", "Different Color Per File", "All One Color"]
-    # )
-    # grid_color_options_combobox.current(0)
-    # grid_color_options_combobox.grid(sticky="w", row=current_row, column=2, columnspan=2)
-    current_row += 1
-
-    ttk.Label(window, justify=CENTER, text="Grid Col Width(in):").grid(row=current_row, column=0)
-    grid_col_width_entry = ttk.Entry(window, width=7)
-    grid_col_width_entry.grid(sticky="w", row=current_row, column=1)
-
-    ttk.Label(window, justify=CENTER, text="Grid Row Height(in):").grid(row=current_row, column=2)
-    grid_row_height_entry = ttk.Entry(window, width=7)
-    grid_row_height_entry.grid(sticky="w", row=current_row, column=3)
-    current_row += 1 
-
-    ttk.Label(window, justify=CENTER, text="Grid Columns:").grid(row=current_row, column=0)
-    grid_col_entry = ttk.Entry(window, width=7)
-    grid_col_entry.grid(sticky="w", row=current_row, column=1)
-
-    ttk.Label(window, justify=CENTER, text="Grid Rows:").grid(row=current_row, column=2)
-    grid_row_entry = ttk.Entry(window, width=7)
-    grid_row_entry.grid(sticky="w", row=current_row, column=3)
-    current_row += 1 
-
-    # insert after creation of the size entries so
-    grid_col_width_entry.insert(0,f"{svg_width_inches}")
-    grid_row_height_entry.insert(0,f"{svg_height_inches}")
-    grid_col_entry.insert(0, "1")
-    grid_row_entry.insert(0, "1")
 
     ttk.Separator(window, orient='horizontal').grid(sticky="we", row=current_row, column=0, columnspan=4, pady=10)
     current_row += 1
