@@ -49,24 +49,56 @@ def main(input_files=()):
         show_temp_file = file_parts[0] + "_show_temp_file.svg"
         output_filename = file_parts[0] + "_C.svg"
         output_file_list.append(output_filename)
+
+        # determine if grid is necessary
+        cols = grid_col_entry.get()
+        rows = grid_row_entry.get()
+        width = grid_col_width_entry.get()
+        height = grid_row_height_entry.get()
+
+        cols = int(cols)
+        rows = int(rows)
+        col_size = float(width)
+        row_size = float(height)
+
+        slots = cols * rows
+        grid = slots > 1
+
         #sort list in reverse, but load new files in lower number layers
-        sorted_info_list = sorted(compose_info_list, key=lambda d: d['order'].get(), reverse=True)
+        sorted_info_list = sorted(compose_info_list, key=lambda d: d['order'].get(), reverse=not grid)
 
         args = r"vpype "
 
-        for index, info in enumerate(sorted_info_list):
-            if index > 0:
-                incoming_layer_number = 1
+        if grid:
+            args += f' eval "files_in={input_file_list}" '
+            args += r' eval "%grid_layer_count=1%" '
+            args += f" grid -o {col_size}in {row_size}in {cols} {rows} "
+            args += r' read -a stroke --no-crop %files_in[_i%%len(files_in)]% '
+            args += r' forlayer '
+            args += r' lmove %_lid% %grid_layer_count% ' #moves each layer onto it's own unique layer so there's no merging
+            args += r' eval "%grid_layer_count=grid_layer_count+1%" end end' #inc the global layer counter
+
+        else: #Load files on top of one another
+            for index, info in enumerate(sorted_info_list):
+                if index > 0:
+                    incoming_layer_number = 1
+                    if info["attribute"].get():
+                        incoming_layer_number = max_colors_per_file([info["file"]])
+                    args += f' forlayer lmove "%_n-_i%" "%_n-_i+{incoming_layer_number}%" end ' #shift layers up the number of incoming layers
                 if info["attribute"].get():
-                    incoming_layer_number = max_colors_per_file([info["file"]])
-                args += f' forlayer lmove "%_n-_i%" "%_n-_i+{incoming_layer_number}%" end ' #shift layers up the number of incoming layers
-            if info["attribute"].get():
-                args += f' read -a stroke "{info["file"]}" '
-            else:
-                args += r' forlayer eval "%last_layer=_lid%" end '
-                args += f' read -l "%last_layer+1%" "{info["file"]}" '
-                if info["overwrite_color"].get():
-                    args += f' color -l "%last_layer+1%" {info["color_info"] }'
+                    args += f' read -a stroke "{info["file"]}" '
+                else:
+                    args += r' forlayer eval "%last_layer=_lid%" end '
+                    args += f' read -l "%last_layer+1%" "{info["file"]}" '
+                    if info["overwrite_color"].get():
+                        args += f' color -l "%last_layer+1%" {info["color_info"] }'
+
+        #layout as letter centers graphics within given page size
+        if layout.get():
+            args += r" layout "
+            if layout_landscape.get():
+                args += r" -l "
+            args += f" {layout_width_entry.get()}x{layout_height_entry.get()}in "
 
         if show:
             args += f' write "{show_temp_file}" show '
@@ -74,6 +106,26 @@ def main(input_files=()):
             args += f' write "{output_filename}" '
 
         return args
+
+    def layout_selection_changed(event):
+        """Event from changing the layout dropdown box, sets the width and height accordingly"""
+        selection = layout_combobox.get()
+        layout_width_entry.delete(0,END)
+        layout_height_entry.delete(0,END)
+        if selection == "Letter":
+            layout_width_entry.insert(0,"8.5")
+            layout_height_entry.insert(0,"11")
+            layout.set(1)
+        elif selection == "A4":
+            layout_width_entry.insert(0,"8.3")
+            layout_height_entry.insert(0,"11.7")
+        elif selection == "A3":
+            layout_width_entry.insert(0,"11.7")
+            layout_height_entry.insert(0,"16.5")
+        elif selection == "A2":
+            layout_width_entry.insert(0,"16.5")
+            layout_height_entry.insert(0,"23.4")
+            layout.set(0)
 
 
     global return_val, show_temp_file, last_shown_command, output_filename, compose_color_list, compose_info_list
@@ -108,6 +160,50 @@ def main(input_files=()):
 
     ttk.Label(window, justify=CENTER, text=f"{len(input_files)} Design file(s) selected,\nDesign file Width(in): {svg_width_inches}, Height(in): {svg_height_inches}").grid(row=current_row, column=0, columnspan=4)
     current_row +=1 
+
+    ttk.Label(window, justify=CENTER, text="If Grid Cols and Rows equal 1,\ndesigns are simply loaded on top of one another").grid(row=current_row, column=0, columnspan=4)
+    current_row += 1
+    
+    ttk.Separator(window, orient='horizontal').grid(sticky="we", row=current_row, column=0, columnspan=4, pady=10)
+    current_row += 1
+
+    #grid options
+    grid_label = ttk.Label(window, justify=CENTER, text="Merge Multiple SVGs into Grid", foreground=settings.link_color, cursor="hand2")
+    grid_label.bind("<Button-1>", lambda e: open_url_in_browser("https://vpype.readthedocs.io/en/latest/cookbook.html#faq-merge-to-grid"))
+    grid_label.grid(row=current_row, column=0, columnspan=4)
+    # ttk.Label(window, justify=CENTER, text="Color Options:").grid(row=current_row, column=1)
+    # grid_color_options_combobox = ttk.Combobox(
+    #     width=20,
+    #     state="readonly",
+    #     values=["Keep Original Colors", "Different Color Per File", "All One Color"]
+    # )
+    # grid_color_options_combobox.current(0)
+    # grid_color_options_combobox.grid(sticky="w", row=current_row, column=2, columnspan=2)
+    current_row += 1
+
+    ttk.Label(window, justify=CENTER, text="Grid Col Width(in):").grid(row=current_row, column=0)
+    grid_col_width_entry = ttk.Entry(window, width=7)
+    grid_col_width_entry.grid(sticky="w", row=current_row, column=1)
+
+    ttk.Label(window, justify=CENTER, text="Grid Row Height(in):").grid(row=current_row, column=2)
+    grid_row_height_entry = ttk.Entry(window, width=7)
+    grid_row_height_entry.grid(sticky="w", row=current_row, column=3)
+    current_row += 1 
+
+    ttk.Label(window, justify=CENTER, text="Grid Columns:").grid(row=current_row, column=0)
+    grid_col_entry = ttk.Entry(window, width=7)
+    grid_col_entry.grid(sticky="w", row=current_row, column=1)
+
+    ttk.Label(window, justify=CENTER, text="Grid Rows:").grid(row=current_row, column=2)
+    grid_row_entry = ttk.Entry(window, width=7)
+    grid_row_entry.grid(sticky="w", row=current_row, column=3)
+    current_row += 1 
+
+    # insert after creation of the size entries so
+    grid_col_width_entry.insert(0,f"{svg_width_inches}")
+    grid_row_height_entry.insert(0,f"{svg_height_inches}")
+    grid_col_entry.insert(0, "1")
+    grid_row_entry.insert(0, "1")
 
     ttk.Separator(window, orient='horizontal').grid(sticky="we", row=current_row, column=0, columnspan=4, pady=10)
     current_row += 1
@@ -155,6 +251,44 @@ def main(input_files=()):
         current_row += 1
 
         compose_info_list.append(compose_info)
+
+    layout_label = ttk.Label(window, justify=CENTER, text="Layout centers scaled\ndesign in page size)", foreground=settings.link_color, cursor="hand2")
+    layout_label.bind("<Button-1>", lambda e: open_url_in_browser("https://vpype.readthedocs.io/en/latest/reference.html#layout"))
+    layout_label.grid(row=current_row, column=0)
+    layout = IntVar(window, value=1)
+    ttk.Checkbutton(window, text="Layout?", variable=layout).grid(sticky="w", row=current_row, column=1)
+
+    ttk.Label(window, justify=CENTER, text="Page Layout Width(in):").grid(row=current_row, column=2)
+    layout_width_entry = ttk.Entry(window, width=7)
+    layout_width_entry.insert(0,f"8.5")
+    layout_width_entry.grid(sticky="w", row=current_row, column=3)
+    current_row +=1 
+
+    ttk.Label(window, justify=CENTER, text="Page Size").grid(row=current_row, column=0)
+    layout_combobox = ttk.Combobox(
+        window,
+        width=7,
+        state="readonly",
+        values=["Letter", "A4", "A3", "A2"]
+    )
+    layout_combobox.current(0)
+    layout_combobox.grid(sticky="w", row=current_row, column=1)
+    layout_combobox.bind("<<ComboboxSelected>>", layout_selection_changed)
+
+    ttk.Label(window, justify=CENTER, text="Page Layout Height(in):").grid(row=current_row, column=2)
+    layout_height_entry = ttk.Entry(window, width=7)
+    layout_height_entry.insert(0,f"11")
+    layout_height_entry.grid(sticky="w", row=current_row, column=3)
+    current_row +=1
+
+    layout_landscape_label = ttk.Label(window, justify=CENTER, text="By default, the larger layout size is the height,\nLandscape flips the orientation")
+    layout_landscape_label.grid(row=current_row, column=0, columnspan=2)
+    layout_landscape = IntVar(window, value=1)
+    ttk.Checkbutton(window, text="Landscape", variable=layout_landscape).grid(sticky="w", row=current_row, column=2)
+    current_row +=1
+
+    ttk.Separator(window, orient='horizontal').grid(sticky="we", row=current_row, column=0, columnspan=4, pady=10)
+    current_row += 1
 
     ttk.Button(window, text="Show Output", command=show_vpypeline).grid(pady=(0,10), row=current_row, column=0)
 
