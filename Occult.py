@@ -13,7 +13,6 @@ def main(input_files=()):
         window.quit()
 
     def run_vpypeline():
-        """calls vpype cli to process """
         global return_val
 
         if len(input_files) == 1 and last_shown_command == build_vpypeline(show=True):
