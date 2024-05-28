@@ -86,7 +86,7 @@ def main(input_files=()):
         if linemerge.get():
             args += f" linemerge "
             if linemerge_tolerance_entry.get() != "0.0019685":
-                args += f" -t {linemerge_tolerance_entry.get()} "
+                args += f" -t {linemerge_tolerance_entry.get()}in "
 
         if linesort.get():
             args += r" linesort "
@@ -97,14 +97,14 @@ def main(input_files=()):
         if linesimplify.get():
             args += f" linesimplify "
             if linesimplify_tolerance_entry.get() != "0.0019685":
-                args += f" -t {linesimplify_tolerance_entry.get()} "
+                args += f" -t {linesimplify_tolerance_entry.get()}in "
 
         if squiggle.get():
             args += f" squiggles "
             if squiggle_amplitude_entry.get() != "0.019685":
-                args += f" -a {squiggle_amplitude_entry.get()} "
+                args += f" -a {squiggle_amplitude_entry.get()}in "
             if squiggle_period_entry.get() != "0.11811":
-                args += f" -p {squiggle_period_entry.get()} "
+                args += f" -p {squiggle_period_entry.get()}in "
 
         if multipass.get():
             args += f" multipass "
