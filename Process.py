@@ -73,7 +73,10 @@ def main(input_files=()):
             args += f" scaleto {scale_width_entry.get()}in {scale_height_entry.get()}in "
 
         if center_geometries.get():
-            args += f" layout {svg_width_inches}x{svg_height_inches}in "
+            args += " layout "
+            if svg_width_inches > svg_height_inches:
+                args += r" -l "
+            args += f" {svg_width_inches}x{svg_height_inches}in "
 
         crop_x_end = float(crop_x_end_entry.get())
         crop_y_end = float(crop_y_end_entry.get())
@@ -180,9 +183,6 @@ def main(input_files=()):
     crop_input = IntVar(window, value=0)
     ttk.Checkbutton(window, text="Crop input", variable=crop_input).grid(sticky="w", row=current_row,column=3)
     current_row +=1 
-
-    ttk.Separator(window, orient='horizontal').grid(sticky="we", row=current_row, column=0, columnspan=4, pady=10)
-    current_row += 1
 
     ttk.Separator(window, orient='horizontal').grid(sticky="we", row=current_row, column=0, columnspan=4, pady=10)
     current_row += 1
