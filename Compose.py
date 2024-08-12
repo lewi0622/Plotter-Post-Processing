@@ -86,12 +86,12 @@ def main(input_files=()):
                         incoming_layer_number = max_colors_per_file([info["file"]])
                     args += f' forlayer lmove "%_n-_i%" "%_n-_i+{incoming_layer_number}%" end ' #shift layers up the number of incoming layers
                 if info["attribute"].get():
-                    args += f' read -a stroke "{info["file"]}" '
+                    args += f' read -a stroke --no-crop "{info["file"]}" '
                 else:
-                    args += r' forlayer eval "%last_layer=_lid%" end '
-                    args += f' read -l "%last_layer+1%" "{info["file"]}" '
+                    # args += r' forlayer eval "%last_layer=_lid%" end '
+                    args += f' read --no-crop --layer 1 "{info["file"]}" '
                     if info["overwrite_color"].get():
-                        args += f' color -l "%last_layer+1%" {info["color_info"] }'
+                        args += f' color -l 1 {info["color_info"].get()}'
 
         #layout as letter centers graphics within given page size
         if layout.get():
