@@ -76,7 +76,10 @@ def main(input_files=()):
         for occult_info in sorted_occult_info_list:
             if "file" in occult_info:
                 args += r' forlayer eval "%last_layer=_lid%" end '
-                args += r' read --layer "%last_layer+1%" '
+                args += r' read '
+                if not occult_file_info["crop"].get():
+                    args += r' --no-crop '
+                args += r' --layer "%last_layer+1%" '
                 args += f' "{occult_info["file"]}" '
                 if occult_info["color"].get():
                     args += f' color -l "%last_layer+1%" {occult_info["color_info"].get()} '
@@ -215,15 +218,18 @@ def main(input_files=()):
             occult_order.grid(sticky="w", row=current_row, column=3)
             occult_file_info["order"] = occult_order
             current_row += 1
-
+            
+            occult_crop = IntVar(window, value=0)
+            occult_file_info["crop"] = occult_crop
+            ttk.Checkbutton(window, text="Crop", variable=occult_crop).grid(sticky="e", row=current_row, column=0)
             occult_color = IntVar(window, value=0)
             occult_file_info["color"] = occult_color
-            ttk.Radiobutton(window, text="Use File Color", variable=occult_color, value=0).grid(row=current_row, column=0)
-            ttk.Radiobutton(window, text="Overwrite Color", variable=occult_color, value=1).grid(row=current_row, column=1)
+            ttk.Radiobutton(window, text="Use File Color", variable=occult_color, value=0).grid(row=current_row, column=1)
+            ttk.Radiobutton(window, text="Overwrite Color", variable=occult_color, value=1).grid(row=current_row, column=2)
             occult_color_entry = ttk.Entry(window, width=7)
             occult_file_info["color_info"] = occult_color_entry
             occult_color_entry.insert(0,f"{occult_color_list[index]}")
-            occult_color_entry.grid(sticky="w", row=current_row, column=2)
+            occult_color_entry.grid(sticky="w", row=current_row, column=3)
             current_row += 1
 
             occult = IntVar(window, value=1)
