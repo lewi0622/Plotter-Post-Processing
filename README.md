@@ -6,3 +6,4 @@ If you have an issue or feature request, feel free to submit it. I will choose t
 
 ## Dependencies
 All of these utilities require [Vpype](https://github.com/abey79/vpype), and some of it's plug-ins, to be installed. I do not provide an installer.
+Last tested using Python Version 3.10.4
