@@ -54,7 +54,7 @@ def get_files(title=""):
         return recieved_files
 
 def get_hex_value(rgb):
-    """rgb must be in the form of a tubple of integers"""
+    """rgb must be in the form of a tuple of integers"""
     hex_value = '#%02x%02x%02x' % rgb
     return hex_value
 
