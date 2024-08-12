@@ -143,6 +143,11 @@ def main(input_files=()):
         else:
             args += r" write %files_out[_i]% end "
 
+        # CHECK IF NO OPTIONS ARE SELECTED AND RETURN AN EMPTY ARG AND FILE LIST
+        if not show and not remove_any and not separate.get() and not separate_files.get():
+            output_file_list = []
+            return ""
+
         return args
 
     global return_val, show_temp_file, last_shown_command, output_filename, remove_layer_list, color_list
