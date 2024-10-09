@@ -107,7 +107,11 @@ def main(input_files=()):
 
             if separator_type.get():
                 args += f" read --no-crop {file_input} "
+                if split_all.get():
+                    args += " splitall "
                 args += f" splitdist {split_dist_entry.get()}in "
+                if split_all.get():
+                    args += " linemerge "
                 args += r' forlayer eval "%new_id=_i%%num_layers+1%" '
                 args += r' lmove %_lid% "%new_id%" '
                 args += r' color -l "%new_id%" "%random_colors[_lid%%num_layers]%" end '
@@ -217,6 +221,13 @@ def main(input_files=()):
     split_dist_entry = ttk.Entry(window, width=7)
     split_dist_entry.insert(0, "20")
     split_dist_entry.grid(sticky="w", row=current_row, column=3)
+    current_row += 1
+
+    split_all_label = ttk.Label(window, text="Split All and Merge", foreground=settings.link_color, cursor="hand2")
+    split_all_label.bind("<Button-1>", lambda e: open_url_in_browser("https://vpype.readthedocs.io/en/latest/reference.html#splitall"))
+    split_all_label.grid(row=current_row, column=2)
+    split_all = IntVar(window, value=0)
+    ttk.Checkbutton(window, text="splitall", variable=split_all).grid(sticky="w", row=current_row,column=3)
     current_row += 1
 
     ttk.Separator(window, orient='horizontal').grid(sticky="we", row=current_row, column=0, columnspan=4, padx=10, pady=10)
