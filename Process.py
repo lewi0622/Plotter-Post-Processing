@@ -141,6 +141,9 @@ def main(input_files=()):
         elif selection == "A4":
             layout_width_entry.insert(0,"8.3")
             layout_height_entry.insert(0,"11.7")
+        elif selection == "11x17 in":
+            layout_width_entry.insert(0,"11")
+            layout_height_entry.insert(0,"17")
         elif selection == "A3":
             layout_width_entry.insert(0,"11.7")
             layout_height_entry.insert(0,"16.5")
@@ -318,7 +321,7 @@ def main(input_files=()):
         window,
         width=7,
         state="readonly",
-        values=["Letter", "A4", "A3", "17x23 in", "A2"]
+        values=["Letter", "A4", "11x17 in", "A3", "17x23 in", "A2"]
     )
     layout_combobox.current(0)
     layout_combobox.grid(sticky="w", row=current_row, column=1)
