@@ -67,6 +67,16 @@ def main(input_files=()):
 
         if scale_option.get():
             args += f" scaleto {scale_width_entry.get()}in {scale_height_entry.get()}in "
+            bbox_width = f"{scale_width_entry.get()}in"
+            bbox_height = f"{scale_height_entry.get()}in"
+        else:
+            bbox_width = f"{svg_width_inches}in"
+            bbox_height = f"{svg_height_inches}in"
+
+        if bbox_option.get():
+            args += r' forlayer lmove %_lid% %_lid+1% end ' #moves each layer up by one
+            args += f" rect --layer 1 0 0 {bbox_width} {bbox_height} "
+            args += f" color --layer 1 {bbox_color_entry.get()} "
 
         if center_geometries.get():
             args += " layout "
@@ -167,6 +177,12 @@ def main(input_files=()):
 
     svg_width_inches, svg_height_inches = get_svg_width_height(input_files[0])
 
+    color_dict = {}
+    #generate color that won't be the same as any of the colors input
+    for file in input_files:
+        color_dict = color_dict | build_color_dict(file)    
+    bbox_color = generate_random_color(file, list(color_dict.keys()))
+
     #tk widgets and window
     current_row = 0 #helper row var, inc-ed every time used;
 
@@ -206,6 +222,17 @@ def main(input_files=()):
     scale_height_entry.insert(0,f"{svg_height_inches}")
     scale_height_entry.grid(sticky="w", row=current_row, column=3)
     current_row +=1 
+
+    ttk.Separator(window, orient='horizontal').grid(sticky="we", row=current_row, column=0, columnspan=4, pady=10)
+    current_row += 1
+
+    bbox_option = IntVar(window, value=0)
+    ttk.Checkbutton(window, text="Add bounding box?", variable=bbox_option).grid(row=current_row, column=0, columnspan=2)
+    ttk.Label(window, justify=CENTER, text="Bounding Box color:").grid(row=current_row, column=2)
+    bbox_color_entry = ttk.Entry(window, width=7)
+    bbox_color_entry.insert(0,f"{bbox_color}")
+    bbox_color_entry.grid(sticky="w", row=current_row, column=3)
+    current_row += 1
 
     ttk.Separator(window, orient='horizontal').grid(sticky="we", row=current_row, column=0, columnspan=4, pady=10)
     current_row += 1
