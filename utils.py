@@ -1,10 +1,13 @@
-import os, glob, sys
+import os, glob, sys, shutil
 import xml.etree.ElementTree as ET
 import webbrowser
 import re
 import random
 import math
 from tkinter.filedialog import askopenfilenames
+
+initial_dir = os.path.expandvars(r"C:\Users\$USERNAME\Downloads")
+temp_folder_path = initial_dir + r"\ppp_temp"
 
 def open_url_in_browser(url):
    """Opens the given url in a new browser tab"""
@@ -43,7 +46,7 @@ def get_svg_width_height(path):
 
 
 def get_files(title=""):
-    initial_dir = os.path.expandvars(R"C:\Users\$USERNAME\Downloads")
+    # initial_dir = os.path.expandvars(R"C:\Users\$USERNAME\Downloads\demo")
     list_of_files = glob.glob(initial_dir + r"\*.svg")
     latest_file = max(list_of_files, key=os.path.getctime)
 
@@ -143,3 +146,16 @@ def rename_replace(old_filename, new_filename):
     except FileExistsError:
         os.remove(new_filename)
         os.rename(old_filename, new_filename)
+
+def check_make_temp_folder():
+    if not os.path.isdir(temp_folder_path):
+        print("Making temp folder")
+        os.mkdir(temp_folder_path)
+
+def check_delete_temp_folder():
+    if os.path.isdir(temp_folder_path):
+        shutil.rmtree(temp_folder_path)
+
+def on_closing(win):
+    check_delete_temp_folder()
+    win.quit()      

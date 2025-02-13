@@ -4,29 +4,6 @@ from utils import *
 import Occult, Paint, Process, Compose, deCompose, settings
 
 def main():
-    def on_closing():
-        main_app.destroy()
-        try:
-            Occult.on_closing()
-        except:
-            pass
-        try:
-            Process.on_closing()
-        except:
-            pass
-        try:
-            Paint.on_closing()
-        except:
-            pass
-        try:
-            deCompose.on_closing()
-        except:
-            pass
-        try:
-            Compose.on_closing()
-        except:
-            pass
-
     def verify_output_files(files, util_name):
         if len(files) == 0:
             print(f"Files unchanged from {util_name}")
@@ -96,7 +73,7 @@ def main():
     ttk.Label(main_app, text="By default, output files from one utility are taken as\nthe new input files. Reselect files if necessary.").grid(pady=(0,10), row=current_row, column=1, columnspan=2)
     current_row += 1
 
-    main_app.protocol("WM_DELETE_WINDOW", on_closing)
+    main_app.protocol("WM_DELETE_WINDOW", lambda arg=main_app: on_closing(arg))
 
     settings.set_theme(main_app)
     main_app.mainloop()

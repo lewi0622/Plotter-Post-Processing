@@ -6,12 +6,6 @@ import settings
 
 
 def main(input_files=()):
-    global on_closing
-    def on_closing(): #clean up any temp files hanging around
-        delete_temp_file(show_temp_file)
-        print("Closing Process")
-        window.quit()                
-
     def run_vpypeline():
         global return_val
 
@@ -22,16 +16,16 @@ def main(input_files=()):
             command = build_vpypeline(show=False)
             print("Running: \n", command)
             subprocess.run(command, capture_output=True, shell=True)
-
-        delete_temp_file(show_temp_file)
         
         return_val = output_file_list
-        on_closing()
+        print("Closing Process")
+        on_closing(window)
 
     def show_vpypeline():
         """Runs given commands on first file, but only shows the output."""
         global last_shown_command
-
+        check_make_temp_folder()
+        
         last_shown_command = build_vpypeline(show=True)
         print("Showing: \n", last_shown_command)
         subprocess.run(last_shown_command, capture_output=True, shell=True)
@@ -47,9 +41,11 @@ def main(input_files=()):
         input_file_list = list(input_files)
         output_file_list = []
         for filename in input_file_list:
-            file_parts = os.path.splitext(filename)
-            show_temp_file = file_parts[0] + "_show_temp_file.svg"
-            output_filename = file_parts[0] + "_P.svg"
+            head, tail = os.path.split(filename)
+            name, _ext = os.path.splitext(tail)
+            show_temp_file = head + "/ppp_temp/" + name + "_P.svg"
+            output_filename = head + "/" + name + "_P.svg"
+
             output_file_list.append(output_filename)
 
         args = r"vpype "
@@ -349,7 +345,7 @@ def main(input_files=()):
     else:
         ttk.Button(window, text="Confirm", command=run_vpypeline).grid(pady=(0,10), row=current_row, column=3)
 
-    window.protocol("WM_DELETE_WINDOW", on_closing)
+    window.protocol("WM_DELETE_WINDOW", lambda arg=window: on_closing(arg))
 
     settings.set_theme(window)
     window.mainloop()

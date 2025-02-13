@@ -6,12 +6,6 @@ import settings
 
 
 def main(input_files=()):
-    global on_closing
-    def on_closing(): #clean up any temp files hanging around
-        delete_temp_file(show_temp_file)
-        print("Closing Occult")
-        window.quit()
-
     def run_vpypeline():
         global return_val
 
@@ -22,15 +16,15 @@ def main(input_files=()):
             command = build_vpypeline(show=False)
             print("Running: \n", command)
             subprocess.run(command, capture_output=True, shell=True)
-
-        delete_temp_file(show_temp_file)
         
         return_val = output_file_list
-        on_closing()
+        print("Closing Occult")
+        on_closing(window)
 
     def show_vpypeline():
         """Runs given commands on first file, but only shows the output. Cleans up any Occult generated temp files."""
         global last_shown_command
+        check_make_temp_folder()
 
         last_shown_command = build_vpypeline(show=True)
         print("Showing: \n", last_shown_command)
@@ -257,7 +251,7 @@ def main(input_files=()):
     else:
         ttk.Button(window, text="Confirm", command=run_vpypeline).grid(pady=(0,10), row=current_row, column=1)
 
-    window.protocol("WM_DELETE_WINDOW", on_closing)
+    window.protocol("WM_DELETE_WINDOW", lambda arg=window: on_closing(arg))
 
     settings.set_theme(window)
     window.mainloop()
