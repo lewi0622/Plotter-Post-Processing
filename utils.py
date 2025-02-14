@@ -77,8 +77,12 @@ def build_color_dict(input_file):
     tree = ET.parse(input_file)
     root = tree.getroot()
     for child in root:
+        if child.tag.endswith("text"):
+            continue
         if "stroke" in child.attrib:
             color_dict[child.attrib["stroke"]] = 0
+        elif "fill" in child.attrib: # if there is a fill with no stroke, vpype will assign it a stroke color
+            color_dict[child.attrib["fill"]] = 0
     #otherwise we look in all the test
     if color_dict == {}:
         with open(input_file, 'r') as file:
