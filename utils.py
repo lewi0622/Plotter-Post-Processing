@@ -18,8 +18,17 @@ def get_svg_width_height(path):
     """get svg width and height in inches"""
     tree = ET.parse(path)
     root = tree.getroot()
-    svg_width = root.attrib["width"] #size in pixels, css units are 96 px = 1 inch 
-    svg_height = root.attrib["height"] 
+    try:
+        svg_width = root.attrib["width"] #size in pixels, css units are 96 px = 1 inch 
+        svg_height = root.attrib["height"] 
+    except KeyError:
+        try:
+            viewbox = root.attrib["viewBox"].split()
+            svg_width = viewbox[2]
+            svg_height = viewbox[3]
+        except KeyError:
+            print("No width, height, or viewBox info found")
+            return 0,0
 
     if "in" in svg_width:
         svg_width_inches = svg_width.replace("in", "")
