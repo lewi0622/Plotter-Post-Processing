@@ -41,9 +41,10 @@ def main(input_files=()):
         input_file_list = list(input_files)
         output_file_list = []
         for filename in input_file_list:
-            file_parts = os.path.splitext(filename)
-            show_temp_file = file_parts[0] + "_show_temp_file.svg"
-            output_filename = file_parts[0] + "_O.svg"
+            head, tail = os.path.split(filename)
+            name, _ext = os.path.splitext(tail)
+            show_temp_file = head + "/ppp_temp/" + name + "_O.svg"
+            output_filename = head + "/" + name + "_O.svg"
             output_file_list.append(output_filename)
 
         sorted_occult_info_list = sorted(occult_info_list, key=lambda d: d['order'].get())

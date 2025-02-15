@@ -40,9 +40,10 @@ def main(input_files=()):
         output_file_list = []
 
         filename = input_file_list[0]
-        file_parts = os.path.splitext(filename)
-        show_temp_file = file_parts[0] + "_show_temp_file.svg"
-        output_filename = file_parts[0] + "_C.svg"
+        head, tail = os.path.split(filename)
+        name, _ext = os.path.splitext(tail)
+        show_temp_file = head + "/ppp_temp/" + name + "_C.svg"
+        output_filename = head + "/" + name + "_C.svg"
         output_file_list.append(output_filename)
 
         # determine if grid is necessary

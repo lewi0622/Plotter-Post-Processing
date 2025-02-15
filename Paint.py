@@ -18,7 +18,7 @@ def main(input_files=()):
 
         return_val = output_file_list
         print("Closing Paint")
-        on_closing()
+        on_closing(window)
 
 
     def show_vpypeline():
@@ -39,9 +39,10 @@ def main(input_files=()):
         input_file_list = list(input_files)
         output_file_list = []
         for filename in input_file_list:
-            file_parts = os.path.splitext(filename)
-            show_temp_file = file_parts[0] + "_show_temp_file.svg"
-            output_filename = file_parts[0] + "_PAINT.svg"
+            head, tail = os.path.split(filename)
+            name, _ext = os.path.splitext(tail)
+            show_temp_file = head + "/ppp_temp/" + name + "_PAINT.svg"
+            output_filename = head + "/" + name + "_PAINT.svg"
             output_file_list.append(output_filename)
         
         dip_detail_list = []
