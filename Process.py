@@ -84,10 +84,18 @@ def main(input_files=()):
                 args += r" -l "
             args += f" {svg_width_inches}x{svg_height_inches}in "
 
-        crop_x_end = float(crop_x_end_entry.get())
-        crop_y_end = float(crop_y_end_entry.get())
-        if crop_x_end > 0 or crop_y_end > 0:
-            args += f" crop 0 0 {crop_x_end_entry.get()}in {crop_y_end_entry.get()}in "
+        crop_x_start, crop_x_end = crop_x_entry.get().split(",")
+        crop_y_start, crop_y_end = crop_y_entry.get().split(",")
+        try:
+            crop_x_start = float(crop_x_start)
+            crop_x_end = float(crop_x_end)
+            crop_y_start = float(crop_y_start)
+            crop_y_end = float(crop_y_end)
+            print(crop_x_start, crop_y_start, crop_x_end, crop_y_end)
+            if crop_x_start != 0 or crop_x_end !=0 or crop_y_start != 0 or crop_y_end !=0:
+                args += f" crop {crop_x_start}in {crop_y_start}in {crop_x_end}in {crop_y_end}in "
+        except:
+            print("Crop values unable to be parsed into floats")
 
         if rotate_entry.get() != 0:
             args += f" rotate {rotate_entry.get()} "
@@ -238,12 +246,12 @@ def main(input_files=()):
     center_geometries = IntVar(window, value=1)
     ttk.Checkbutton(window, text="Center Geometries to Input File Size", variable=center_geometries).grid(row=current_row, column=0, columnspan=2)
 
-    crop_label = ttk.Label(window, justify=CENTER, text="Crop X (in):", foreground=settings.link_color, cursor="hand2")
+    crop_label = ttk.Label(window, justify=CENTER, text="Crop X Start, End (in):", foreground=settings.link_color, cursor="hand2")
     crop_label.bind("<Button-1>", lambda e: open_url_in_browser("https://vpype.readthedocs.io/en/stable/reference.html#crop"))
     crop_label.grid(row=current_row, column=2)
-    crop_x_end_entry = ttk.Entry(window, width=7)
-    crop_x_end_entry.insert(0, str(0))
-    crop_x_end_entry.grid(sticky="w", row=current_row, column=3)
+    crop_x_entry = ttk.Entry(window, width=7)
+    crop_x_entry.insert(0, "0, 0")
+    crop_x_entry.grid(sticky="w", row=current_row, column=3)
     current_row += 1
 
     rotate_label = ttk.Label(window, justify=CENTER, text="Rotate Clockwise (deg):", foreground=settings.link_color, cursor="hand2")
@@ -256,10 +264,10 @@ def main(input_files=()):
         rotate_entry.insert(0, "0") 
     rotate_entry.grid(sticky="w", row=current_row, column=1)
 
-    ttk.Label(window, justify=CENTER, text="Crop Y (in):").grid(row=current_row, column=2)
-    crop_y_end_entry = ttk.Entry(window, width=7)
-    crop_y_end_entry.insert(0, str(0))
-    crop_y_end_entry.grid(sticky="w", row=current_row, column=3)
+    ttk.Label(window, justify=CENTER, text="Crop Y Start, End (in):").grid(row=current_row, column=2)
+    crop_y_entry = ttk.Entry(window, width=7)
+    crop_y_entry.insert(0, "0, 0")
+    crop_y_entry.grid(sticky="w", row=current_row, column=3)
     current_row +=1 
 
     ttk.Separator(window, orient='horizontal').grid(sticky="we", row=current_row, column=0, columnspan=4, pady=10)
