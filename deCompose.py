@@ -151,12 +151,10 @@ def main(input_files=()):
 
         return args
 
-    global return_val, show_temp_file, last_shown_command, output_filename, remove_layer_list, color_list
+    global return_val, last_shown_command, remove_layer_list, color_list
     return_val = ()
 
-    show_temp_file = ""
     last_shown_command = ""
-    output_filename = ""
     color_list = []
 
     if len(input_files) == 0:

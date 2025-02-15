@@ -124,11 +124,9 @@ def main(input_files=()):
             layout.set(0)
 
 
-    global return_val, show_temp_file, last_shown_command, output_filename, compose_color_list, compose_info_list
+    global return_val, last_shown_command, compose_color_list, compose_info_list
     return_val = ()
-    show_temp_file = ""
     last_shown_command = ""
-    output_filename = ""
 
     if len(input_files) == 0:
         input_files = get_files("SELECT DESIGN FILE(s)")

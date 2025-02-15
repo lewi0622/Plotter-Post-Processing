@@ -165,12 +165,10 @@ def main(input_files=()):
             layout_height_entry.insert(0,"23.4")
             layout.set(0)
 
-    global return_val, show_temp_file, last_shown_command, output_filename
+    global return_val, last_shown_command
     return_val = ()
 
-    show_temp_file = ""
     last_shown_command = ""
-    output_filename = ""
 
     if len(input_files) == 0:
         input_files = get_files()

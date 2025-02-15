@@ -107,11 +107,9 @@ def main(input_files=()):
             return args
 
 
-    global return_val, show_temp_file, last_shown_command, output_filename, color_list, occult_color_list
+    global return_val, last_shown_command, color_list, occult_color_list
     return_val = ()
-    show_temp_file = ""
     last_shown_command = ""
-    output_filename = ""
 
     if len(input_files) == 0:
         input_files = get_files("SELECT DESIGN FILE(s)")

@@ -87,15 +87,13 @@ lmove all %_lid% \
 end \
 {show_or_write}"""
 
-    global return_val, show_temp_file, last_shown_command, output_filename
+    global return_val, last_shown_command
     return_val = ()
     
     directory_name = get_directory_name("Paint.py")
     dip_options = os.listdir(os.path.join(directory_name, "Dip_Locations"))
 
-    show_temp_file = ""
     last_shown_command = ""
-    output_filename = ""
 
     if len(input_files) == 0:
         input_files = get_files()
