@@ -78,8 +78,6 @@ def main():
     settings.set_theme(main_app)
     main_app.mainloop()
 
-    #find ways to make common functions for TK interface shit
-
 
 if __name__ == "__main__":
     settings.init()
