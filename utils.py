@@ -7,7 +7,7 @@ import math
 from tkinter.filedialog import askopenfilenames
 
 initial_dir = os.path.expandvars(r"C:\Users\$USERNAME\Downloads")
-temp_folder_path = initial_dir + r"\ppp_temp"
+temp_folder_path = ""
 
 def open_url_in_browser(url):
    """Opens the given url in a new browser tab"""
@@ -55,6 +55,7 @@ def get_svg_width_height(path):
 
 
 def get_files(title=""):
+    global temp_folder_path
     # initial_dir = os.path.expandvars(R"C:\Users\$USERNAME\Downloads\demo")
     list_of_files = glob.glob(initial_dir + r"\*.svg")
     latest_file = max(list_of_files, key=os.path.getctime)
@@ -63,6 +64,7 @@ def get_files(title=""):
     if recieved_files == "":
         return ()
     else:
+        temp_folder_path = os.path.join(os.path.dirname(recieved_files[0]), r"ppp_temp")
         return recieved_files
 
 def get_hex_value(rgb):

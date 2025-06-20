@@ -91,7 +91,6 @@ def main(input_files=()):
             crop_x_end = float(crop_x_end)
             crop_y_start = float(crop_y_start)
             crop_y_end = float(crop_y_end)
-            print(crop_x_start, crop_y_start, crop_x_end, crop_y_end)
             if crop_x_start != 0 or crop_x_end !=0 or crop_y_start != 0 or crop_y_end !=0:
                 args += f" crop {crop_x_start}in {crop_y_start}in {crop_x_end}in {crop_y_end}in "
         except:
