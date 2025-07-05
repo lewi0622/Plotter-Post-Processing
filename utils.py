@@ -97,6 +97,8 @@ def build_color_dict(input_file):
                     hex_value = get_hex_value((int(rgb[0]), int(rgb[1]), int(rgb[2])))
                 elif "#" in stroke:
                     hex_value = stroke
+                elif "black" in stroke:
+                    hex_value = "#000000"
                 elif "none" in stroke:
                     continue
                 else:
