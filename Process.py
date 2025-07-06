@@ -97,7 +97,10 @@ def main(input_files=()):
             print("Crop values unable to be parsed into floats")
 
         if rotate_entry.get() != 0:
-            args += f" rotate {rotate_entry.get()} "
+            if "-" in rotate_entry.get():
+                args += f" rotate -- {rotate_entry.get()} "
+            else:
+                args += f" rotate {rotate_entry.get()} "
 
         if linemerge.get():
             args += f" linemerge "
@@ -344,25 +347,28 @@ def main(input_files=()):
 
     ttk.Label(window, justify=CENTER, text="Page Layout Width(in):").grid(row=current_row, column=2)
     layout_width_entry = ttk.Entry(window, width=7)
-    layout_width_entry.insert(0,f"8.5")
+    layout_width_entry.insert(0, f"0")
     layout_width_entry.grid(sticky="w", row=current_row, column=3)
     current_row +=1 
 
+    ttk.Label(window, justify=CENTER, text="Page Layout Height(in):").grid(row=current_row, column=2)
+    layout_height_entry = ttk.Entry(window, width=7)
+    layout_height_entry.insert(0, f"0")
+    layout_height_entry.grid(sticky="w", row=current_row, column=3)
+
+    page_size_values=["Letter", "A4", "11x17 in", "A3", "17x23 in", "A2"]
+    current_value_index = find_closest_dimensions(svg_width_inches, svg_height_inches)
     ttk.Label(window, justify=CENTER, text="Page Size").grid(row=current_row, column=0)
     layout_combobox = ttk.Combobox(
         window,
         width=7,
         state="readonly",
-        values=["Letter", "A4", "11x17 in", "A3", "17x23 in", "A2"]
+        values=page_size_values
     )
-    layout_combobox.current(0)
+    layout_combobox.current(current_value_index)
     layout_combobox.grid(sticky="w", row=current_row, column=1)
     layout_combobox.bind("<<ComboboxSelected>>", layout_selection_changed)
-
-    ttk.Label(window, justify=CENTER, text="Page Layout Height(in):").grid(row=current_row, column=2)
-    layout_height_entry = ttk.Entry(window, width=7)
-    layout_height_entry.insert(0,f"11")
-    layout_height_entry.grid(sticky="w", row=current_row, column=3)
+    layout_selection_changed(None)
     current_row +=1
 
     layout_landscape_label = ttk.Label(window, justify=CENTER, text="By default, the larger layout size is the height,\nLandscape flips the orientation")

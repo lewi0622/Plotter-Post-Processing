@@ -176,3 +176,26 @@ def check_delete_temp_folder():
 def on_closing(win):
     check_delete_temp_folder()
     win.quit()      
+
+def find_closest_dimensions(width, height):
+    if(width > height):
+        width, height = height, width
+
+    dimensinons = {
+        "Letter":[8.5, 11],
+        "A4":[8.3, 11.7], 
+        "11x17 in":[11, 17], 
+        "A3": [11.7, 16.5], 
+        "17x23 in": [17, 23], 
+        "A2": [16.5, 23.4]
+        }
+    id = 0
+    closest_w = 8.5
+    for index, size in enumerate(dimensinons):
+        w = dimensinons[size][0]
+
+        if abs(width - closest_w) > abs(width - w):
+            closest_w = w
+            id = index
+
+    return id
