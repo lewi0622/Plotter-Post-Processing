@@ -5,7 +5,7 @@ import re
 import random
 import math
 from tkinter.filedialog import askopenfilenames
-import time
+import time #TODO remove me
 
 initial_dir = os.path.expandvars(r"C:\Users\$USERNAME\Downloads")
 temp_folder_path = ""
@@ -41,7 +41,7 @@ def get_svg_width_height(path):
             return 0,0
 
     if "in" in svg_width:
-        svg_width_inches = svg_width.replace("in", "")
+        svg_width_inches = float(svg_width.replace("in", ""))
     elif "px" in svg_width:
         svg_width_inches = float(svg_width.replace("px", ""))/96 
     elif "cm" in svg_width:
@@ -50,7 +50,7 @@ def get_svg_width_height(path):
         svg_width_inches = float(svg_width)/96 
 
     if "in" in svg_height:
-        svg_height_inches = svg_height.replace("in", "")
+        svg_height_inches = float(svg_height.replace("in", ""))
     elif "px" in svg_height:
         svg_height_inches = float(svg_height.replace("px", ""))/96 
     elif "cm" in svg_height:
@@ -84,18 +84,19 @@ def get_hex_value(rgb):
 
 
 def build_color_dict(input_file):
+    #if the file is properly formatted, this will find the colors, limited support for named colors
     color_dict = {}
-    #if the file is properly formatted, this will find the colors
-    tree = ET.parse(input_file)
-    root = tree.getroot()
-    for child in root:
-        if child.tag.endswith("text"):
-            continue
-        if "stroke" in child.attrib:
-            color_dict[child.attrib["stroke"]] = 0
-        elif "fill" in child.attrib: # if there is a fill with no stroke, vpype will assign it a stroke color
-            color_dict[child.attrib["fill"]] = 0
-    #otherwise we look in all the test
+    root = None
+    for event, elem in ET.iterparse(input_file, events=('end',)):
+        if event == "end":
+            if elem.tag.endswith("text"):
+                continue
+            if "stroke" in elem.attrib:
+                color_dict[elem.attrib["stroke"]] = 0
+            elif "fill" in elem.attrib: # if there is a fill with no stroke, vpype will assign it a stroke color
+                color_dict[elem.attrib["fill"]] = 0
+        elem.clear()
+
     if color_dict == {}:
         with open(input_file, 'r') as file:
             content = file.read()
