@@ -5,6 +5,7 @@ import re
 import random
 import math
 from tkinter.filedialog import askopenfilenames
+import time
 
 initial_dir = os.path.expandvars(r"C:\Users\$USERNAME\Downloads")
 temp_folder_path = ""
@@ -16,8 +17,17 @@ def open_url_in_browser(url):
 
 def get_svg_width_height(path):
     """get svg width and height in inches"""
-    tree = ET.parse(path)
-    root = tree.getroot()
+    root = None
+    for event, elem in ET.iterparse(path, events=('start', 'end')):
+        if event == "start":
+            try: 
+                elem.attrib["width"]
+                root = elem
+            except KeyError:
+                pass
+        if root != None:
+            break
+
     try:
         svg_width = root.attrib["width"] #size in pixels, css units are 96 px = 1 inch 
         svg_height = root.attrib["height"] 
