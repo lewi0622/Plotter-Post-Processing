@@ -59,7 +59,7 @@ def main(input_files=()):
             color_list = []
             #generate color list for 
             for _n in range(num_layers):
-                color_list.append(generate_random_color(input_files[0], color_list))
+                color_list.append(generate_random_color())
 
         args = f'vpype eval "files_in={input_file_list}" eval "files_out={output_file_list}" '
         args += r' eval "random_colors=' + f"{color_list}" + '"'
@@ -160,9 +160,10 @@ def main(input_files=()):
     if len(input_files) == 0:
         input_files = get_files()
 
-    svg_width_inches, svg_height_inches = get_svg_width_height(input_files[0])
+    svg_width_inches = file_info["size_info"][0][0] #first file first item
+    svg_height_inches = file_info["size_info"][0][1] #first file second item
 
-    max_num_colors = max_colors_per_file(input_files)
+    max_num_colors = max_colors_per_file()
 
     #tk widgets and window
     current_row = 0 #helper row var, inc-ed every time used;

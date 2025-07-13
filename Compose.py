@@ -136,12 +136,13 @@ def main(input_files=()):
         else:
             print(f"Currently Loaded Design Files: {input_files}")
 
-    svg_width_inches, svg_height_inches = get_svg_width_height(input_files[0])
+    svg_width_inches = file_info["size_info"][0][0] #first file first item
+    svg_height_inches = file_info["size_info"][0][1] #first file second item
 
     compose_color_list = []
     #generate color list for each potential -k
     for file in input_files:
-        compose_color_list.append(generate_random_color(file, compose_color_list))
+        compose_color_list.append(generate_random_color())
 
     #tk widgets and window
     current_row = 0 #helper row var, inc-ed every time used;
