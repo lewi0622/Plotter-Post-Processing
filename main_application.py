@@ -44,10 +44,13 @@ def main():
         else:
             input_files = files
         print("Currently Loaded Files: ", input_files)
+        file_info["files"] = input_files
+        get_all_color_dicts()
+        get_all_size_info()
         svg_width_inches, svg_height_inches = get_svg_width_height(input_files[0])
         max_num_colors = max_colors_per_file(input_files)
         file_info_text.set(f"{len(input_files)} file(s) selected, Input file Width(in): {svg_width_inches}, Height(in): {svg_height_inches}, Max colors in file(s): {max_num_colors}")
-
+        print(file_info)
     #tk widgets and window
     current_row = 0 #helper row var
 
