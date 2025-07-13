@@ -1,11 +1,10 @@
 import os, glob, sys, shutil
-import xml.etree.ElementTree as ET
+from lxml import etree as ET
 import webbrowser
 import re
 import random
 import math
 from tkinter.filedialog import askopenfilenames
-import time #TODO remove me
 
 initial_dir = os.path.expandvars(r"C:\Users\$USERNAME\Downloads")
 temp_folder_path = ""
@@ -113,36 +112,49 @@ def get_hex_value(rgb):
 def build_color_dict(input_file):
     color_dict = {}
     #if the file is properly formatted, this will find the colors
-    tree = ET.parse(input_file)
-    root = tree.getroot()
-    for child in root:
-        if child.tag.endswith("text"):
+    for _, elem in ET.iterparse(input_file, events=('end',)):
+        hex_string = None
+        if elem.tag.endswith("text"):
             continue
-        if "stroke" in child.attrib:
-            color_dict[child.attrib["stroke"]] = 0
-        elif "fill" in child.attrib: # if there is a fill with no stroke, vpype will assign it a stroke color
-            color_dict[child.attrib["fill"]] = 0
-    #otherwise we look in all the test
+        elif "stroke" in elem.attrib:
+            hex_string = parse_stroke_color(elem.attrib["stroke"])
+
+        elif "fill" in elem.attrib: # if there is a fill with no stroke, vpype will assign it a stroke color
+            hex_string = parse_stroke_color(elem.attrib["fill"])
+        
+        if hex_string != None:
+            color_dict[hex_string] = 0
+        elem.clear()
+    #otherwise we look in all the rest
+    print(color_dict)
     if color_dict == {}:
         with open(input_file, 'r') as file:
             content = file.read()
             strokes = re.findall(r'(?:stroke=")(.*?)(?:")', content)
             for stroke in strokes:
-                #check for rgb and convert to hex
-                if "rgb" in stroke:
-                    rgb = re.findall(r'(?:rgb\()(.*?)(?:\))', stroke)[0].split(",")
-                    hex_value = get_hex_value((int(rgb[0]), int(rgb[1]), int(rgb[2])))
-                elif "#" in stroke:
-                    hex_value = stroke
-                elif "black" in stroke:
-                    hex_value = "#000000"
-                elif "none" in stroke:
-                    continue
-                else:
-                    print("Can't parse: ", stroke)
-                    continue
-                color_dict[hex_value] = 0
+                hex_string = parse_stroke_color(stroke)
+                if hex_string != None:
+                    color_dict[hex_string] = 0
     return color_dict
+
+
+def parse_stroke_color(s):
+    # converts a string of a color representation into a hex stringg
+    c = None
+    #check for rgb and convert to hex
+    if "rgb" in s:
+        rgb = re.findall(r'(?:rgb\()(.*?)(?:\))', s)[0].split(",")
+        c = get_hex_value((int(rgb[0]), int(rgb[1]), int(rgb[2])))
+    elif "#" in s:
+        c = s
+    elif "black" in s:
+        c = "#000000"
+    elif "none" in s:
+        pass
+    else:
+        print("Can't parse: ", s)
+
+    return c
 
 
 def max_colors_per_file():
