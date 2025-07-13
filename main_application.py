@@ -35,7 +35,7 @@ def main():
         deCompose.window.destroy()
         verify_output_files(painted_files, "deCompose")
 
-    def select_files(files=()):
+    def select_files(files=()): #TODO move this into utils somehow
         global input_files, file_info_text
         if len(files) == 0:
             recieved_files = get_files() #prompt user to select files
@@ -47,10 +47,10 @@ def main():
         file_info["files"] = input_files
         get_all_color_dicts()
         get_all_size_info()
-        svg_width_inches, svg_height_inches = get_svg_width_height(input_files[0])
-        max_num_colors = max_colors_per_file(input_files)
+        svg_width_inches = file_info["size_info"][0][0] #first file first item
+        svg_height_inches = file_info["size_info"][0][1] #first file second item
+        max_num_colors = max_colors_per_file()
         file_info_text.set(f"{len(input_files)} file(s) selected, Input file Width(in): {svg_width_inches}, Height(in): {svg_height_inches}, Max colors in file(s): {max_num_colors}")
-        print(file_info)
     #tk widgets and window
     current_row = 0 #helper row var
 

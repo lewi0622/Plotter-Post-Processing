@@ -105,25 +105,24 @@ def get_files(title=""):
 
 
 def get_hex_value(rgb):
-    """rgb must be in the form of a tuple of integers"""
+    """rgb must be in the form of a tuple of integers, returns a hex string"""
     hex_value = '#%02x%02x%02x' % rgb
     return hex_value
 
 
 def build_color_dict(input_file):
-    #if the file is properly formatted, this will find the colors, limited support for named colors
     color_dict = {}
-    root = None
-    for event, elem in ET.iterparse(input_file, events=('end',)):
-        if event == "end":
-            if elem.tag.endswith("text"):
-                continue
-            if "stroke" in elem.attrib:
-                color_dict[elem.attrib["stroke"]] = 0
-            elif "fill" in elem.attrib: # if there is a fill with no stroke, vpype will assign it a stroke color
-                color_dict[elem.attrib["fill"]] = 0
-        elem.clear()
-
+    #if the file is properly formatted, this will find the colors
+    tree = ET.parse(input_file)
+    root = tree.getroot()
+    for child in root:
+        if child.tag.endswith("text"):
+            continue
+        if "stroke" in child.attrib:
+            color_dict[child.attrib["stroke"]] = 0
+        elif "fill" in child.attrib: # if there is a fill with no stroke, vpype will assign it a stroke color
+            color_dict[child.attrib["fill"]] = 0
+    #otherwise we look in all the test
     if color_dict == {}:
         with open(input_file, 'r') as file:
             content = file.read()
@@ -146,21 +145,16 @@ def build_color_dict(input_file):
     return color_dict
 
 
-def max_colors_per_file(input_files):
+def max_colors_per_file():
     """Finds the max of distinct colors in any given file"""
     max_num_color = 0
-    for input_file in input_files:
-        color_dict = build_color_dict(input_file)
+    for color_dict in file_info["color_dicts"]:
         if len(color_dict) > max_num_color:
             max_num_color = len(color_dict)
     return max_num_color
 
 
-def generate_random_color(input_file, do_not_use=[]):
-    color_dict = build_color_dict(input_file)
-    for color in do_not_use:
-        color_dict[str(color)] = 0
-
+def generate_random_color():
     #generate first color
     rgb = (
     math.floor(random.random()*256), 
@@ -170,13 +164,15 @@ def generate_random_color(input_file, do_not_use=[]):
     rgb_hex = get_hex_value(rgb)
 
     # keep generating colors if matching
-    while(rgb_hex in color_dict):
+    while(rgb_hex in file_info["combined_color_dicts"]):
         rgb = (
             math.floor(random.random()*256), 
             math.floor(random.random()*256), 
             math.floor(random.random()*256)
         )
         rgb_hex = get_hex_value(rgb)
+
+    file_info["combined_color_dicts"][rgb_hex] = 0
 
     return rgb_hex
 

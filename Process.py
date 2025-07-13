@@ -181,15 +181,11 @@ def main(input_files=()):
     last_shown_command = ""
 
     if len(input_files) == 0:
-        input_files = get_files()
+        input_files = get_files() #TODO make this a call to select files, currently residing in the main app
+    svg_width_inches = file_info["size_info"][0][0] #first file first item
+    svg_height_inches = file_info["size_info"][0][1] #first file second item
 
-    svg_width_inches, svg_height_inches = get_svg_width_height(input_files[0])
-
-    color_dict = {}
-    #generate color that won't be the same as any of the colors input
-    for file in input_files:
-        color_dict = color_dict | build_color_dict(file)    
-    bbox_color = generate_random_color(file, list(color_dict.keys()))
+    bbox_color = generate_random_color()
 
     #tk widgets and window
     current_row = 0 #helper row var, inc-ed every time used;
