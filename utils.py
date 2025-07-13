@@ -10,6 +10,32 @@ import time
 initial_dir = os.path.expandvars(r"C:\Users\$USERNAME\Downloads")
 temp_folder_path = ""
 
+file_info = {
+    "files": (),
+    "color_dicts": (),
+    "combined_color_dicts": {},
+    "size_info": ()
+}
+
+
+def get_all_size_info():
+    size_info = []
+    for file in file_info["files"]:
+        size_info.append(get_svg_width_height(file))
+    file_info["size_info"] = tuple(size_info)
+
+
+def get_all_color_dicts():
+    color_dicts = []
+    combined_color_dict = {}
+    for file in file_info["files"]:
+        color_dict = build_color_dict(file)    
+        color_dicts.append(color_dict)
+        combined_color_dict = combined_color_dict | color_dict
+    file_info["color_dicts"] = tuple(color_dicts)
+    file_info["combined_color_dicts"] = combined_color_dict
+
+
 def open_url_in_browser(url):
    """Opens the given url in a new browser tab"""
    webbrowser.open_new_tab(url)
@@ -76,6 +102,7 @@ def get_files(title=""):
     else:
         temp_folder_path = os.path.join(os.path.dirname(recieved_files[0]), r"ppp_temp")
         return recieved_files
+
 
 def get_hex_value(rgb):
     """rgb must be in the form of a tuple of integers"""
