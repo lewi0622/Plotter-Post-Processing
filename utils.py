@@ -126,7 +126,6 @@ def build_color_dict(input_file):
             color_dict[hex_string] = 0
         elem.clear()
     #otherwise we look in all the rest
-    print(color_dict)
     if color_dict == {}:
         with open(input_file, 'r') as file:
             content = file.read()

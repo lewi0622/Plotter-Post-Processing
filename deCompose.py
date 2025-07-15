@@ -48,7 +48,7 @@ def main(input_files=()):
             output_filename = head + "/" + name + "_deC"
 
             if separate_files.get():
-                for i in range(max_colors_per_file([filename])):
+                for i in range(max_colors_per_file()):
                     output_file_list.append(output_filename + str(i) + ".svg")
             else:
                 output_file_list.append(output_filename + ".svg")

@@ -223,10 +223,10 @@ def main(input_files=()):
         compose_info["order"] = compose_order
         current_row += 1
 
-        ttk.Label(window, text=f"Colors in file: {max_colors_per_file([file])}").grid(row=current_row, column=0)
+        ttk.Label(window, text=f"Colors in file: {max_colors_per_file()}").grid(row=current_row, column=0)
 
         attribute = IntVar(window, value=0)
-        if max_colors_per_file(input_files) == 1:
+        if max_colors_per_file() == 1:
             attribute = IntVar(window, value=1)
         compose_info["attribute"] = attribute
         ttk.Radiobutton(window, text="single layer", variable=attribute, value=0).grid(row=current_row, column=1)

@@ -153,7 +153,7 @@ def main(input_files=()):
 
     ttk.Label(window, text="Parse Design file using: ").grid(row=current_row, column=0)
     attribute = IntVar(window, value=0)
-    if max_colors_per_file(input_files) == 1 or len(occlusion_file_list) > 0:
+    if max_colors_per_file() == 1 or len(occlusion_file_list) > 0:
         attribute = IntVar(window, value=1)
     ttk.Radiobutton(window, text="d/point", variable=attribute, value=0).grid(row=current_row, column=1)
     ttk.Radiobutton(window, text="stroke", variable=attribute, value=1).grid(row=current_row, column=2)
