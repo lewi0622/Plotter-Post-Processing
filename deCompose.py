@@ -41,14 +41,14 @@ def main(input_files=()):
         #build output files list
         input_file_list = list(input_files)
         output_file_list = []
-        for filename in input_file_list:
+        for index, filename in enumerate(input_file_list):
             head, tail = os.path.split(filename)
             name, _ext = os.path.splitext(tail)
             show_temp_file = head + "/ppp_temp/" + name + "_deC.svg"
             output_filename = head + "/" + name + "_deC"
 
             if separate_files.get():
-                for i in range(max_colors_per_file()):
+                for i in range(len(file_info["color_dicts"][index])):
                     output_file_list.append(output_filename + str(i) + ".svg")
             else:
                 output_file_list.append(output_filename + ".svg")
@@ -63,6 +63,9 @@ def main(input_files=()):
 
         args = f'vpype eval "files_in={input_file_list}" eval "files_out={output_file_list}" '
         args += r' eval "random_colors=' + f"{color_list}" + '"'
+
+        if separate_files.get() and not show:
+            args += r' eval "%k=0%" '
 
         if separate.get():
             args += f' eval "%num_layers={n_layers_entry.get()}%" '
@@ -131,7 +134,6 @@ def main(input_files=()):
             if remove_any or separate.get():
                 file_input = show_temp_file
             args += f" read -a stroke --no-crop {file_input} "
-            args += r' eval "k=0" '
             args += r" forlayer write " 
             args += r' %files_out[k]% '
             args += r' eval "k=k+1" '
