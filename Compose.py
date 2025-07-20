@@ -79,8 +79,10 @@ def main(input_files=()):
                 if index > 0:
                     incoming_layer_number = 1
                     if info["attribute"].get():
-                        incoming_layer_number = max_colors_per_file([info["file"]])
-                    args += f' forlayer lmove "%_n-_i%" "%_n-_i+{incoming_layer_number}%" end ' #shift layers up the number of incoming layers
+                        file_info_index = file_info["files"].index(info["file"])
+                        incoming_layer_number = len(file_info["color_dicts"][file_info_index])
+                    args += f' forlayer lmove "%_n-_i%" "%_n-_i+{incoming_layer_number}%" end ' #shift layers up the number of incoming layers 
+                    # BUG doesn't currently work, see https://github.com/abey79/vpype/issues/804
                 if info["attribute"].get():
                     args += f' read -a stroke --no-crop "{info["file"]}" '
                 else:
@@ -223,7 +225,7 @@ def main(input_files=()):
         compose_info["order"] = compose_order
         current_row += 1
 
-        ttk.Label(window, text=f"Colors in file: {max_colors_per_file()}").grid(row=current_row, column=0)
+        ttk.Label(window, text=f"Colors in file: {len(file_info['color_dicts'][index])}").grid(row=current_row, column=0)
 
         attribute = IntVar(window, value=0)
         if max_colors_per_file() == 1:
