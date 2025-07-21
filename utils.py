@@ -130,6 +130,11 @@ def build_color_dict(input_file):
         hex_string = None
         if elem.tag.endswith("text"):
             continue
+        elif elem.tag.endswith("g"): #handling color transformations within g tags a la DrawingBotV3 style outputs
+            if "style" in elem.attrib:
+                stroke_string = re.search(r"(stroke:.*?;)", elem.attrib["style"])
+                if stroke_string != None:
+                    hex_string = parse_stroke_color(stroke_string.group())
         elif "stroke" in elem.attrib:
             hex_string = parse_stroke_color(elem.attrib["stroke"])
 
