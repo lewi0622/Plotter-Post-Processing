@@ -35,22 +35,10 @@ def main():
         deCompose.window.destroy()
         verify_output_files(painted_files, "deCompose")
 
-    def select_files(files=()): #TODO move this into utils somehow
-        global input_files, file_info_text
-        if len(files) == 0:
-            recieved_files = get_files() #prompt user to select files
-            if len(recieved_files) > 0:
-                input_files = recieved_files
-        else:
-            input_files = files
-        print("Currently Loaded Files: ", input_files)
-        file_info["files"] = input_files
-        get_all_color_dicts()
-        get_all_size_info()
-        svg_width_inches = file_info["size_info"][0][0] #first file first item
-        svg_height_inches = file_info["size_info"][0][1] #first file second item
-        max_num_colors = max_colors_per_file()
-        file_info_text.set(f"{len(input_files)} file(s) selected, Input file Width(in): {svg_width_inches}, Height(in): {svg_height_inches}, Max colors in file(s): {max_num_colors}")
+        # svg_width_inches = file_info["size_info"][0][0] #first file first item
+        # svg_height_inches = file_info["size_info"][0][1] #first file second item
+        # max_num_colors = max_colors_per_file()
+        # file_info_text.set(f"{len(input_files)} file(s) selected, Input file Width(in): {svg_width_inches}, Height(in): {svg_height_inches}, Max colors in file(s): {max_num_colors}")
     #tk widgets and window
     current_row = 0 #helper row var
 
@@ -58,10 +46,12 @@ def main():
 
     global file_info_text
     file_info_text = StringVar(main_app)
-    ttk.Label(main_app, textvariable= file_info_text).grid(pady=(10,0), row=current_row, column=0, columnspan=3)
+    ttk.Label(main_app, textvariable= file_info_text).grid(pady=(10,0), row=current_row, column=0, columnspan=2)
+    #TODO add button to launch separate window for file details
     current_row += 1
 
-    select_files()
+    input_files = select_files()
+    file_info_text.set(f"{len(input_files)} file(s) selected")
 
     ttk.Button(main_app, text="Occult", command=run_occult).grid(pady=(2,2), row=current_row, column=0)
     ttk.Button(main_app, text="Process", command=run_process).grid(pady=(2,2), row=current_row, column=1)

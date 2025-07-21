@@ -112,7 +112,7 @@ def main(input_files=()):
     last_shown_command = ""
 
     if len(input_files) == 0:
-        input_files = get_files("SELECT DESIGN FILE(s)")
+        input_files = select_files()
         if len(input_files) == 0:
             print("No Design Files Selected")
             return ()

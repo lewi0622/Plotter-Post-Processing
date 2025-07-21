@@ -160,7 +160,7 @@ def main(input_files=()):
     color_list = []
 
     if len(input_files) == 0:
-        input_files = get_files()
+        input_files = select_files()
 
     svg_width_inches = file_info["size_info"][0][0] #first file first item
     svg_height_inches = file_info["size_info"][0][1] #first file second item

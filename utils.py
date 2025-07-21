@@ -89,6 +89,20 @@ def get_svg_width_height(path):
     return svg_width_inches, svg_height_inches
 
 
+def select_files(files=(), dialog_title="SELECT DESIGN FILE(s)"):
+    if len(files) == 0:
+        recieved_files = get_files(dialog_title) #prompt user to select files
+        if len(recieved_files) > 0:
+            input_files = recieved_files
+    else:
+        input_files = files
+    print("Currently Loaded Files: ", input_files)
+    file_info["files"] = input_files
+    get_all_color_dicts()
+    get_all_size_info()
+    return input_files
+
+
 def get_files(title=""):
     global temp_folder_path
     # initial_dir = os.path.expandvars(R"C:\Users\$USERNAME\Downloads\demo")
