@@ -35,10 +35,6 @@ def main():
         deCompose.window.destroy()
         verify_output_files(painted_files, "deCompose")
 
-        # svg_width_inches = file_info["size_info"][0][0] #first file first item
-        # svg_height_inches = file_info["size_info"][0][1] #first file second item
-        # max_num_colors = max_colors_per_file()
-        # file_info_text.set(f"{len(input_files)} file(s) selected, Input file Width(in): {svg_width_inches}, Height(in): {svg_height_inches}, Max colors in file(s): {max_num_colors}")
     #tk widgets and window
     current_row = 0 #helper row var
 

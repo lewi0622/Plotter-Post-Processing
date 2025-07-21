@@ -181,7 +181,7 @@ def main(input_files=()):
     last_shown_command = ""
 
     if len(input_files) == 0:
-        input_files = select_files() #TODO make this a call to select files, currently residing in the main app
+        input_files = select_files()
     svg_width_inches = file_info["size_info"][0][0] #first file first item
     svg_height_inches = file_info["size_info"][0][1] #first file second item
 
