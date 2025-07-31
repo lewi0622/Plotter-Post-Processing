@@ -4,33 +4,40 @@ from utils import *
 import Occult, Paint, Process, Compose, deCompose, settings
 
 def main():
+    global input_files
     def verify_output_files(files, util_name):
+        global input_files
         if len(files) == 0:
             print(f"Files unchanged from {util_name}")
         else:
-            select_files(files)
+            input_files = select_files(files)
 
     def run_occult():
+        global input_files
         occulted_files = Occult.main(input_files)
         Occult.window.destroy()
         verify_output_files(occulted_files, "Occult")
 
     def run_process():
+        global input_files
         processed_files = Process.main(input_files)
         Process.window.destroy()
         verify_output_files(processed_files, "Process")
 
     def run_paint():
+        global input_files
         painted_files = Paint.main(input_files)
         Paint.window.destroy()
         verify_output_files(painted_files, "Paint")
 
     def run_compose():
+        global input_files
         painted_files = Compose.main(input_files)
         Compose.window.destroy()
         verify_output_files(painted_files, "Compose")
 
     def run_deCompose():
+        global input_files
         painted_files = deCompose.main(input_files)
         deCompose.window.destroy()
         verify_output_files(painted_files, "deCompose")
