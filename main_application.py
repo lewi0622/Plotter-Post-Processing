@@ -4,41 +4,34 @@ from utils import *
 import Occult, Paint, Process, Compose, deCompose, settings
 
 def main():
-    global input_files
     def verify_output_files(files, util_name):
-        global input_files
         if len(files) == 0:
             print(f"Files unchanged from {util_name}")
         else:
-            input_files = select_files(files)
+            select_files(files)
 
     def run_occult():
-        global input_files
-        occulted_files = Occult.main(input_files)
+        occulted_files = Occult.main(file_info["files"])
         Occult.window.destroy()
         verify_output_files(occulted_files, "Occult")
 
     def run_process():
-        global input_files
-        processed_files = Process.main(input_files)
+        processed_files = Process.main(file_info["files"])
         Process.window.destroy()
         verify_output_files(processed_files, "Process")
 
     def run_paint():
-        global input_files
-        painted_files = Paint.main(input_files)
+        painted_files = Paint.main(file_info["files"])
         Paint.window.destroy()
         verify_output_files(painted_files, "Paint")
 
     def run_compose():
-        global input_files
-        painted_files = Compose.main(input_files)
+        painted_files = Compose.main(file_info["files"])
         Compose.window.destroy()
         verify_output_files(painted_files, "Compose")
 
     def run_deCompose():
-        global input_files
-        painted_files = deCompose.main(input_files)
+        painted_files = deCompose.main(file_info["files"])
         deCompose.window.destroy()
         verify_output_files(painted_files, "deCompose")
 
@@ -53,8 +46,8 @@ def main():
     #TODO add button to launch separate window for file details
     current_row += 1
 
-    input_files = select_files()
-    file_info_text.set(f"{len(input_files)} file(s) selected")
+    select_files()
+    file_info_text.set(f"{len(file_info["files"])} file(s) selected")
 
     ttk.Button(main_app, text="Occult", command=run_occult).grid(pady=(2,2), row=current_row, column=0)
     ttk.Button(main_app, text="Process", command=run_process).grid(pady=(2,2), row=current_row, column=1)
