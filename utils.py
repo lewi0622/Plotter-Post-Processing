@@ -12,6 +12,7 @@ temp_folder_path = ""
 file_info = {
     "files": (),
     "color_dicts": (),
+    "interleaved?": (),
     "combined_color_dicts": {},
     "size_info": ()
 }
@@ -26,13 +27,16 @@ def get_all_size_info():
 
 def get_all_color_dicts():
     color_dicts = []
+    interleaved_files = []
     combined_color_dict = {}
     for file in file_info["files"]:
-        color_dict = build_color_dict(file)    
+        color_dict, interleaved = build_color_dict(file)    
         color_dicts.append(color_dict)
+        interleaved_files.append(interleaved)
         combined_color_dict = combined_color_dict | color_dict
     file_info["color_dicts"] = tuple(color_dicts)
     file_info["combined_color_dicts"] = combined_color_dict
+    file_info["interleaved?"] = interleaved_files
 
 
 def open_url_in_browser(url):
@@ -125,6 +129,8 @@ def get_hex_value(rgb):
 
 def build_color_dict(input_file):
     color_dict = {}
+    current_color = ""
+    color_change_count = 0
     #if the file is properly formatted, this will find the colors
     for _, elem in ET.iterparse(input_file, events=('end',)):
         hex_string = None
@@ -143,6 +149,8 @@ def build_color_dict(input_file):
         
         if hex_string != None:
             color_dict[hex_string] = 0
+            if hex_string != current_color:
+                color_change_count += 1
         elem.clear()
     #otherwise we look in all the rest
     if color_dict == {}:
@@ -153,7 +161,8 @@ def build_color_dict(input_file):
                 hex_string = parse_stroke_color(stroke)
                 if hex_string != None:
                     color_dict[hex_string] = 0
-    return color_dict
+    interleaved = color_change_count > len(color_dict)
+    return (color_dict, interleaved)
 
 
 def parse_stroke_color(s):
