@@ -1,4 +1,4 @@
-import os, glob, sys, shutil
+import os, glob, sys, shutil, stat
 from lxml import etree as ET
 import webbrowser
 import re
@@ -235,6 +235,8 @@ def check_make_temp_folder():
 
 def check_delete_temp_folder():
     if os.path.isdir(temp_folder_path):
+        # set permissions to write
+        os.chmod(temp_folder_path, stat.S_IWUSR)        # #https://stackoverflow.com/questions/2656322/shutil-rmtree-fails-on-windows-with-access-is-denied
         shutil.rmtree(temp_folder_path)
 
 def on_closing(win):
