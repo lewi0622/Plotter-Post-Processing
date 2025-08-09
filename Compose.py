@@ -72,7 +72,7 @@ def main(input_files=()):
             args += r' read -a stroke --no-crop %files_in[_i%%len(files_in)]% '
             args += r' forlayer '
             args += r' lmove %_lid% %grid_layer_count% ' #moves each layer onto it's own unique layer so there's no merging
-            args += r' eval "%grid_layer_count=grid_layer_count+1%" end end' #inc the global layer counter
+            args += r' eval "%grid_layer_count=grid_layer_count+1%" end end ' #inc the global layer counter
 
         else: #Load files on top of one another
             for index, info in enumerate(sorted_info_list):
@@ -81,8 +81,7 @@ def main(input_files=()):
                     if info["attribute"].get():
                         file_info_index = file_info["files"].index(info["file"])
                         incoming_layer_number = len(file_info["color_dicts"][file_info_index])
-                    args += f' forlayer lmove "%_n-_i%" "%_n-_i+{incoming_layer_number}%" end ' #shift layers up the number of incoming layers 
-                    # BUG doesn't currently work, see https://github.com/abey79/vpype/issues/804
+                    args += f' forlayer lmove "%_lid%" "%_lid+{incoming_layer_number}%" end ' #shift layers up the number of incoming layers 
                 if info["attribute"].get():
                     args += f' read -a stroke --no-crop "{info["file"]}" '
                 else:
