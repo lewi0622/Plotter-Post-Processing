@@ -39,6 +39,8 @@ def main(input_files=()):
 
         #build output files list
         input_file_list = list(input_files)
+        if show:
+            input_file_list = [input_file_list[0]]
         output_file_list = []
         for filename in input_file_list:
             head, tail = os.path.split(filename)
