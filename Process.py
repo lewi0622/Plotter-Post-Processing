@@ -9,13 +9,12 @@ def main(input_files=()):
     def run_vpypeline():
         global return_val
 
-        if len(input_files) == 1 and last_shown_command == build_vpypeline(show=True):
+        if len(input_files) == 1 and last_shown_command[0] == build_vpypeline(show=True)[0]:
             rename_replace(show_temp_file, output_filename)
             print("Same command as shown file, not re-running Vpype pipeline")
         else:
-            command = build_vpypeline(show=False)
-            print("Running: \n", command)
-            subprocess.run(command, capture_output=True, shell=True)
+            commands = build_vpypeline(show=False)
+            thread_vpypelines(commands, "Process")
         
         return_val = output_file_list
         print("Closing Process")
@@ -27,8 +26,7 @@ def main(input_files=()):
         check_make_temp_folder()
         
         last_shown_command = build_vpypeline(show=True)
-        print("Showing: \n", last_shown_command)
-        subprocess.run(last_shown_command, capture_output=True, shell=True)
+        thread_vpypelines(last_shown_command, "Process (show)")
 
 
     def build_vpypeline(show):
@@ -50,22 +48,13 @@ def main(input_files=()):
 
             output_file_list.append(output_filename)
 
-        args = r"vpype "
-        args += r' eval "files_in=' + f"{input_file_list}" + '"'
-        args += r' eval "files_out=' + f"{output_file_list}" + '"'
-
-        if show:
-            repeat_num = 1
-        else:
-            repeat_num = len(input_file_list)
-        args += f" repeat {repeat_num} "
-
+        args = r""
         args += r" read -a stroke "
 
         if not crop_input.get():
             args += r" --no-crop "
 
-        args += r" %files_in[_i]% "
+        args += r" %file_in% "
 
         if scale_option.get():
             args += f" scaleto {scale_width_entry.get()}in {scale_height_entry.get()}in "
@@ -143,12 +132,19 @@ def main(input_files=()):
                 else:
                     args += f" crop 0 0 {layout_width_entry.get()}in {layout_height_entry.get()}in "
         if show:
-            args += r" end "
             args += f' write "{show_temp_file}" show '
         else:
-            args += r' write %files_out[_i]% end'
+            args += r' write %file_out% '
 
-        return args
+        commands = []
+        for input_file, output_file in zip(input_file_list, output_file_list):
+            #prepend arg with files
+            prepend = r"vpype "
+            prepend += r' eval "file_in=' + f"'{input_file}'" + '"'
+            prepend += r' eval "file_out=' + f"'{output_file}'" + '"'
+            commands.append(prepend + args)
+
+        return commands
 
 
     def layout_selection_changed(event):
@@ -180,7 +176,7 @@ def main(input_files=()):
     global return_val, last_shown_command
     return_val = ()
 
-    last_shown_command = ""
+    last_shown_command = [""]
 
     if len(input_files) == 0:
         input_files = select_files()

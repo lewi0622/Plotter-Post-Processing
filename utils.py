@@ -4,6 +4,8 @@ import webbrowser
 import re
 import random
 import math
+import threading
+import subprocess
 from tkinter.filedialog import askopenfilenames
 
 initial_dir = os.path.expandvars(r"C:\Users\$USERNAME\Downloads")
@@ -273,3 +275,22 @@ def find_closest_dimensions(width, height):
             id = index
 
     return id
+
+def run_subprocess(command):
+    subprocess.run(command, capture_output=True, shell=True)
+
+def thread_vpypelines(commands, app):
+    """Set up multithreading for each file in the batch"""
+    print(
+        "", 
+        "Running " + app + f" on {len(commands)} file(s). First pipeline:", 
+        commands[0], 
+        sep="\n"
+    )
+    threads = []
+    for command in commands:
+        thread = threading.Thread(target=run_subprocess, args=(command,))
+        thread.start()
+        threads.append(thread)
+    for thread in threads:
+        thread.join()
