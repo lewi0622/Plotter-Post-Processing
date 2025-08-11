@@ -136,11 +136,12 @@ def get_files(title=""):
 
 def get_hex_value(rgb):
     """rgb must be in the form of a tuple of integers, returns a hex string"""
-    hex_value = '#%02x%02x%02x' % rgb
+    hex_value = f'#{rgb[0]:02x}{rgb[1]:02x}{rgb[2]:02x}'
     return hex_value
 
 
 def build_color_dict(input_file):
+    """Gets all colors within a file and returns them in a dict"""
     color_dict = {}
     current_color = ""
     color_change_count = 0
@@ -168,7 +169,7 @@ def build_color_dict(input_file):
         elem.clear()
     #otherwise we look in all the rest
     if not color_dict:
-        with open(input_file, 'r') as file:
+        with open(input_file, 'r', encoding="utf-8") as file:
             content = file.read()
             strokes = re.findall(r'(?:stroke=")(.*?)(?:")', content)
             for stroke in strokes:
@@ -180,7 +181,7 @@ def build_color_dict(input_file):
 
 
 def parse_stroke_color(s):
-    # converts a string of a color representation into a hex stringg
+    """converts a string of a color representation into a hex string"""
     c = None
     #check for rgb and convert to hex
     if "rgb" in s:
@@ -208,6 +209,7 @@ def max_colors_per_file():
 
 
 def generate_random_color():
+    """Generates a unique random color, adds it to color dict"""
     #generate first color
     rgb = (
     math.floor(random.random()*256),
@@ -231,6 +233,7 @@ def generate_random_color():
 
 
 def get_directory_name(file_name):
+    """Gets the current directory based on file name or the cwd"""
     if sys.argv[0] == file_name:
         return os.getcwd()
     else:
@@ -238,6 +241,7 @@ def get_directory_name(file_name):
 
 
 def delete_temp_file(filename):
+    """Attempt to delete a given file"""
     try:
         os.remove(filename)
     except FileNotFoundError:
@@ -245,28 +249,35 @@ def delete_temp_file(filename):
 
 
 def rename_replace(old_filename, new_filename):
+    """Move a given file, overwrite if necessary"""
     try:
         os.rename(old_filename, new_filename)
     except FileExistsError:
         os.remove(new_filename)
         os.rename(old_filename, new_filename)
+    print("Same command as shown file, not re-running Vpype pipeline")
+    print(f"Moving {old_filename} to {new_filename}")
 
 def check_make_temp_folder():
+    """Creates the temp folder"""
     if not os.path.isdir(file_info["temp_folder_path"]):
         print(f"Making temp folder at {file_info["temp_folder_path"]}")
         os.mkdir(file_info["temp_folder_path"])
 
 def check_delete_temp_folder():
+    """Deletes the temp folder"""
     if os.path.isdir(file_info["temp_folder_path"]):
         # set permissions to write
         os.chmod(file_info["temp_folder_path"], stat.S_IWUSR)
         shutil.rmtree(file_info["temp_folder_path"])
 
 def on_closing(win):
+    """Cleanup for all Tk Inter windows"""
     check_delete_temp_folder()
     win.quit()
 
 def find_closest_dimensions(width, height):
+    """Finds the closest standard paper dimensions for a given WxH"""
     if width > height:
         width, height = height, width
 
@@ -289,15 +300,11 @@ def find_closest_dimensions(width, height):
 
     return closest_id
 
-def move_file(start, end):
-    rename_replace(start, end)
-    print("Same command as shown file, not re-running Vpype pipeline")
-    print(f"Moving {start} to {end}")
-
 def run_subprocess(command):
-    subprocess.run(command, capture_output=True, shell=True)
+    """Execute the command in a subprocess"""
+    subprocess.run(command, capture_output=True, shell=True, check=False)
 
-def thread_vpypelines(commands, show_commands, app, show_info={}):
+def thread_vpypelines(commands, show_commands, app, show_info):
     """Set up multithreading for each file in the batch"""
     if len(show_info) > 0:
         commands = [show_commands[show_info["index"]]]
@@ -317,7 +324,7 @@ def thread_vpypelines(commands, show_commands, app, show_info={}):
 
         if moving_file:
             thread = threading.Thread(
-                target=move_file,
+                target=rename_replace,
                 args=(
                     current_shown_file["show_path"],
                     current_shown_file["output_path"])
