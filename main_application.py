@@ -1,3 +1,4 @@
+"""Main app gets files, launches apps, and passes files between apps"""
 from tkinter import Tk, StringVar
 from tkinter import ttk
 from utils import select_files, file_info, on_closing
@@ -9,6 +10,7 @@ import deCompose
 import settings
 
 def main():
+    """Creates Tk gui for launching apps"""
     def verify_output_files(files, util_name):
         if len(files) == 0:
             print(f"Files unchanged from {util_name}")
@@ -35,7 +37,7 @@ def main():
         Compose.window.destroy()
         verify_output_files(painted_files, "Compose")
 
-    def run_deCompose():
+    def run_decompose():
         painted_files = deCompose.main(file_info["files"])
         deCompose.window.destroy()
         verify_output_files(painted_files, "deCompose")
@@ -45,7 +47,6 @@ def main():
 
     main_app = Tk()
 
-    global file_info_text
     file_info_text = StringVar(main_app)
     ttk.Label(main_app, textvariable= file_info_text
         ).grid(pady=(10,0), row=current_row, column=0, columnspan=2)
@@ -64,7 +65,7 @@ def main():
     current_row += 1
     ttk.Button(main_app, text="Compose", command=run_compose
         ).grid(pady=(2,2), row=current_row, column=0)
-    ttk.Button(main_app, text="deCompose", command=run_deCompose
+    ttk.Button(main_app, text="deCompose", command=run_decompose
         ).grid(pady=(2,2), row=current_row, column=1)
 
     current_row += 1
