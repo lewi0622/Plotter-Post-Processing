@@ -164,7 +164,7 @@ def main(input_files=()):
     current_row += 1
 
     #grid options
-    grid_label = ttk.Label(window, justify=CENTER, text="Merge Multiple SVGs into Grid", foreground=settings.link_color, cursor="hand2")
+    grid_label = ttk.Label(window, justify=CENTER, text="Merge Multiple SVGs into Grid", foreground=settings.THEME_SETTINGS["link_color"], cursor="hand2")
     grid_label.bind("<Button-1>", lambda e: open_url_in_browser("https://vpype.readthedocs.io/en/latest/cookbook.html#faq-merge-to-grid"))
     grid_label.grid(row=current_row, column=0, columnspan=4)
     # ttk.Label(window, justify=CENTER, text="Color Options:").grid(row=current_row, column=1)
@@ -248,7 +248,7 @@ def main(input_files=()):
 
         compose_info_list.append(compose_info)
 
-    layout_label = ttk.Label(window, justify=CENTER, text="Layout centers scaled\ndesign in page size)", foreground=settings.link_color, cursor="hand2")
+    layout_label = ttk.Label(window, justify=CENTER, text="Layout centers scaled\ndesign in page size)", foreground=settings.THEME_SETTINGS["link_color"], cursor="hand2")
     layout_label.bind("<Button-1>", lambda e: open_url_in_browser("https://vpype.readthedocs.io/en/latest/reference.html#layout"))
     layout_label.grid(row=current_row, column=0)
     layout = IntVar(window, value=1)

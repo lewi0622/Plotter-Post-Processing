@@ -221,7 +221,7 @@ def main(input_files=()):
     split_dist_entry.grid(sticky="w", row=current_row, column=3)
     current_row += 1
 
-    split_all_label = ttk.Label(window, text="Split All and Merge", foreground=settings.link_color, cursor="hand2")
+    split_all_label = ttk.Label(window, text="Split All and Merge", foreground=settings.THEME_SETTINGS["link_color"], cursor="hand2")
     split_all_label.bind("<Button-1>", lambda e: open_url_in_browser("https://vpype.readthedocs.io/en/latest/reference.html#splitall"))
     split_all_label.grid(row=current_row, column=2)
     split_all = IntVar(window, value=0)
@@ -238,7 +238,7 @@ def main(input_files=()):
     ttk.Separator(window, orient='horizontal').grid(sticky="we", row=current_row, column=0, columnspan=4, pady=10)
     current_row += 1
 
-    separate_files_label = ttk.Label(window, justify=CENTER, text="Separate SVG Layers into individual files\n(doesn't work with Show)", foreground=settings.link_color, cursor="hand2")
+    separate_files_label = ttk.Label(window, justify=CENTER, text="Separate SVG Layers into individual files\n(doesn't work with Show)", foreground=settings.THEME_SETTINGS["link_color"], cursor="hand2")
     separate_files_label.bind("<Button-1>", lambda e: open_url_in_browser("https://vpype.readthedocs.io/en/latest/cookbook.html#saving-each-layer-as-a-separate-file"))
     separate_files_label.grid(row=current_row, column=0, columnspan=2)
     separate_files = IntVar(window, value=0)

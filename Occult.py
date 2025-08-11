@@ -143,7 +143,7 @@ def main(input_files=()):
     global window
     window = Tk()
 
-    title = ttk.Label(window, text="Occluded Line Removal", foreground=settings.link_color, cursor="hand2")
+    title = ttk.Label(window, text="Occluded Line Removal", foreground=settings.THEME_SETTINGS["link_color"], cursor="hand2")
     title.bind("<Button-1>", lambda e: open_url_in_browser("https://github.com/LoicGoulefert/occult"))
     title.grid(pady=(10,0), row=current_row,column=0, columnspan=4)
     current_row += 1
