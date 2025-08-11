@@ -16,7 +16,8 @@ file_info = {
     "color_dicts": (),
     "interleaved?": (),
     "combined_color_dicts": {},
-    "size_info": ()
+    "size_info": (),
+    "shown_files": []
 }
 
 
@@ -104,6 +105,7 @@ def select_files(files=(), dialog_title="SELECT DESIGN FILE(s)"):
         input_files = files
     print("Currently Loaded Files: ", input_files)
     file_info["files"] = input_files
+    file_info["shown_files"] = [None]*len(input_files)
     get_all_color_dicts()
     get_all_size_info()
     return input_files
@@ -276,11 +278,18 @@ def find_closest_dimensions(width, height):
 
     return id
 
+def move_file(start, end):
+    rename_replace(start, end)
+    print("Same command as shown file, not re-running Vpype pipeline")
+    print(f"Moving {start} to {end}")
+
 def run_subprocess(command):
     subprocess.run(command, capture_output=True, shell=True)
 
-def thread_vpypelines(commands, app):
+def thread_vpypelines(commands, show_commands, app, show_info={}):
     """Set up multithreading for each file in the batch"""
+    if len(show_info) > 0:
+        commands = [show_commands[show_info["index"]]]
     print(
         "", 
         "Running " + app + f" on {len(commands)} file(s). First pipeline:", 
@@ -288,9 +297,25 @@ def thread_vpypelines(commands, app):
         sep="\n"
     )
     threads = []
-    for command in commands:
-        thread = threading.Thread(target=run_subprocess, args=(command,))
+    for index, command in enumerate(commands):
+        moving_file = False
+        current_shown_file = file_info["shown_files"][index]
+        if current_shown_file is not None:
+            if current_shown_file["command"] == show_commands[index]:
+                moving_file = True
+
+        if moving_file:
+            thread = threading.Thread(target=move_file, args=(current_shown_file["show_path"], current_shown_file["output_path"]))
+        else:
+            thread = threading.Thread(target=run_subprocess, args=(command,))
         thread.start()
         threads.append(thread)
     for thread in threads:
         thread.join()
+
+    if len(show_info) > 0: #write shown info so that we can avoid needing to re-run any given pipeline
+        file_info["shown_files"][show_info["index"]] = {
+            "command": show_commands[show_info["index"]],
+            "show_path": show_info["show_path"],
+            "output_path": show_info["output_path"]
+        }

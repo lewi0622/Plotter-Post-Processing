@@ -1,4 +1,4 @@
-import subprocess, os
+import os
 from tkinter import *
 from tkinter import ttk
 from utils import *
@@ -6,40 +6,38 @@ import settings
 
 
 def main(input_files=()):
-    def run_vpypeline():
+    def run_vpypeline(show_index=-1):
         global return_val
 
-        if len(input_files) == 1 and last_shown_command[0] == build_vpypeline(show=True)[0]:
-            rename_replace(show_temp_file, output_filename)
-            print("Same command as shown file, not re-running Vpype pipeline")
-        else:
-            commands = build_vpypeline(show=False)
-            thread_vpypelines(commands, "Process")
+        show = show_index >=0 and show_index < len(input_files)
+
+        commands, show_commands = build_vpypeline(show)
+        show_info = {}
+        if show:
+            check_make_temp_folder()
+            show_info = {
+                "index": show_index,
+                "show_path": show_file_list[show_index],
+                "output_path": output_file_list[show_index]
+            }
+        thread_vpypelines(commands, show_commands, "Process", show_info)
         
         return_val = output_file_list
-        print("Closing Process")
-        on_closing(window)
 
-    def show_vpypeline():
-        """Runs given commands on first file, but only shows the output."""
-        global last_shown_command
-        check_make_temp_folder()
-        
-        last_shown_command = build_vpypeline(show=True)
-        thread_vpypelines(last_shown_command, "Process (show)")
+        if not show:
+            print("Closing Process")
+            on_closing(window)
 
 
     def build_vpypeline(show):
         """Builds vpype command based on GUI selections"""
-        global show_temp_file
-        global output_filename
+        global show_file_list
         global output_file_list
 
         #build output files list
         input_file_list = list(input_files)
-        if show:
-            input_file_list = [input_file_list[0]]
         output_file_list = []
+        show_file_list = []
         for filename in input_file_list:
             head, tail = os.path.split(filename)
             name, _ext = os.path.splitext(tail)
@@ -47,6 +45,7 @@ def main(input_files=()):
             output_filename = head + "/" + name + "_P.svg"
 
             output_file_list.append(output_filename)
+            show_file_list.append(show_temp_file)
 
         args = r""
         args += r" read -a stroke "
@@ -131,20 +130,19 @@ def main(input_files=()):
                     args += f" crop 0 0 {layout_height_entry.get()}in {layout_width_entry.get()}in "
                 else:
                     args += f" crop 0 0 {layout_width_entry.get()}in {layout_height_entry.get()}in "
-        if show:
-            args += f' write "{show_temp_file}" show '
-        else:
-            args += r' write %file_out% '
 
         commands = []
-        for input_file, output_file in zip(input_file_list, output_file_list):
+        show_commands = []
+        for input_file, output_file, show_file in zip(input_file_list, output_file_list, show_file_list):
             #prepend arg with files
             prepend = r"vpype "
             prepend += r' eval "file_in=' + f"'{input_file}'" + '"'
             prepend += r' eval "file_out=' + f"'{output_file}'" + '"'
-            commands.append(prepend + args)
 
-        return commands
+            commands.append(prepend + args + r' write %file_out% ')
+            show_commands.append(prepend + args + f' write "{show_file}" show ')
+
+        return commands, show_commands
 
 
     def layout_selection_changed(event):
@@ -377,7 +375,8 @@ def main(input_files=()):
     ttk.Separator(window, orient='horizontal').grid(sticky="we", row=current_row, column=0, columnspan=4, pady=10)
     current_row += 1
 
-    ttk.Button(window, text="Show Output", command=show_vpypeline).grid(pady=(0,10), row=current_row, column=2)
+    show_index = 0
+    ttk.Button(window, text="Show Output", command=lambda: run_vpypeline(show_index)).grid(pady=(0,10), row=current_row, column=2)
     if len(input_files)>1:
         ttk.Button(window, text="Apply to All", command=run_vpypeline).grid(pady=(0,10), row=current_row, column=3)
     else:
