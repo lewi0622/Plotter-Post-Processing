@@ -10,10 +10,11 @@ if "sv_ttk" in sys.modules:
 else:
     THEME = ""
 
-THEME_SETTINGS = { #default theme settings
+THEME_SETTINGS = {  # default theme settings
     "theme": THEME,
     "link_color": "blue"
 }
+
 
 def init() -> None:
     """Initialization of theme settings for Tk Interface"""

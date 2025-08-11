@@ -1,8 +1,10 @@
-import subprocess, os
+import subprocess
+import os
 from tkinter import *
 from tkinter import ttk
 from utils import *
 import settings
+
 
 def main(input_files=()):
     def run_vpypeline():
@@ -20,7 +22,6 @@ def main(input_files=()):
         print("Closing Paint")
         on_closing(window)
 
-
     def show_vpypeline():
         """Runs given commands on first file, but only shows the output."""
         global last_shown_command
@@ -29,13 +30,12 @@ def main(input_files=()):
         print("Showing: \n", last_shown_command)
         subprocess.run(last_shown_command)
 
-
     def build_vpypeline(show, dip=True):
         global show_temp_file
         global output_filename
         global output_file_list
 
-        #build output files list
+        # build output files list
         input_file_list = list(input_files)
         output_file_list = []
         for filename in input_file_list:
@@ -44,15 +44,16 @@ def main(input_files=()):
             show_temp_file = head + "/ppp_temp/" + name + "_PAINT.svg"
             output_filename = head + "/" + name + "_PAINT.svg"
             output_file_list.append(output_filename)
-        
+
         dip_detail_list = []
         for i in range(max_num_colors):
-            file_name = os.path.join(directory_name, "Dip_Locations", dip_details[i]['layer'].get())
+            file_name = os.path.join(
+                directory_name, "Dip_Locations", dip_details[i]['layer'].get())
             dip_detail_list.append([
                 file_name,
-                dip_details[i]["x"].get(), 
+                dip_details[i]["x"].get(),
                 dip_details[i]["y"].get()
-                ])
+            ])
         if split_all.get():
             splitall = "splitall"
             linemerge = "linemerge"
@@ -107,65 +108,76 @@ end \
 
     global return_val, last_shown_command
     return_val = ()
-    
+
     directory_name = get_directory_name("Paint.py")
     dip_options = os.listdir(os.path.join(directory_name, "Dip_Locations"))
 
     last_shown_command = ""
 
-    svg_width_inches = file_info["size_info"][0][0] #first file first item
-    svg_height_inches = file_info["size_info"][0][1] #first file second item
+    svg_width_inches = file_info["size_info"][0][0]  # first file first item
+    svg_height_inches = file_info["size_info"][0][1]  # first file second item
 
     max_num_colors = max_colors_per_file()
 
-    #tk widgets and window
-    current_row = 0 #helper row var, inc-ed every time used;
+    # tk widgets and window
+    current_row = 0  # helper row var, inc-ed every time used;
 
     global window
     window = Tk()
-    title = ttk.Label(window, text="Vpype Paint", foreground=settings.THEME_SETTINGS["link_color"], cursor="hand2")
-    title.bind("<Button-1>", lambda e: open_url_in_browser("https://vpype.readthedocs.io/en/latest/cookbook.html#inserting-regular-dipping-patterns-for-plotting-with-paint"))
-    title.grid(pady=(10,0), row=current_row,column=0, columnspan=4)
+    title = ttk.Label(window, text="Vpype Paint",
+                      foreground=settings.THEME_SETTINGS["link_color"], cursor="hand2")
+    title.bind("<Button-1>", lambda e: open_url_in_browser(
+        "https://vpype.readthedocs.io/en/latest/cookbook.html#inserting-regular-dipping-patterns-for-plotting-with-paint"))
+    title.grid(pady=(10, 0), row=current_row, column=0, columnspan=4)
     current_row += 1
 
-    ttk.Label(window, text="Input files should have already been processed\nand laid out with enough space for dipping trays").grid(row=current_row, column=0, columnspan=4)
-    current_row +=1 
+    ttk.Label(window, text="Input files should have already been processed\nand laid out with enough space for dipping trays").grid(
+        row=current_row, column=0, columnspan=4)
+    current_row += 1
 
-    ttk.Label(window, text=f"{len(input_files)} file(s) selected, Input file Width(in): {svg_width_inches}, Height(in): {svg_height_inches}, Max colors in file(s): {max_num_colors}").grid(row=current_row, column=0, columnspan=4)
-    current_row +=1 
+    ttk.Label(window, text=f"{len(input_files)} file(s) selected, Input file Width(in): {svg_width_inches}, Height(in): {svg_height_inches}, Max colors in file(s): {max_num_colors}").grid(
+        row=current_row, column=0, columnspan=4)
+    current_row += 1
 
-    split_all_label = ttk.Label(window, text="Split All and Merge", foreground=settings.THEME_SETTINGS["link_color"], cursor="hand2")
-    split_all_label.bind("<Button-1>", lambda e: open_url_in_browser("https://vpype.readthedocs.io/en/latest/reference.html#splitall"))
+    split_all_label = ttk.Label(window, text="Split All and Merge",
+                                foreground=settings.THEME_SETTINGS["link_color"], cursor="hand2")
+    split_all_label.bind("<Button-1>", lambda e: open_url_in_browser(
+        "https://vpype.readthedocs.io/en/latest/reference.html#splitall"))
     split_all_label.grid(row=current_row, column=0)
     split_all = IntVar(window, value=0)
-    ttk.Checkbutton(window, text="splitall", variable=split_all).grid(sticky="w", row=current_row,column=1)
+    ttk.Checkbutton(window, text="splitall", variable=split_all).grid(
+        sticky="w", row=current_row, column=1)
 
-    split_dist_label = ttk.Label(window, text="Split Distance (in)", foreground=settings.THEME_SETTINGS["link_color"], cursor="hand2")
-    split_dist_label.bind("<Button-1>", lambda e: open_url_in_browser("https://vpype.readthedocs.io/en/latest/reference.html#cmd-splitdist"))
+    split_dist_label = ttk.Label(window, text="Split Distance (in)",
+                                 foreground=settings.THEME_SETTINGS["link_color"], cursor="hand2")
+    split_dist_label.bind("<Button-1>", lambda e: open_url_in_browser(
+        "https://vpype.readthedocs.io/en/latest/reference.html#cmd-splitdist"))
     split_dist_label.grid(row=current_row, column=2)
 
     split_dist_entry = ttk.Entry(window, width=7)
-    split_dist_entry.insert(0,"4")
+    split_dist_entry.insert(0, "4")
     split_dist_entry.grid(row=current_row, column=3)
-    current_row +=1
+    current_row += 1
 
     dip_details = []
 
     for i in range(max_num_colors):
-        ttk.Separator(window, orient='horizontal').grid(sticky="we", row=current_row, column=0, columnspan=4, pady=10)
+        ttk.Separator(window, orient='horizontal').grid(
+            sticky="we", row=current_row, column=0, columnspan=4, pady=10)
         current_row += 1
 
-        ttk.Label(window, text=f"Dip Loc {i}").grid(row=current_row, column=0, columnspan=4)
+        ttk.Label(window, text=f"Dip Loc {i}").grid(
+            row=current_row, column=0, columnspan=4)
         current_row += 1
 
         ttk.Label(window, text="X (in)").grid(row=current_row, column=0)
         dip_loc_x_entry = ttk.Entry(window, width=7)
-        dip_loc_x_entry.insert(0,f"{i * 2 + 1}")
+        dip_loc_x_entry.insert(0, f"{i * 2 + 1}")
         dip_loc_x_entry.grid(row=current_row, column=1)
 
         ttk.Label(window, text="Y (in)").grid(row=current_row, column=2)
         dip_loc_y_entry = ttk.Entry(window, width=7)
-        dip_loc_y_entry.insert(0,"0")
+        dip_loc_y_entry.insert(0, "0")
         dip_loc_y_entry.grid(row=current_row, column=3)
         current_row += 1
 
@@ -187,14 +199,18 @@ end \
             "layer": dip_layer_combobox,
         })
 
-    ttk.Separator(window, orient='horizontal').grid(sticky="we", row=current_row, column=0, columnspan=4, pady=10)
+    ttk.Separator(window, orient='horizontal').grid(
+        sticky="we", row=current_row, column=0, columnspan=4, pady=10)
     current_row += 1
 
-    ttk.Button(window, text="Show Output", command=show_vpypeline).grid(pady=(0,10), row=current_row, column=2)
-    if len(input_files)>1:
-        ttk.Button(window, text="Apply to All", command=run_vpypeline).grid(pady=(0,10), row=current_row, column=3)
+    ttk.Button(window, text="Show Output", command=show_vpypeline).grid(
+        pady=(0, 10), row=current_row, column=2)
+    if len(input_files) > 1:
+        ttk.Button(window, text="Apply to All", command=run_vpypeline).grid(
+            pady=(0, 10), row=current_row, column=3)
     else:
-        ttk.Button(window, text="Confirm", command=run_vpypeline).grid(pady=(0,10), row=current_row, column=3)
+        ttk.Button(window, text="Confirm", command=run_vpypeline).grid(
+            pady=(0, 10), row=current_row, column=3)
 
     window.protocol("WM_DELETE_WINDOW", lambda arg=window: on_closing(arg))
 
@@ -202,6 +218,7 @@ end \
     window.mainloop()
 
     return tuple(return_val)
+
 
 if __name__ == "__main__":
     settings.init()
