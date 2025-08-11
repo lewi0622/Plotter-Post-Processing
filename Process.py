@@ -1,7 +1,8 @@
 import os
-from tkinter import *
+from tkinter import Tk, IntVar, CENTER, END
 from tkinter import ttk
-from utils import *
+from utils import thread_vpypelines, check_make_temp_folder, on_closing, find_closest_dimensions
+from utils import select_files, file_info, generate_random_color, open_url_in_browser
 import settings
 
 
@@ -11,7 +12,7 @@ def main(input_files=()):
 
         show = show_index >=0 and show_index < len(input_files)
 
-        commands, show_commands = build_vpypeline(show)
+        commands, show_commands = build_vpypeline()
         show_info = {}
         if show:
             check_make_temp_folder()
@@ -21,15 +22,14 @@ def main(input_files=()):
                 "output_path": output_file_list[show_index]
             }
         thread_vpypelines(commands, show_commands, "Process", show_info)
-        
-        return_val = output_file_list
 
         if not show:
+            return_val = output_file_list
             print("Closing Process")
             on_closing(window)
 
 
-    def build_vpypeline(show):
+    def build_vpypeline():
         """Builds vpype command based on GUI selections"""
         global show_file_list
         global output_file_list
@@ -93,7 +93,7 @@ def main(input_files=()):
                 args += f" rotate {rotate_entry.get()} "
 
         if linemerge.get():
-            args += f" linemerge "
+            args += " linemerge "
             if linemerge_tolerance_entry.get() != "0.0019685":
                 args += f" -t {linemerge_tolerance_entry.get()}in "
 
@@ -104,19 +104,19 @@ def main(input_files=()):
             args += r" reloop "  
 
         if linesimplify.get():
-            args += f" linesimplify "
+            args += " linesimplify "
             if linesimplify_tolerance_entry.get() != "0.0019685":
                 args += f" -t {linesimplify_tolerance_entry.get()}in "
 
         if squiggle.get():
-            args += f" squiggles "
+            args += " squiggles "
             if squiggle_amplitude_entry.get() != "0.019685":
                 args += f" -a {squiggle_amplitude_entry.get()}in "
             if squiggle_period_entry.get() != "0.11811":
                 args += f" -p {squiggle_period_entry.get()}in "
 
         if multipass.get():
-            args += f" multipass "
+            args += " multipass "
 
         #layout as letter centers graphics within given page size
         if layout.get():
@@ -145,7 +145,7 @@ def main(input_files=()):
         return commands, show_commands
 
 
-    def layout_selection_changed(event):
+    def layout_selection_changed():
         """Event from changing the layout dropdown box, sets the width and height accordingly"""
         selection = layout_combobox.get()
         layout_width_entry.delete(0,END)
@@ -360,7 +360,7 @@ def main(input_files=()):
     layout_combobox.current(current_value_index)
     layout_combobox.grid(sticky="w", row=current_row, column=1)
     layout_combobox.bind("<<ComboboxSelected>>", layout_selection_changed)
-    layout_selection_changed(None)
+    layout_selection_changed()
     current_row +=1
 
     layout_landscape_label = ttk.Label(window, justify=CENTER, text="By default, the larger layout size is the height,\nLandscape flips the orientation")
