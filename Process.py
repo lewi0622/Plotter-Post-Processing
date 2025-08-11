@@ -1,11 +1,11 @@
 """General Vpype post-processing steps"""
-import os
 from tkinter import Tk, IntVar, CENTER, END
 from tkinter import ttk
 from utils import thread_vpypelines, check_make_temp_folder, on_closing, find_closest_dimensions
 from utils import select_files, file_info, generate_random_color, open_url_in_browser
-from gui_helpers import separator
+from gui_helpers import separator, generate_file_names
 from settings import THEME_SETTINGS, set_theme, init
+from typing import Any
 
 DEFAULTS: dict[str, str] = {
     "crop_x": "0, 0",
@@ -37,13 +37,14 @@ VPYPE_URLS: dict[str, str] = {
 }
 
 
-return_val: tuple = ()
-current_row: int = 0
+return_val: tuple
+current_row: int
+window: Any
 
 
 def main(input_files: tuple = ()) -> tuple:
     """Builds and executes GUI of processing"""
-    global return_val, current_row
+    global return_val, current_row, last_shown_command, window
     return_val = ()
     current_row = 0  # helper row var, inc-ed every time used;
     link_color = THEME_SETTINGS["link_color"]
@@ -81,20 +82,9 @@ def main(input_files: tuple = ()) -> tuple:
         global output_file_list
 
         # build output files list
-        input_file_list = list(input_files)
-        output_file_list = []
-        show_file_list = []
-        for filename in input_file_list:
-            head, tail = os.path.split(filename)
-            name, _ext = os.path.splitext(tail)
-            show_temp_file = head + "/ppp_temp/" + name + "_P.svg"
-            output_filename = head + "/" + name + "_P.svg"
+        output_file_list, show_file_list = generate_file_names(input_files, "_P.svg")
 
-            output_file_list.append(output_filename)
-            show_file_list.append(show_temp_file)
-
-        args = r""
-        args += r" read -a stroke "
+        args = r" read -a stroke "
 
         if not crop_input.get():
             args += r" --no-crop "
@@ -179,7 +169,7 @@ def main(input_files: tuple = ()) -> tuple:
 
         commands = []
         show_commands = []
-        for input_file, output_file, show_file in zip(input_file_list, output_file_list, show_file_list):
+        for input_file, output_file, show_file in zip(input_files, output_file_list, show_file_list):
             # prepend arg with files
             prepend = r"vpype "
             prepend += r' eval "file_in=' + f"'{input_file}'" + '"'
@@ -217,8 +207,6 @@ def main(input_files: tuple = ()) -> tuple:
             layout_height_entry.insert(0, "23.4")
             layout.set(0)
 
-    global last_shown_command
-
     last_shown_command = [""]
 
     svg_width_inches = file_info["size_info"][0][0]  # first file first item
@@ -227,8 +215,6 @@ def main(input_files: tuple = ()) -> tuple:
     bbox_color = generate_random_color()
 
     # tk widgets and window
-
-    global window
     window = Tk()
 
     title = ttk.Label(window, text="Vpype Options",
