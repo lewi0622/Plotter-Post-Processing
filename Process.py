@@ -7,7 +7,7 @@ from utils import select_files, file_info, generate_random_color, open_url_in_br
 from gui_helpers import separator
 from settings import THEME_SETTINGS, set_theme, init
 
-DEFAULTS = {
+DEFAULTS: dict[str, str] = {
     "crop_x": "0, 0",
     "crop_y": "0, 0",
     "rotate_small": "90",
@@ -20,7 +20,7 @@ DEFAULTS = {
     "layout_h": "0",
 }
 
-VPYPE_URLS = {
+VPYPE_URLS: dict[str, str] = {
     "title": "https://vpype.readthedocs.io/en/latest/index.html",
     "crop_input": "https://vpype.readthedocs.io/en/latest/reference.html#cmdoption-read-c",
     "scale": "https://vpype.readthedocs.io/en/latest/reference.html#scaleto",
@@ -293,7 +293,7 @@ def main(input_files: tuple = ()) -> tuple:
         VPYPE_URLS["crop"]))
     crop_label.grid(row=current_row, column=2)
     crop_x_entry = ttk.Entry(window, width=7)
-    crop_x_entry.insert(0, "0, 0")
+    crop_x_entry.insert(0, DEFAULTS["crop_x"])
     crop_x_entry.grid(sticky="w", row=current_row, column=3)
 
     rotate_label = ttk.Label(window, justify=CENTER, text="Rotate Clockwise (deg):",
@@ -304,15 +304,15 @@ def main(input_files: tuple = ()) -> tuple:
     rotate_entry = ttk.Entry(window, width=7)
     if float(svg_width_inches) < float(svg_height_inches) and float(svg_width_inches) < 12:
         # autorotate for small axidraw designs where the width is the long side
-        rotate_entry.insert(0, "90")
+        rotate_entry.insert(0, DEFAULTS["rotate_small"])
     else:
-        rotate_entry.insert(0, "0")
+        rotate_entry.insert(0, DEFAULTS["rotate_large"])
     rotate_entry.grid(sticky="w", row=current_row, column=1)
 
     ttk.Label(window, justify=CENTER, text="Crop Y Start, End (in):").grid(
         row=current_row, column=2)
     crop_y_entry = ttk.Entry(window, width=7)
-    crop_y_entry.insert(0, "0, 0")
+    crop_y_entry.insert(0, DEFAULTS["crop_y"])
     crop_y_entry.grid(sticky="w", row=current_row, column=3)
 
     current_row = separator(window, current_row, 4)
@@ -328,7 +328,7 @@ def main(input_files: tuple = ()) -> tuple:
     ttk.Label(window, justify=CENTER, text="Linemerge tolerance (in):").grid(
         row=current_row, column=2)
     linemerge_tolerance_entry = ttk.Entry(window, width=7)
-    linemerge_tolerance_entry.insert(0, "0.0019")
+    linemerge_tolerance_entry.insert(0, DEFAULTS["linemerge_tol"])
     linemerge_tolerance_entry.grid(sticky="w", row=current_row, column=3)
 
     linesort_label = ttk.Label(window, justify=CENTER, text="Sort Lines",
@@ -360,7 +360,7 @@ def main(input_files: tuple = ()) -> tuple:
     ttk.Label(window, justify=CENTER, text="Linesimplify tolerance (in):").grid(
         row=current_row, column=2)
     linesimplify_tolerance_entry = ttk.Entry(window, width=7)
-    linesimplify_tolerance_entry.insert(0, "0.0019")
+    linesimplify_tolerance_entry.insert(0, DEFAULTS["linesimplify_tol"])
     linesimplify_tolerance_entry.grid(sticky="w", row=current_row, column=3)
 
     squiggle_label = ttk.Label(window, justify=CENTER, text="Add squiggle filter",
@@ -375,13 +375,13 @@ def main(input_files: tuple = ()) -> tuple:
     ttk.Label(window, justify=CENTER, text="Amplitude of squiggle (in):").grid(
         row=current_row, column=2)
     squiggle_amplitude_entry = ttk.Entry(window, width=7)
-    squiggle_amplitude_entry.insert(0, "0.0196")
+    squiggle_amplitude_entry.insert(0, DEFAULTS["squiggle_amp"])
     squiggle_amplitude_entry.grid(sticky="w", row=current_row, column=3)
 
     ttk.Label(window, justify=CENTER, text="Period of squiggle (in):").grid(
         row=inc_row(), column=2)
     squiggle_period_entry = ttk.Entry(window, width=7)
-    squiggle_period_entry.insert(0, "0.1181")
+    squiggle_period_entry.insert(0, DEFAULTS["squiggle_period"])
     squiggle_period_entry.grid(sticky="w", row=current_row, column=3)
 
     multipass_label = ttk.Label(window, justify=CENTER, text="Add multiple passes to all lines",
@@ -407,13 +407,13 @@ def main(input_files: tuple = ()) -> tuple:
     ttk.Label(window, justify=CENTER, text="Page Layout Width(in):").grid(
         row=current_row, column=2)
     layout_width_entry = ttk.Entry(window, width=7)
-    layout_width_entry.insert(0, f"0")
+    layout_width_entry.insert(0, DEFAULTS["layout_w"])
     layout_width_entry.grid(sticky="w", row=current_row, column=3)
 
     ttk.Label(window, justify=CENTER, text="Page Layout Height(in):").grid(
         row=inc_row(), column=2)
     layout_height_entry = ttk.Entry(window, width=7)
-    layout_height_entry.insert(0, f"0")
+    layout_height_entry.insert(0, DEFAULTS["layout_h"])
     layout_height_entry.grid(sticky="w", row=current_row, column=3)
 
     page_size_values = ["Letter", "A4", "11x17 in", "A3", "17x23 in", "A2"]
