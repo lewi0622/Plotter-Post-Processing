@@ -1,3 +1,4 @@
+"""General Vpype post-processing steps"""
 import os
 from tkinter import Tk, IntVar, CENTER, END
 from tkinter import ttk

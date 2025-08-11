@@ -2,11 +2,11 @@
 from tkinter import Tk, StringVar
 from tkinter import ttk
 from utils import select_files, file_info, on_closing
-import Occult
-import Paint
-import Process
-import Compose
-import deCompose
+import occult
+import paint
+import process
+import compose
+import de_compose
 import settings
 
 def main():
@@ -18,28 +18,28 @@ def main():
             select_files(files)
 
     def run_occult():
-        occulted_files = Occult.main(file_info["files"])
-        Occult.window.destroy()
+        occulted_files = occult.main(file_info["files"])
+        occult.window.destroy()
         verify_output_files(occulted_files, "Occult")
 
     def run_process():
-        processed_files = Process.main(file_info["files"])
-        Process.window.destroy()
+        processed_files = process.main(file_info["files"])
+        process.window.destroy()
         verify_output_files(processed_files, "Process")
 
     def run_paint():
-        painted_files = Paint.main(file_info["files"])
-        Paint.window.destroy()
+        painted_files = paint.main(file_info["files"])
+        paint.window.destroy()
         verify_output_files(painted_files, "Paint")
 
     def run_compose():
-        painted_files = Compose.main(file_info["files"])
-        Compose.window.destroy()
+        painted_files = compose.main(file_info["files"])
+        compose.window.destroy()
         verify_output_files(painted_files, "Compose")
 
     def run_decompose():
-        painted_files = deCompose.main(file_info["files"])
-        deCompose.window.destroy()
+        painted_files = de_compose.main(file_info["files"])
+        de_compose.window.destroy()
         verify_output_files(painted_files, "deCompose")
 
     #tk widgets and window

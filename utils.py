@@ -12,7 +12,6 @@ import sys
 import threading
 import webbrowser
 from tkinter.filedialog import askopenfilenames
-
 from lxml import etree
 
 initial_dir = os.path.expandvars(r"C:\Users\$USERNAME\Downloads")
@@ -28,19 +27,19 @@ file_info = {
 }
 
 
-def get_all_size_info():
+def get_all_size_info() -> None:
     """Builds sizing info for each svg file"""
-    size_info = []
+    size_info: list = []
     for file in file_info["files"]:
         size_info.append(get_svg_width_height(file))
     file_info["size_info"] = tuple(size_info)
 
 
-def get_all_color_dicts():
+def get_all_color_dicts() -> None:
     """Builds color info for each svg file"""
     color_dicts = []
     interleaved_files = []
-    combined_color_dict = {}
+    combined_color_dict: dict[str, dict] = {}
     for file in file_info["files"]:
         color_dict, interleaved = build_color_dict(file)
         color_dicts.append(color_dict)
@@ -51,31 +50,35 @@ def get_all_color_dicts():
     file_info["interleaved?"] = interleaved_files
 
 
-def open_url_in_browser(url):
+def open_url_in_browser(url: str) -> None:
     """Opens the given url in a new browser tab"""
     webbrowser.open_new_tab(url)
 
 
-def get_svg_width_height(path):
-    """get svg width and height in inches"""
-    root = None
+def get_svg_width_height(path: str) -> tuple[float, float]:
+    """Get svg width and height in inches"""
     for event, elem in etree.iterparse(path, events=('start', 'end')):
         if event == "start":
             if "width" in elem.attrib:
                 root = elem
                 break
+
+    svg_width: str
+    svg_height: str
     try:
         svg_width = root.attrib["width"] #size in pixels, css units are 96 px = 1 inch
         svg_height = root.attrib["height"]
     except KeyError:
         try:
-            viewbox = root.attrib["viewBox"].split()
+            viewbox: str = root.attrib["viewBox"].split()
             svg_width = viewbox[2]
             svg_height = viewbox[3]
         except KeyError:
             print("No width, height, or viewBox info found")
             return 0,0
 
+    svg_width_inches: float
+    svg_height_inches: float
     if "in" in svg_width:
         svg_width_inches = float(svg_width.replace("in", ""))
     elif "px" in svg_width:
@@ -100,7 +103,7 @@ def get_svg_width_height(path):
     return svg_width_inches, svg_height_inches
 
 
-def select_files(files=(), dialog_title="SELECT DESIGN FILE(s)"):
+def select_files(files: tuple=(), dialog_title: str="SELECT DESIGN FILE(s)") -> tuple:
     """Calls get_files and file diagnositcs returns a list of files"""
     if len(files) == 0:
         files = get_files(dialog_title) #prompt user to select files
@@ -116,7 +119,7 @@ def select_files(files=(), dialog_title="SELECT DESIGN FILE(s)"):
     return files
 
 
-def get_files(title=""):
+def get_files(title="") -> tuple[str]:
     """Opens dialog box to select files and returns a tuple of the selected files"""
     list_of_files = glob.glob(initial_dir + r"\*.svg")
     latest_file = max(list_of_files, key=os.path.getctime)
