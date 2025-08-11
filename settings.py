@@ -1,5 +1,6 @@
 """Functions for stored graphical settings"""
 import sys
+from typing import Any
 try:
     import sv_ttk
 except ImportError:
@@ -22,7 +23,7 @@ def init() -> None:
         THEME_SETTINGS["link_color"] = "#14AEEA"
 
 
-def set_theme(root) -> None:
+def set_theme(root: Any) -> None:
     """Applies theme to ttk"""
     if THEME != "":
         sv_ttk.set_theme(THEME, root)
