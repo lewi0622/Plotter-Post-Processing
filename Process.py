@@ -5,6 +5,7 @@ from utils import thread_vpypelines, check_make_temp_folder, on_closing, find_cl
 from utils import select_files, file_info, generate_random_color, open_url_in_browser
 import settings
 
+return_val = ()
 
 def main(input_files=()):
     def run_vpypeline(show_index=-1):
@@ -171,13 +172,10 @@ def main(input_files=()):
             layout_height_entry.insert(0,"23.4")
             layout.set(0)
 
-    global return_val, last_shown_command
-    return_val = ()
+    global last_shown_command
 
     last_shown_command = [""]
 
-    if len(input_files) == 0:
-        input_files = select_files()
     svg_width_inches = file_info["size_info"][0][0] #first file first item
     svg_height_inches = file_info["size_info"][0][1] #first file second item
 
@@ -391,4 +389,8 @@ def main(input_files=()):
 
 if __name__ == "__main__":
     settings.init()
-    main()
+    selected_files = select_files()
+    if len(selected_files) == 0:
+        print("No Design Files Selected")
+    else:
+        main(input_files=selected_files)

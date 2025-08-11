@@ -129,14 +129,6 @@ def main(input_files=()):
     return_val = ()
     last_shown_command = ""
 
-    if len(input_files) == 0:
-        input_files = select_files()
-        if len(input_files) == 0:
-            print("No Design Files Selected")
-            return ()
-        else:
-            print(f"Currently Loaded Design Files: {input_files}")
-
     svg_width_inches = file_info["size_info"][0][0] #first file first item
     svg_height_inches = file_info["size_info"][0][1] #first file second item
 
@@ -299,4 +291,8 @@ def main(input_files=()):
 
 if __name__ == "__main__":
     settings.init()
-    main()
+    selected_files = select_files()
+    if len(selected_files) == 0:
+        print("No Design Files Selected")
+    else:
+        main(input_files=selected_files)

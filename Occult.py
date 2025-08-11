@@ -1,7 +1,9 @@
-import subprocess, os
-from tkinter import *
+import subprocess
+import os
+from tkinter import Tk, IntVar, CENTER
 from tkinter import ttk
-from utils import *
+from utils import select_files, generate_random_color, file_info, get_files, max_colors_per_file
+from utils import rename_replace, on_closing, check_make_temp_folder, open_url_in_browser
 import settings
 
 
@@ -61,10 +63,9 @@ def main(input_files=()):
         args += f" repeat {repeat_num} " #repeat for both single and batch operations
 
         # FILE READING
+        parse = "-a stroke" # default value
         if attribute.get() == 0:
             parse = "-a d -a points"
-        elif attribute.get() == 1:
-            parse = "-a stroke"
 
         args += f" read {parse} --no-crop %files_in[_i]% "
 
@@ -110,14 +111,6 @@ def main(input_files=()):
     global return_val, last_shown_command, color_list, occult_color_list
     return_val = ()
     last_shown_command = ""
-
-    if len(input_files) == 0:
-        input_files = select_files()
-        if len(input_files) == 0:
-            print("No Design Files Selected")
-            return ()
-        else:
-            print(f"Currently Loaded Design Files: {input_files}")
 
     occlusion_file_list = get_files("SELECT OCCLUSION FILE(s) (OPTIONAL)")
     if len(occlusion_file_list) > 0:
@@ -260,4 +253,8 @@ def main(input_files=()):
 
 if __name__ == "__main__":
     settings.init()
-    main()
+    selected_files = select_files()
+    if len(selected_files) == 0:
+        print("No Design Files Selected")
+    else:
+        main(input_files=selected_files)

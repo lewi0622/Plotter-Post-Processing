@@ -16,7 +16,6 @@ from tkinter.filedialog import askopenfilenames
 from lxml import etree
 
 initial_dir = os.path.expandvars(r"C:\Users\$USERNAME\Downloads")
-temp_folder_path = ""
 
 file_info = {
     "files": (),
@@ -24,7 +23,8 @@ file_info = {
     "interleaved?": (),
     "combined_color_dicts": {},
     "size_info": (),
-    "shown_files": []
+    "shown_files": [],
+    "temp_folder_path": ""
 }
 
 
@@ -42,7 +42,7 @@ def get_all_color_dicts():
     interleaved_files = []
     combined_color_dict = {}
     for file in file_info["files"]:
-        color_dict, interleaved = build_color_dict(file)    
+        color_dict, interleaved = build_color_dict(file)
         color_dicts.append(color_dict)
         interleaved_files.append(interleaved)
         combined_color_dict = combined_color_dict | color_dict
@@ -61,7 +61,7 @@ def get_svg_width_height(path):
     root = None
     for event, elem in etree.iterparse(path, events=('start', 'end')):
         if event == "start":
-            try: 
+            try:
                 elem.attrib["width"]
                 root = elem
             except KeyError:
@@ -106,20 +106,23 @@ def get_svg_width_height(path):
 
 
 def select_files(files=(), dialog_title="SELECT DESIGN FILE(s)"):
+    """Calls get_files and file diagnositcs returns a list of files"""
     if len(files) == 0:
-        input_files = get_files(dialog_title) #prompt user to select files
-    else:
-        input_files = files
-    print("Currently Loaded Files: ", input_files)
-    file_info["files"] = input_files
-    file_info["shown_files"] = [None]*len(input_files)
+        files = get_files(dialog_title) #prompt user to select files
+    print("Currently Loaded Files: ", files)
+    file_info["temp_folder_path"] = os.path.join(
+        os.path.dirname(files[0]),
+        r"ppp_temp"
+    )
+    file_info["files"] = files
+    file_info["shown_files"] = [None]*len(files)
     get_all_color_dicts()
     get_all_size_info()
-    return input_files
+    return files
 
 
 def get_files(title=""):
-    global temp_folder_path
+    """Opens dialog box to select files and returns a tuple of the selected files"""
     list_of_files = glob.glob(initial_dir + r"\*.svg")
     latest_file = max(list_of_files, key=os.path.getctime)
 
@@ -129,10 +132,10 @@ def get_files(title=""):
         filetypes=(("SVG files","*.svg*"),("all files","*.*")),
         initialfile=latest_file
         )
+    # if nothing selected, askopenfilenames returns a blank string
     if recieved_files == "":
         return ()
     else:
-        temp_folder_path = os.path.join(os.path.dirname(recieved_files[0]), r"ppp_temp")
         return recieved_files
 
 
@@ -254,15 +257,15 @@ def rename_replace(old_filename, new_filename):
         os.rename(old_filename, new_filename)
 
 def check_make_temp_folder():
-    if not os.path.isdir(temp_folder_path):
-        print("Making temp folder")
-        os.mkdir(temp_folder_path)
+    if not os.path.isdir(file_info["temp_folder_path"]):
+        print(f"Making temp folder at {file_info["temp_folder_path"]}")
+        os.mkdir(file_info["temp_folder_path"])
 
 def check_delete_temp_folder():
-    if os.path.isdir(temp_folder_path):
+    if os.path.isdir(file_info["temp_folder_path"]):
         # set permissions to write
-        os.chmod(temp_folder_path, stat.S_IWUSR)
-        shutil.rmtree(temp_folder_path)
+        os.chmod(file_info["temp_folder_path"], stat.S_IWUSR)
+        shutil.rmtree(file_info["temp_folder_path"])
 
 def on_closing(win):
     check_delete_temp_folder()
