@@ -48,7 +48,8 @@ def main(input_files: tuple = ()) -> tuple:
     current_row = 0  # helper row var, inc-ed every time used;
     link_color = THEME_SETTINGS["link_color"]
 
-    def inc_row():
+    def inc_row() -> int:
+        """Increment the current row and return it"""
         global current_row
         current_row += 1
         return current_row
@@ -56,7 +57,7 @@ def main(input_files: tuple = ()) -> tuple:
     def run_vpypeline(show_index: int = -1) -> None:
         global return_val
 
-        show = show_index >= 0 and show_index < len(input_files)
+        show: bool = 0 <= show_index < len(input_files)
 
         commands, show_commands = build_vpypeline()
         show_info = {}
@@ -190,7 +191,7 @@ def main(input_files: tuple = ()) -> tuple:
 
         return (commands, show_commands)
 
-    def layout_selection_changed():
+    def layout_selection_changed() -> None:
         """Event from changing the layout dropdown box, sets the width and height accordingly"""
         selection = layout_combobox.get()
         layout_width_entry.delete(0, END)

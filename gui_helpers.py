@@ -1,6 +1,8 @@
 """Commonly reused helper functions for simplifying GUI building"""
 from tkinter import ttk
 from typing import Any
+
+
 def separator(parent: Any, r: int, span: int) -> int:
     """Pre and Post increments the row, creates a separator, returns row"""
     r += 1
