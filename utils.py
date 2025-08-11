@@ -13,7 +13,7 @@ import threading
 import webbrowser
 from tkinter.filedialog import askopenfilenames
 
-from lxml import etree as ET
+from lxml import etree
 
 initial_dir = os.path.expandvars(r"C:\Users\$USERNAME\Downloads")
 temp_folder_path = ""
@@ -37,7 +37,7 @@ def get_all_size_info():
 
 
 def get_all_color_dicts():
-    """"""
+    """Builds color info for each svg file"""
     color_dicts = []
     interleaved_files = []
     combined_color_dict = {}
@@ -52,26 +52,26 @@ def get_all_color_dicts():
 
 
 def open_url_in_browser(url):
-   """Opens the given url in a new browser tab"""
-   webbrowser.open_new_tab(url)
+    """Opens the given url in a new browser tab"""
+    webbrowser.open_new_tab(url)
 
 
 def get_svg_width_height(path):
     """get svg width and height in inches"""
     root = None
-    for event, elem in ET.iterparse(path, events=('start', 'end')):
+    for event, elem in etree.iterparse(path, events=('start', 'end')):
         if event == "start":
             try: 
                 elem.attrib["width"]
                 root = elem
             except KeyError:
                 pass
-        if root != None:
+        if root is not None:
             break
 
     try:
-        svg_width = root.attrib["width"] #size in pixels, css units are 96 px = 1 inch 
-        svg_height = root.attrib["height"] 
+        svg_width = root.attrib["width"] #size in pixels, css units are 96 px = 1 inch
+        svg_height = root.attrib["height"]
     except KeyError:
         try:
             viewbox = root.attrib["viewBox"].split()
@@ -84,19 +84,19 @@ def get_svg_width_height(path):
     if "in" in svg_width:
         svg_width_inches = float(svg_width.replace("in", ""))
     elif "px" in svg_width:
-        svg_width_inches = float(svg_width.replace("px", ""))/96 
+        svg_width_inches = float(svg_width.replace("px", ""))/96
     elif "cm" in svg_width:
         svg_width_inches = float(svg_width.replace("cm", ""))/2.54
     else:
-        svg_width_inches = float(svg_width)/96 
+        svg_width_inches = float(svg_width)/96
 
     if "in" in svg_height:
         svg_height_inches = float(svg_height.replace("in", ""))
     elif "px" in svg_height:
-        svg_height_inches = float(svg_height.replace("px", ""))/96 
+        svg_height_inches = float(svg_height.replace("px", ""))/96
     elif "cm" in svg_height:
         svg_height_inches = float(svg_height.replace("cm", ""))/2.54
-    else:   
+    else:
         svg_height_inches = float(svg_height)/96
 
     svg_width_inches = round(svg_width_inches * 1000)/1000
@@ -107,9 +107,7 @@ def get_svg_width_height(path):
 
 def select_files(files=(), dialog_title="SELECT DESIGN FILE(s)"):
     if len(files) == 0:
-        recieved_files = get_files(dialog_title) #prompt user to select files
-        if len(recieved_files) > 0:
-            input_files = recieved_files
+        input_files = get_files(dialog_title) #prompt user to select files
     else:
         input_files = files
     print("Currently Loaded Files: ", input_files)
@@ -122,11 +120,15 @@ def select_files(files=(), dialog_title="SELECT DESIGN FILE(s)"):
 
 def get_files(title=""):
     global temp_folder_path
-    # initial_dir = os.path.expandvars(R"C:\Users\$USERNAME\Downloads\demo")
     list_of_files = glob.glob(initial_dir + r"\*.svg")
     latest_file = max(list_of_files, key=os.path.getctime)
 
-    recieved_files = askopenfilenames(title=title, initialdir=initial_dir, filetypes=(("SVG files","*.svg*"),("all files","*.*")), initialfile=latest_file)
+    recieved_files = askopenfilenames(
+        title=title,
+        initialdir=initial_dir,
+        filetypes=(("SVG files","*.svg*"),("all files","*.*")),
+        initialfile=latest_file
+        )
     if recieved_files == "":
         return ()
     else:
@@ -145,33 +147,35 @@ def build_color_dict(input_file):
     current_color = ""
     color_change_count = 0
     #if the file is properly formatted, this will find the colors
-    for _, elem in ET.iterparse(input_file, events=('end',)):
+    for _, elem in etree.iterparse(input_file, events=('end',)):
         hex_string = None
         if elem.tag.endswith("text"):
             continue
         elif "stroke" in elem.attrib:
             hex_string = parse_stroke_color(elem.attrib["stroke"])
-        elif elem.tag.endswith("g"): #handling color transformations within g tags a la DrawingBotV3 style outputs
+        #handling color transformations within g tags a la DrawingBotV3 style outputs
+        elif elem.tag.endswith("g"):
             if "style" in elem.attrib:
                 stroke_string = re.search(r"(stroke:.*?;)", elem.attrib["style"])
-                if stroke_string != None:
+                if stroke_string is not None:
                     hex_string = parse_stroke_color(stroke_string.group())
-        elif "fill" in elem.attrib: # if there is a fill with no stroke, vpype will assign it a stroke color
+        # if there is a fill with no stroke, vpype will assign it a stroke color
+        elif "fill" in elem.attrib:
             hex_string = parse_stroke_color(elem.attrib["fill"])
-        
-        if hex_string != None:
+
+        if hex_string is not None:
             color_dict[hex_string] = 0
             if hex_string != current_color:
                 color_change_count += 1
         elem.clear()
     #otherwise we look in all the rest
-    if color_dict == {}:
+    if not color_dict:
         with open(input_file, 'r') as file:
             content = file.read()
             strokes = re.findall(r'(?:stroke=")(.*?)(?:")', content)
             for stroke in strokes:
                 hex_string = parse_stroke_color(stroke)
-                if hex_string != None:
+                if hex_string is not None:
                     color_dict[hex_string] = 0
     interleaved = color_change_count > len(color_dict)
     return (color_dict, interleaved)
@@ -208,17 +212,17 @@ def max_colors_per_file():
 def generate_random_color():
     #generate first color
     rgb = (
-    math.floor(random.random()*256), 
-    math.floor(random.random()*256), 
+    math.floor(random.random()*256),
+    math.floor(random.random()*256),
     math.floor(random.random()*256)
     )
     rgb_hex = get_hex_value(rgb)
 
     # keep generating colors if matching
-    while(rgb_hex in file_info["combined_color_dicts"]):
+    while rgb_hex in file_info["combined_color_dicts"]:
         rgb = (
-            math.floor(random.random()*256), 
-            math.floor(random.random()*256), 
+            math.floor(random.random()*256),
+            math.floor(random.random()*256),
             math.floor(random.random()*256)
         )
         rgb_hex = get_hex_value(rgb)
@@ -229,11 +233,11 @@ def generate_random_color():
 
 
 def get_directory_name(file_name):
-    if sys.argv[0] == "file_name":
+    if sys.argv[0] == file_name:
         return os.getcwd()
     else:
         return os.path.dirname(sys.argv[0])
-    
+
 
 def delete_temp_file(filename):
     try:
@@ -257,15 +261,15 @@ def check_make_temp_folder():
 def check_delete_temp_folder():
     if os.path.isdir(temp_folder_path):
         # set permissions to write
-        os.chmod(temp_folder_path, stat.S_IWUSR)        # #https://stackoverflow.com/questions/2656322/shutil-rmtree-fails-on-windows-with-access-is-denied
+        os.chmod(temp_folder_path, stat.S_IWUSR)
         shutil.rmtree(temp_folder_path)
 
 def on_closing(win):
     check_delete_temp_folder()
-    win.quit()      
+    win.quit()
 
 def find_closest_dimensions(width, height):
-    if(width > height):
+    if width > height:
         width, height = height, width
 
     dimensinons = {
@@ -276,16 +280,16 @@ def find_closest_dimensions(width, height):
         "17x23 in": [17, 23], 
         "A2": [16.5, 23.4]
         }
-    id = 0
+    closest_id = 0
     closest_w = 8.5
     for index, size in enumerate(dimensinons):
         w = dimensinons[size][0]
 
         if abs(width - closest_w) > abs(width - w):
             closest_w = w
-            id = index
+            closest_id = index
 
-    return id
+    return closest_id
 
 def move_file(start, end):
     rename_replace(start, end)
@@ -302,7 +306,7 @@ def thread_vpypelines(commands, show_commands, app, show_info={}):
     print(
         "", 
         "Running " + app + f" on {len(commands)} file(s). First pipeline:", 
-        commands[0], 
+        commands[0],
         sep="\n"
     )
     threads = []
@@ -314,7 +318,12 @@ def thread_vpypelines(commands, show_commands, app, show_info={}):
                 moving_file = True
 
         if moving_file:
-            thread = threading.Thread(target=move_file, args=(current_shown_file["show_path"], current_shown_file["output_path"]))
+            thread = threading.Thread(
+                target=move_file,
+                args=(
+                    current_shown_file["show_path"],
+                    current_shown_file["output_path"])
+                )
         else:
             thread = threading.Thread(target=run_subprocess, args=(command,))
         thread.start()
@@ -322,7 +331,8 @@ def thread_vpypelines(commands, show_commands, app, show_info={}):
     for thread in threads:
         thread.join()
 
-    if len(show_info) > 0: #write shown info so that we can avoid needing to re-run any given pipeline
+    #write shown info so that we can avoid needing to re-run any given pipeline
+    if len(show_info) > 0:
         file_info["shown_files"][show_info["index"]] = {
             "command": show_commands[show_info["index"]],
             "show_path": show_info["show_path"],
