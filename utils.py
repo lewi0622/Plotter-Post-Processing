@@ -61,14 +61,9 @@ def get_svg_width_height(path):
     root = None
     for event, elem in etree.iterparse(path, events=('start', 'end')):
         if event == "start":
-            try:
-                elem.attrib["width"]
+            if "width" in elem.attrib:
                 root = elem
-            except KeyError:
-                pass
-        if root is not None:
-            break
-
+                break
     try:
         svg_width = root.attrib["width"] #size in pixels, css units are 96 px = 1 inch
         svg_height = root.attrib["height"]
