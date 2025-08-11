@@ -1,12 +1,19 @@
-import os, glob, sys, shutil, stat
-from lxml import etree as ET
-import webbrowser
-import re
-import random
+"""Utils provides helpful functions for any Plotter Post Processing apps as well as the main 
+function. Any common functions that multiple apps share should be placed here"""
+import glob
 import math
-import threading
+import os
+import random
+import re
+import shutil
+import stat
 import subprocess
+import sys
+import threading
+import webbrowser
 from tkinter.filedialog import askopenfilenames
+
+from lxml import etree as ET
 
 initial_dir = os.path.expandvars(r"C:\Users\$USERNAME\Downloads")
 temp_folder_path = ""
@@ -22,6 +29,7 @@ file_info = {
 
 
 def get_all_size_info():
+    """Builds sizing info for each svg file"""
     size_info = []
     for file in file_info["files"]:
         size_info.append(get_svg_width_height(file))
@@ -29,6 +37,7 @@ def get_all_size_info():
 
 
 def get_all_color_dicts():
+    """"""
     color_dicts = []
     interleaved_files = []
     combined_color_dict = {}
