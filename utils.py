@@ -161,7 +161,7 @@ def build_color_dict(input_file: str) -> tuple[dict, bool]:
         elif elem.tag.endswith("g"):
             if "style" in elem.attrib:
                 stroke_string = re.search(
-                    r"(stroke:.*?;)", elem.attrib["style"])
+                    r"(?<=stroke:)(.*?)(?=;)", elem.attrib["style"])
                 if stroke_string is not None:
                     hex_string = parse_stroke_color(stroke_string.group())
         # if there is a fill with no stroke, vpype will assign it a stroke color
@@ -197,6 +197,12 @@ def parse_stroke_color(s: str) -> str:
         c = s
     elif "black" in s:
         c = "#000000"
+    elif "yellow" in s:
+        c = "#FFFF00"
+    elif "aqua" in s:
+        c = "#00FFFF"
+    elif "fuchsia" in s:
+        c = "#FF00FF"  
     elif "none" in s:
         pass
     else:
