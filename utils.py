@@ -87,6 +87,8 @@ def get_svg_width_height(path: str) -> tuple[float, float]:
         svg_width_inches = float(svg_width.replace("px", ""))/96
     elif "cm" in svg_width:
         svg_width_inches = float(svg_width.replace("cm", ""))/2.54
+    elif "mm" in svg_width:
+        svg_width_inches = float(svg_width.replace("mm", ""))/25.4
     else:
         svg_width_inches = float(svg_width)/96
 
@@ -96,6 +98,8 @@ def get_svg_width_height(path: str) -> tuple[float, float]:
         svg_height_inches = float(svg_height.replace("px", ""))/96
     elif "cm" in svg_height:
         svg_height_inches = float(svg_height.replace("cm", ""))/2.54
+    elif "mm" in svg_height:
+        svg_height_inches = float(svg_height.replace("mm", ""))/25.4
     else:
         svg_height_inches = float(svg_height)/96
 
