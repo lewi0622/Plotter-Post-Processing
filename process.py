@@ -1,11 +1,11 @@
 """General Vpype post-processing steps"""
 from tkinter import Tk, IntVar, CENTER, END
 from tkinter import ttk
+from typing import Any
 from utils import thread_vpypelines, check_make_temp_folder, on_closing, find_closest_dimensions
 from utils import select_files, file_info, generate_random_color, open_url_in_browser
 from gui_helpers import separator, generate_file_names
 from settings import THEME_SETTINGS, set_theme, init
-from typing import Any
 
 DEFAULTS: dict[str, str] = {
     "crop_x": "0, 0",
@@ -327,8 +327,12 @@ def main(input_files: tuple = ()) -> tuple:
     ttk.Checkbutton(window, text="linesort", variable=linesort).grid(
         sticky="w", row=current_row, column=1)
 
-    reloop_label = ttk.Label(window, justify=CENTER, text="Randomize seam location\non closed paths",
-                             foreground=link_color, cursor="hand2")
+    reloop_label = ttk.Label(
+        window,
+        justify=CENTER,
+        text="Randomize seam location\non closed paths",
+        foreground=link_color, cursor="hand2"
+    )
     reloop_label.bind("<Button-1>", lambda e: open_url_in_browser(
         VPYPE_URLS["reloop"]))
     reloop_label.grid(row=current_row, column=2)
@@ -382,8 +386,13 @@ def main(input_files: tuple = ()) -> tuple:
 
     current_row = separator(window, current_row, 4)
 
-    layout_label = ttk.Label(window, justify=CENTER, text="Layout centers scaled\ndesign in page size)",
-                             foreground=link_color, cursor="hand2")
+    layout_label = ttk.Label(
+        window,
+        justify=CENTER,
+        text="Layout centers scaled\ndesign in page size)",
+        foreground=link_color,
+        cursor="hand2"
+    )
     layout_label.bind("<Button-1>", lambda e: open_url_in_browser(
         VPYPE_URLS["layout"]))
     layout_label.grid(row=current_row, column=0)
@@ -420,7 +429,10 @@ def main(input_files: tuple = ()) -> tuple:
     layout_selection_changed()
 
     layout_landscape_label = ttk.Label(
-        window, justify=CENTER, text="By default, the larger layout size is the height,\nLandscape flips the orientation")
+        window,
+        justify=CENTER,
+        text="By default, the larger layout size is the height,\nLandscape flips the orientation"
+    )
     layout_landscape_label.grid(row=inc_row(), column=0, columnspan=2)
     layout_landscape = IntVar(window, value=1)
     ttk.Checkbutton(window, text="Landscape", variable=layout_landscape).grid(
