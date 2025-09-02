@@ -181,7 +181,7 @@ def main(input_files: tuple = ()) -> tuple:
 
         return (commands, show_commands)
 
-    def layout_selection_changed() -> None:
+    def layout_selection_changed(e=None) -> None:
         """Event from changing the layout dropdown box, sets the width and height accordingly"""
         selection = layout_combobox.get()
         layout_width_entry.delete(0, END)
