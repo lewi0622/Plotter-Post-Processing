@@ -206,7 +206,7 @@ def parse_stroke_color(s: str) -> str:
     elif "aqua" in s:
         c = "#00FFFF"
     elif "fuchsia" in s:
-        c = "#FF00FF"  
+        c = "#FF00FF"
     elif "none" in s:
         pass
     else:
@@ -326,7 +326,11 @@ def run_subprocess(command: str) -> None:
     subprocess.run(command, capture_output=True, shell=True, check=False)
 
 
-def thread_vpypelines(commands: list[str], show_commands: list[str], app: str, show_info: dict) -> None:
+def thread_vpypelines(
+        commands: list[str],
+        show_commands: list[str],
+        app: str, show_info: dict
+    ) -> None:
     """Set up multithreading for each file in the batch"""
     if len(show_info) > 0:
         commands = [show_commands[show_info["index"]]]
