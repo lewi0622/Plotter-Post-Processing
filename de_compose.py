@@ -1,12 +1,12 @@
 import subprocess
 import os
-from tkinter import *
-from tkinter import ttk
+from tkinter import Tk, ttk, CENTER, IntVar
 from utils import *
 import settings
 
 
 def main(input_files=()):
+    """"Run Decompose utility"""
     def run_vpypeline():
         global return_val
 
@@ -16,7 +16,7 @@ def main(input_files=()):
         else:
             command = build_vpypeline(False)
             print("Running: \n", command)
-            subprocess.run(command, capture_output=True, shell=True)
+            subprocess.run(command, capture_output=True, shell=True, check=False)
 
         return_val = output_file_list
         print("Closing deCompose")
@@ -28,7 +28,7 @@ def main(input_files=()):
         check_make_temp_folder()
         last_shown_command = build_vpypeline(True)
         print("Showing: \n", last_shown_command)
-        subprocess.run(last_shown_command)
+        subprocess.run(last_shown_command, check=False)
         if separate_files.get():  # hacky solution to the separate files portion not being included in the show command
             last_shown_command = ""
 
