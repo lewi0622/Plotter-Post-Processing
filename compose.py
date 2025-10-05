@@ -1,12 +1,17 @@
 import subprocess
 import os
-from tkinter import *
-from tkinter import ttk
-from utils import *
+from typing import Any
+from tkinter import ttk, END, CENTER, Tk, IntVar
+from utils import rename_replace, on_closing, check_make_temp_folder, file_info, select_files
+from utils import open_url_in_browser, generate_random_color, max_colors_per_file
 import settings
 
+return_val: tuple
+current_row: int
+window: Any
 
 def main(input_files=()):
+    """"Run Compose utility"""
     def run_vpypeline():
         global return_val
 
@@ -16,7 +21,7 @@ def main(input_files=()):
         else:
             command = build_vpypeline(False)
             print("Running: \n", command)
-            subprocess.run(command, capture_output=True, shell=True)
+            subprocess.run(command, capture_output=True, shell=True, check=False)
 
         return_val = output_file_list
         print("Closing Compose")
@@ -28,7 +33,7 @@ def main(input_files=()):
         check_make_temp_folder()
         last_shown_command = build_vpypeline(True)
         print("Showing: \n", last_shown_command)
-        subprocess.run(last_shown_command)
+        subprocess.run(last_shown_command, check=False)
 
     def build_vpypeline(show):
         global show_temp_file
