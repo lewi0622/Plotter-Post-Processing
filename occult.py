@@ -17,7 +17,7 @@ def main(input_files=()):
         else:
             command = build_vpypeline(show=False)
             print("Running: \n", command)
-            subprocess.run(command, capture_output=True, shell=True)
+            subprocess.run(command, capture_output=True, shell=True, check=False)
 
         return_val = output_file_list
         print("Closing Occult")
@@ -30,7 +30,7 @@ def main(input_files=()):
 
         last_shown_command = build_vpypeline(show=True)
         print("Showing: \n", last_shown_command)
-        subprocess.run(last_shown_command, capture_output=True, shell=True)
+        subprocess.run(last_shown_command, capture_output=True, shell=True, check=False)
 
     def build_vpypeline(show):
         """Builds vpype command based on GUI selections"""
