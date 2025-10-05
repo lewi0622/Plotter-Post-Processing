@@ -16,7 +16,7 @@ def main(input_files=()):
         else:
             command = build_vpypeline(False)
             print("Running: \n", command)
-            subprocess.run(command, capture_output=True, shell=True)
+            subprocess.run(command, capture_output=True, shell=True, check=False)
 
         return_val = output_file_list
         print("Closing Paint")
@@ -28,7 +28,7 @@ def main(input_files=()):
         check_make_temp_folder()
         last_shown_command = build_vpypeline(True)
         print("Showing: \n", last_shown_command)
-        subprocess.run(last_shown_command)
+        subprocess.run(last_shown_command, check=False)
 
     def build_vpypeline(show, dip=True):
         global show_temp_file
