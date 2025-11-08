@@ -58,7 +58,7 @@ def open_url_in_browser(url: str) -> None:
 
 def get_svg_width_height(path: str) -> tuple[float, float]:
     """Get svg width and height in inches"""
-    for event, elem in etree.iterparse(path, events=('start', 'end')):
+    for event, elem in etree.iterparse(path, events=('start', 'end'), huge_tree=True):
         if event == "start":
             if "width" in elem.attrib:
                 root = elem
@@ -155,7 +155,7 @@ def build_color_dict(input_file: str) -> tuple[dict, bool]:
     current_color = ""
     color_change_count = 0
     # if the file is properly formatted, this will find the colors
-    for _, elem in etree.iterparse(input_file, events=('end',)):
+    for _, elem in etree.iterparse(input_file, events=('end',), huge_tree=True):
         hex_string: str = ""
         if elem.tag.endswith("text"):
             continue
