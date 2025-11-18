@@ -118,6 +118,15 @@ def select_files(files: tuple = (), dialog_title: str = "SELECT DESIGN FILE(s)")
         os.path.dirname(files[0]),
         r"ppp_temp"
     )
+    # to handle multiple instances of ppp running simultaneously, each one should handle its' own temp folder
+    folder_loop_count = 1
+    while os.path.isdir(file_info["temp_folder_path"]):
+        file_info["temp_folder_path"] = os.path.join(
+            os.path.dirname(files[0]),
+            r"ppp_temp" + str(folder_loop_count)
+        )
+        folder_loop_count += 1
+
     file_info["files"] = files
     file_info["shown_files"] = [None]*len(files)
     get_all_color_dicts()

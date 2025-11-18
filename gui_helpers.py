@@ -2,6 +2,7 @@
 from tkinter import ttk
 from typing import Any
 from os import path
+from utils import file_info
 
 def separator(parent: Any, r: int, span: int) -> int:
     """Pre and Post increments the row, creates a separator, returns row"""
@@ -19,8 +20,8 @@ def generate_file_names(files: tuple, post_pend: str) -> tuple:
         head, tail = path.split(filename)
         name, _ext = path.splitext(tail)
 
-        output_filename = head + "/" + name + post_pend
-        show_temp_file = head + "/ppp_temp/" + name + post_pend
+        output_filename = path.join(head, name + post_pend)
+        show_temp_file = path.join(file_info["temp_folder_path"], name + post_pend)
 
         output_files.append(output_filename)
         show_files.append(show_temp_file)

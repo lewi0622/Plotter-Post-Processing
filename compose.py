@@ -47,7 +47,7 @@ def main(input_files=()):
         filename = input_file_list[0]
         head, tail = os.path.split(filename)
         name, _ext = os.path.splitext(tail)
-        show_temp_file = head + "/ppp_temp/" + name + "_C.svg"
+        show_temp_file = os.path.join(file_info["temp_folder_path"], name + "_C.svg")
         output_filename = head + "/" + name + "_C.svg"
         output_file_list.append(output_filename)
 

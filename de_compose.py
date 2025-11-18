@@ -44,7 +44,7 @@ def main(input_files=()):
         for index, filename in enumerate(input_file_list):
             head, tail = os.path.split(filename)
             name, _ext = os.path.splitext(tail)
-            show_temp_file = head + "/ppp_temp/" + name + "_deC.svg"
+            show_temp_file = os.path.join(file_info["temp_folder_path"], name + "_deC.svg")
             output_filename = head + "/" + name + "_deC"
 
             if separate_files.get():
