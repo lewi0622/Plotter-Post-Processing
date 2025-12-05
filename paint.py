@@ -131,7 +131,15 @@ end \
     title.grid(pady=(10, 0), row=current_row, column=0, columnspan=4)
     current_row += 1
 
-    ttk.Label(window, text="Input files should have already been processed\nand laid out with enough space for dipping trays").grid(
+    ttk.Label(window, text="Input files should have already been processed and laid out with enough space for dipping trays").grid(
+        row=current_row, column=0, columnspan=4)
+    current_row += 1
+
+    ttk.Label(window, text="Only batch files that have the same number of colors.").grid(
+        row=current_row, column=0, columnspan=4)
+    current_row += 1
+
+    ttk.Label(window, text="Dip locations match number of colors in file, file parsed with -a stroke.").grid(
         row=current_row, column=0, columnspan=4)
     current_row += 1
 
@@ -166,7 +174,7 @@ end \
             sticky="we", row=current_row, column=0, columnspan=4, pady=10)
         current_row += 1
 
-        ttk.Label(window, text=f"Dip Loc {i}").grid(
+        ttk.Label(window, text=f"Dip Location {i}").grid(
             row=current_row, column=0, columnspan=4)
         current_row += 1
 
