@@ -5,6 +5,7 @@ from tkinter import ttk, END, CENTER, Tk, IntVar
 from utils import rename_replace, on_closing, check_make_temp_folder, file_info, select_files
 from utils import open_url_in_browser, generate_random_color, max_colors_per_file
 import settings
+from gui_helpers import separator
 
 return_val: tuple
 current_row: int
@@ -109,9 +110,14 @@ def main(input_files=()):
             args += f" {layout_width_entry.get()}x{layout_height_entry.get()}in "
 
         if show:
-            args += f' write "{show_temp_file}" show '
+            args += f' write "{show_temp_file}" '
+            if condense.get(): # reread rewrite file
+                args += f' ldelete all read -a stroke --no-crop "{show_temp_file}" write "{show_temp_file}" '
+            args += ' show '
         else:
             args += f' write "{output_filename}" '
+            if condense.get(): # reread rewrite file
+                args += f' ldelete all read -a stroke --no-crop "{output_filename}" write "{output_filename}" '
 
         return args
 
@@ -147,6 +153,8 @@ def main(input_files=()):
     for file in input_files:
         compose_color_list.append(generate_random_color())
 
+    max_col = 4
+
     # tk widgets and window
     current_row = 0  # helper row var, inc-ed every time used;
 
@@ -154,35 +162,24 @@ def main(input_files=()):
     window = Tk()
 
     ttk.Label(window, text="Compose").grid(
-        pady=(10, 0), row=current_row, column=0, columnspan=4)
+        pady=(10, 0), row=current_row, column=0, columnspan=max_col)
     current_row += 1
 
     ttk.Label(window, justify=CENTER, text=f"{len(input_files)} Design file(s) selected,\nDesign file Width(in): {svg_width_inches}, Height(in): {svg_height_inches}").grid(
-        row=current_row, column=0, columnspan=4)
+        row=current_row, column=0, columnspan=max_col)
     current_row += 1
 
     ttk.Label(window, justify=CENTER, text="If Grid Cols and Rows equal 1,\ndesigns are simply loaded on top of one another").grid(
-        row=current_row, column=0, columnspan=4)
-    current_row += 1
-
-    ttk.Separator(window, orient='horizontal').grid(
-        sticky="we", row=current_row, column=0, columnspan=4, pady=10)
-    current_row += 1
+        row=current_row, column=0, columnspan=max_col)
+    
+    current_row = separator(window, current_row, max_col)
 
     # grid options
     grid_label = ttk.Label(window, justify=CENTER, text="Merge Multiple SVGs into Grid",
                            foreground=settings.THEME_SETTINGS["link_color"], cursor="hand2")
     grid_label.bind("<Button-1>", lambda e: open_url_in_browser(
         "https://vpype.readthedocs.io/en/latest/cookbook.html#faq-merge-to-grid"))
-    grid_label.grid(row=current_row, column=0, columnspan=4)
-    # ttk.Label(window, justify=CENTER, text="Color Options:").grid(row=current_row, column=1)
-    # grid_color_options_combobox = ttk.Combobox(
-    #     width=20,
-    #     state="readonly",
-    #     values=["Keep Original Colors", "Different Color Per File", "All One Color"]
-    # )
-    # grid_color_options_combobox.current(0)
-    # grid_color_options_combobox.grid(sticky="w", row=current_row, column=2, columnspan=2)
+    grid_label.grid(row=current_row, column=0, columnspan=max_col)
     current_row += 1
 
     ttk.Label(window, justify=CENTER, text="Grid Col Width(in):").grid(
@@ -205,7 +202,6 @@ def main(input_files=()):
         row=current_row, column=2)
     grid_row_entry = ttk.Entry(window, width=7)
     grid_row_entry.grid(sticky="w", row=current_row, column=3)
-    current_row += 1
 
     # insert after creation of the size entries so
     grid_col_width_entry.insert(0, f"{svg_width_inches}")
@@ -213,9 +209,7 @@ def main(input_files=()):
     grid_col_entry.insert(0, "1")
     grid_row_entry.insert(0, "1")
 
-    ttk.Separator(window, orient='horizontal').grid(
-        sticky="we", row=current_row, column=0, columnspan=4, pady=10)
-    current_row += 1
+    current_row = separator(window, current_row, max_col)
 
     compose_info_list = []
 
@@ -259,13 +253,16 @@ def main(input_files=()):
         compose_info["color_info"] = compose_color_entry
         compose_color_entry.insert(0, f"{compose_color_list[index]}")
         compose_color_entry.grid(sticky="w", row=current_row, column=2)
-        current_row += 1
 
-        ttk.Separator(window, orient='horizontal').grid(
-            sticky="we", row=current_row, column=0, columnspan=4, pady=10)
-        current_row += 1
+        current_row = separator(window, current_row, max_col)
 
         compose_info_list.append(compose_info)
+
+    condense  = IntVar(window, value=1)
+    ttk.Checkbutton(window, text="Condense same color layers into single layer", variable=condense).grid(
+        sticky="w", row=current_row, column=0)
+    
+    current_row += 1
 
     layout_label = ttk.Label(window, justify=CENTER, text="Layout centers scaled\ndesign in page size)",
                              foreground=settings.THEME_SETTINGS["link_color"], cursor="hand2")
@@ -308,11 +305,8 @@ def main(input_files=()):
     layout_landscape = IntVar(window, value=1)
     ttk.Checkbutton(window, text="Landscape", variable=layout_landscape).grid(
         sticky="w", row=current_row, column=2)
-    current_row += 1
 
-    ttk.Separator(window, orient='horizontal').grid(
-        sticky="we", row=current_row, column=0, columnspan=4, pady=10)
-    current_row += 1
+    current_row = separator(window, current_row, max_col)
 
     ttk.Button(window, text="Show Output", command=show_vpypeline).grid(
         pady=(0, 10), row=current_row, column=0)
