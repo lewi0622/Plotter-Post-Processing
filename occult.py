@@ -2,8 +2,9 @@ import subprocess
 import os
 from tkinter import Tk, IntVar, CENTER
 from tkinter import ttk
-from utils import select_files, generate_random_color, file_info, get_files, max_colors_per_file
+from utils import select_files, generate_random_color, file_info
 from utils import rename_replace, on_closing, check_make_temp_folder, open_url_in_browser
+from gui_helpers import separator
 import settings
 
 
@@ -65,9 +66,7 @@ def main(input_files=()):
         args += f" repeat {repeat_num} "
 
         # FILE READING
-        parse = "-a stroke"  # default value
-        if attribute.get() == 0:
-            parse = "-a d -a points"
+        parse = attribute_parse_entry.get()
 
         args += f" read {parse} --no-crop %files_in[_i]% "
 
@@ -99,7 +98,7 @@ def main(input_files=()):
 
         if show:
             reread_file_cmd = ""
-            if attribute.get() == 0:
+            if "stroke" not in attribute_parse_entry.get():
                 reread_file_cmd = f'ldelete all read -a stroke --no-crop "{show_temp_file}"'
 
             args += f' write "{show_temp_file}" end {reread_file_cmd} show '
@@ -122,6 +121,8 @@ def main(input_files=()):
     for file in input_files:
         color_list.append(generate_random_color())
 
+    max_col = 4
+
     # tk widgets and window
     current_row = 0  # helper row var, inc-ed every time used;
 
@@ -132,28 +133,27 @@ def main(input_files=()):
                       foreground=settings.THEME_SETTINGS["link_color"], cursor="hand2")
     title.bind(
         "<Button-1>", lambda e: open_url_in_browser("https://github.com/LoicGoulefert/occult"))
-    title.grid(pady=(10, 0), row=current_row, column=0, columnspan=4)
+    title.grid(pady=(10, 0), row=current_row, column=0, columnspan=max_col)
+
     current_row += 1
 
     ttk.Label(window, justify=CENTER, text=f"{len(input_files)} Design file(s) selected \nDesign file Width(in): {svg_width_inches}, Height(in): {svg_height_inches}").grid(
-        row=current_row, column=0, columnspan=4)
-    current_row += 1
+        row=current_row, column=0, columnspan=max_col)
 
-    ttk.Label(window, text="Parse Design file using: ").grid(
-        row=current_row, column=0)
-    attribute = IntVar(window, value=0)
-    if max_colors_per_file() == 1:
-        attribute = IntVar(window, value=1)
-    ttk.Radiobutton(window, text="d/point", variable=attribute,
-                    value=0).grid(row=current_row, column=1)
-    ttk.Radiobutton(window, text="stroke", variable=attribute,
-                    value=1).grid(row=current_row, column=2)
+    current_row = separator(window, current_row, max_col)
 
-    current_row += 1
+    ttk.Label(window, justify=CENTER, text="Attribute Parse\nSuggested: stroke or d/points").grid(
+            row=current_row, column=0)
+    attribute_parse_entry = ttk.Entry(window, width=12)
 
-    ttk.Separator(window, orient='horizontal').grid(
-        sticky="we", row=current_row, column=0, columnspan=4, pady=10)
-    current_row += 1
+    if any(file_info["interleaved?"]):
+        attribute_parse_entry.insert(0, f"-a d -a points")
+    else:
+        attribute_parse_entry.insert(0, f"-a stroke")
+
+    attribute_parse_entry.grid(sticky="w", row=current_row, column=1)
+
+    current_row = separator(window, current_row, max_col)
 
     occult_info_list = []
     occult_file_info = {}
@@ -182,11 +182,8 @@ def main(input_files=()):
     occult_file_info["across"] = occult_across
     ttk.Checkbutton(window, text="Occult across layers,\nnot within",
                     variable=occult_across).grid(sticky="w", row=current_row, column=1)
-    current_row += 1
 
-    ttk.Separator(window, orient='horizontal').grid(
-        sticky="we", row=current_row, column=0, columnspan=4, pady=10)
-    current_row += 1
+    current_row = separator(window, current_row, max_col)
 
     occult_info_list.append(occult_file_info)
 
