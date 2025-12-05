@@ -34,6 +34,7 @@ VPYPE_URLS: dict[str, str] = {
     "squiggles": "https://vpype.readthedocs.io/en/latest/reference.html#squiggles",
     "multipass": "https://vpype.readthedocs.io/en/latest/reference.html#multipass",
     "layout": "https://vpype.readthedocs.io/en/latest/reference.html#layout",
+    "lineshuffle": "https://vpype.readthedocs.io/en/latest/reference.html#lineshuffle",
 }
 
 
@@ -155,6 +156,9 @@ def main(input_files: tuple = ()) -> tuple:
 
         if multipass.get():
             args += " multipass "
+
+        if lineshuffle.get():
+            args += " lineshuffle "
 
         # layout as letter centers graphics within given page size
         if layout.get():
@@ -368,6 +372,8 @@ def main(input_files: tuple = ()) -> tuple:
     linesimplify_tolerance_entry.insert(0, DEFAULTS["linesimplify_tol"])
     linesimplify_tolerance_entry.grid(sticky="w", row=current_row, column=3)
 
+    current_row = separator(window, current_row, max_col)
+
     squiggle_label = ttk.Label(window, justify=CENTER, text="Add squiggle filter",
                                foreground=link_color, cursor="hand2")
     squiggle_label.bind("<Button-1>", lambda e: open_url_in_browser(
@@ -389,14 +395,26 @@ def main(input_files: tuple = ()) -> tuple:
     squiggle_period_entry.insert(0, DEFAULTS["squiggle_period"])
     squiggle_period_entry.grid(sticky="w", row=current_row, column=3)
 
+    current_row = separator(window, current_row, max_col)
+
     multipass_label = ttk.Label(window, justify=CENTER, text="Add multiple passes to all lines",
                                 foreground=link_color, cursor="hand2")
     multipass_label.bind("<Button-1>", lambda e: open_url_in_browser(
         VPYPE_URLS["multipass"]))
-    multipass_label.grid(row=inc_row(), column=0)
+    multipass_label.grid(row=current_row, column=0)
     multipass = IntVar(window, value=0)
     ttk.Checkbutton(window, text="multipass", variable=multipass).grid(
         sticky="w", row=current_row, column=1)
+    
+    lineshuffle_label = ttk.Label(window, justify=CENTER, text="Randomize line order",
+                                foreground=link_color, cursor="hand2")
+    lineshuffle_label.bind("<Button-1>", lambda e: open_url_in_browser(
+        VPYPE_URLS["lineshuffle"]))
+    lineshuffle_label.grid(row=current_row, column=2)
+    lineshuffle = IntVar(window, value=0)
+    ttk.Checkbutton(window, text="lineshuffle", variable=lineshuffle).grid(
+        sticky="w", row=current_row, column=3)
+    
 
     current_row = separator(window, current_row, max_col)
 
