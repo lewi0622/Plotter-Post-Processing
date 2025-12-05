@@ -114,6 +114,8 @@ def select_files(files: tuple = (), dialog_title: str = "SELECT DESIGN FILE(s)")
     if len(files) == 0:
         files = get_files(dialog_title)  # prompt user to select files
     print("Currently Loaded Files: ", files)
+    if len(files) == 0:
+        return files
     file_info["temp_folder_path"] = os.path.join(
         os.path.dirname(files[0]),
         r"ppp_temp"
@@ -137,7 +139,9 @@ def select_files(files: tuple = (), dialog_title: str = "SELECT DESIGN FILE(s)")
 def get_files(title: str = "") -> tuple:
     """Opens dialog box to select files and returns a tuple of the selected files"""
     list_of_files = glob.glob(initial_dir + r"\*.svg")
-    latest_file = max(list_of_files, key=os.path.getctime)
+    latest_file = ""
+    if len(list_of_files) != 0:
+        latest_file = max(list_of_files, key=os.path.getctime)
 
     recieved_files = askopenfilenames(
         title=title,
