@@ -3,7 +3,7 @@ import os
 from tkinter import Tk, ttk, CENTER, IntVar
 from utils import *
 import settings
-
+from gui_helpers import separator
 
 def main(input_files=()):
     """"Run Decompose utility"""
@@ -81,13 +81,15 @@ def main(input_files=()):
             if layer.get():
                 remove_any = True
 
+        attribute_parse = attribute_parse_entry.get()
+
         if not remove_any and not separate.get() and show:  # just show case
-            args += r" read -a stroke --no-crop %files_in[_i]%  end show"
+            args += f" read {attribute_parse} --no-crop %files_in[_i]%  end show"
             return args
 
         # remove color layers
         if remove_any:
-            args += r" read -a stroke --no-crop %files_in[_i]% "
+            args += f" read {attribute_parse} --no-crop %files_in[_i]% "
             for index, layer in enumerate(remove_layer_list):
                 if layer.get():
                     args += f' ldelete {index+1} '
@@ -134,7 +136,7 @@ def main(input_files=()):
             file_input = r'%files_in[_i]%'
             if remove_any or separate.get():
                 file_input = show_temp_file
-            args += f" read -a stroke --no-crop {file_input} "
+            args += f" read {attribute_parse} --no-crop {file_input} "
             args += r" forlayer write "
             args += r' %files_out[k]% '
             args += r' eval "k=k+1" '
@@ -143,7 +145,7 @@ def main(input_files=()):
             return args
 
         if show:
-            args += f' end ldelete all read -a stroke --no-crop "{show_temp_file}" show '
+            args += f' end ldelete all read {attribute_parse} --no-crop "{show_temp_file}" show '
         else:
             args += r" write %files_out[_i]% end "
 
@@ -165,25 +167,30 @@ def main(input_files=()):
 
     max_num_colors = max_colors_per_file()
 
+    max_col = 4
+
     # tk widgets and window
     current_row = 0  # helper row var, inc-ed every time used;
 
     global window
     window = Tk()
     title = ttk.Label(window, text="deCompose")
-    title.grid(pady=(10, 0), row=current_row, column=0, columnspan=4)
+    title.grid(pady=(10, 0), row=current_row, column=0, columnspan=max_col)
     current_row += 1
 
     ttk.Label(window, text=f"{len(input_files)} file(s) selected, Input file Width(in): {svg_width_inches}, Height(in): {svg_height_inches}, Max colors in file(s): {max_num_colors}").grid(
-        row=current_row, column=0, columnspan=4)
-    current_row += 1
+        row=current_row, column=0, columnspan=max_col)
 
-    ttk.Separator(window, orient='horizontal').grid(
-        sticky="we", row=current_row, column=0, columnspan=4, pady=10)
-    current_row += 1
+    current_row = separator(window, current_row, max_col)
+
+    ttk.Label(window, justify=CENTER, text="Attribute Parse").grid(
+            row=current_row, column=0)
+    attribute_parse_entry = ttk.Entry(window, width=7)
+    attribute_parse_entry.insert(0, f"-a stroke")
+    attribute_parse_entry.grid(sticky="w", row=current_row, column=1)
 
     ttk.Label(window, justify=CENTER, text="Remove Layers").grid(
-        row=current_row, column=0)
+        row=current_row, column=2)
     remove_layer_list = []
     for index in range(max_num_colors):
         remove_layer = IntVar(window, value=0)
@@ -192,9 +199,7 @@ def main(input_files=()):
             sticky="w", row=current_row, column=3)
         current_row += 1
 
-    ttk.Separator(window, orient='horizontal').grid(
-        sticky="we", row=current_row, column=0, columnspan=4, pady=10)
-    current_row += 1
+    current_row = separator(window, current_row, max_col)
 
     separate = IntVar(window, value=0)
     ttk.Checkbutton(window, text="Separate design in N layers",
@@ -204,11 +209,8 @@ def main(input_files=()):
     n_layers_entry = ttk.Entry(window, width=7)
     n_layers_entry.insert(0, "2")
     n_layers_entry.grid(sticky="w", row=current_row, column=2)
-    current_row += 1
 
-    ttk.Separator(window, orient='horizontal').grid(
-        sticky="we", row=current_row, column=0, columnspan=4, padx=10, pady=10)
-    current_row += 1
+    current_row = separator(window, current_row, max_col)
 
     separator_type = IntVar(window, value=1)
     ttk.Radiobutton(window, text="Uniform", variable=separator_type,
@@ -238,20 +240,14 @@ def main(input_files=()):
     split_all = IntVar(window, value=0)
     ttk.Checkbutton(window, text="splitall", variable=split_all).grid(
         sticky="w", row=current_row, column=3)
-    current_row += 1
 
-    ttk.Separator(window, orient='horizontal').grid(
-        sticky="we", row=current_row, column=0, columnspan=4, padx=10, pady=10)
-    current_row += 1
+    current_row = separator(window, current_row, max_col)
 
     linesort = IntVar(window, value=1)
     ttk.Checkbutton(window, text="Sort after splitting into layers", variable=linesort).grid(
         sticky="w", row=current_row, column=0, columnspan=2)
-    current_row += 1
 
-    ttk.Separator(window, orient='horizontal').grid(
-        sticky="we", row=current_row, column=0, columnspan=4, pady=10)
-    current_row += 1
+    current_row = separator(window, current_row, max_col)
 
     separate_files_label = ttk.Label(window, justify=CENTER, text="Separate SVG Layers into individual files\n(doesn't work with Show)",
                                      foreground=settings.THEME_SETTINGS["link_color"], cursor="hand2")
@@ -261,11 +257,8 @@ def main(input_files=()):
     separate_files = IntVar(window, value=0)
     ttk.Checkbutton(window, text="Separate\nFiles", variable=separate_files).grid(
         sticky="w", row=current_row, column=2)
-    current_row += 1
 
-    ttk.Separator(window, orient='horizontal').grid(
-        sticky="we", row=current_row, column=0, columnspan=4, pady=10)
-    current_row += 1
+    current_row = separator(window, current_row, max_col)
 
     ttk.Button(window, text="Show Output", command=show_vpypeline).grid(
         pady=(0, 10), row=current_row, column=1)
