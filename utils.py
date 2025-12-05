@@ -358,8 +358,8 @@ def thread_vpypelines(
         moving_file = False
         current_shown_file = file_info["shown_files"][index]
         if current_shown_file is not None:
-            if current_shown_file["command"] == show_commands[index]:
-                moving_file = True
+            if current_shown_file["command"] == show_commands[index] and len(show_info) == 0:
+                moving_file = True #already ran same pipeline and file exists
 
         if moving_file:
             thread = threading.Thread(
