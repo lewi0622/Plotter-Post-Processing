@@ -1,7 +1,9 @@
 # Plotter-Post-Processing
-My personal approach to post processing my svg plotter files. This is not meant to be a complete GUI-fication of [Vpype](https://github.com/abey79/vpype).
+GUI wrapper around Vpype for my most used recipes for processing SVGs before plotting them. In most cases, the SVGs I'm processing come from [p5.js-svg](https://github.com/zenozeng/p5.js-svg).
 
-## Features:
+This is my personal approach to post processing my svg plotter files. This is not meant to be a one-size-fits-all tool, nor a complete GUI-fication of [Vpype](https://github.com/abey79/vpype).
+
+## Apps and Features:
 - Process
     - Crop, Scale, Rotate, Center, Optimize
 - Occult (requires [Occult plugin](https://github.com/LoicGoulefert/occult) to be injected)
