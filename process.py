@@ -84,7 +84,9 @@ def main(input_files: tuple = ()) -> tuple:
         # build output files list
         output_file_list, show_file_list = generate_file_names(input_files, "_P.svg")
 
-        args = r" read -a stroke "
+        attribute_parse = attribute_parse_entry.get()
+
+        args = f" read {attribute_parse} "
 
         if not crop_input.get():
             args += r" --no-crop "
@@ -214,6 +216,8 @@ def main(input_files: tuple = ()) -> tuple:
 
     bbox_color = generate_random_color()
 
+    max_col = 4
+
     # tk widgets and window
     window = Tk()
 
@@ -221,10 +225,20 @@ def main(input_files: tuple = ()) -> tuple:
                       foreground=link_color, cursor="hand2")
     title.bind("<Button-1>", lambda e: open_url_in_browser(
         VPYPE_URLS["title"]))
-    title.grid(pady=(10, 0), row=current_row, column=0, columnspan=4)
+    title.grid(pady=(10, 0), row=current_row, column=0, columnspan=max_col)
 
-    ttk.Label(window, justify=CENTER, text=f"{len(input_files)} file(s) selected,\nInput file Width(in): {svg_width_inches}, Height(in): {svg_height_inches}").grid(
-        row=inc_row(), column=0, columnspan=2)
+    ttk.Label(window, justify=CENTER, text=f"{len(input_files)} file(s) selected, Input file Width(in): {svg_width_inches}, Height(in): {svg_height_inches}").grid(
+        row=inc_row(), column=0, columnspan=max_col)
+    
+    current_row = separator(window, current_row, max_col)
+
+    ttk.Label(window, justify=CENTER, text="Attribute Parse").grid(
+            row=current_row, column=0)
+    attribute_parse_entry = ttk.Entry(window, width=7)
+    attribute_parse_entry.insert(0, f"-a stroke")
+    attribute_parse_entry.grid(sticky="w", row=current_row, column=1)
+
+
     crop_input_label = ttk.Label(window, justify=CENTER, text="Crop to input\ndimensions on read",
                                  foreground=link_color, cursor="hand2")
     crop_input_label.bind("<Button-1>", lambda e: open_url_in_browser(
@@ -234,7 +248,7 @@ def main(input_files: tuple = ()) -> tuple:
     ttk.Checkbutton(window, text="Crop input", variable=crop_input).grid(
         sticky="w", row=current_row, column=3)
 
-    current_row = separator(window, current_row, 4)
+    current_row = separator(window, current_row, max_col)
 
     scale_label = ttk.Label(window, justify=CENTER, text="Scale options\n(default: input file size)",
                             foreground=link_color, cursor="hand2")
@@ -257,7 +271,7 @@ def main(input_files: tuple = ()) -> tuple:
     scale_height_entry.insert(0, f"{svg_height_inches}")
     scale_height_entry.grid(sticky="w", row=current_row, column=3)
 
-    current_row = separator(window, current_row, 4)
+    current_row = separator(window, current_row, max_col)
 
     bbox_option = IntVar(window, value=0)
     ttk.Checkbutton(window, text="Add bounding box?", variable=bbox_option).grid(
@@ -268,7 +282,7 @@ def main(input_files: tuple = ()) -> tuple:
     bbox_color_entry.insert(0, f"{bbox_color}")
     bbox_color_entry.grid(sticky="w", row=current_row, column=3)
 
-    current_row = separator(window, current_row, 4)
+    current_row = separator(window, current_row, max_col)
 
     center_geometries = IntVar(window, value=1)
     ttk.Checkbutton(window, text="Center Geometries to Input File Size",
@@ -302,7 +316,7 @@ def main(input_files: tuple = ()) -> tuple:
     crop_y_entry.insert(0, DEFAULTS["crop_y"])
     crop_y_entry.grid(sticky="w", row=current_row, column=3)
 
-    current_row = separator(window, current_row, 4)
+    current_row = separator(window, current_row, max_col)
 
     linemerge_label = ttk.Label(window, justify=CENTER, text="Merge Lines with\noverlapping line endings",
                                 foreground=link_color, cursor="hand2")
@@ -384,7 +398,7 @@ def main(input_files: tuple = ()) -> tuple:
     ttk.Checkbutton(window, text="multipass", variable=multipass).grid(
         sticky="w", row=current_row, column=1)
 
-    current_row = separator(window, current_row, 4)
+    current_row = separator(window, current_row, max_col)
 
     layout_label = ttk.Label(
         window,
@@ -442,7 +456,7 @@ def main(input_files: tuple = ()) -> tuple:
     ttk.Checkbutton(window, text="Crop to\nPage Size", variable=crop_to_page_size).grid(
         sticky="w", row=current_row, column=3)
 
-    current_row = separator(window, current_row, 4)
+    current_row = separator(window, current_row, max_col)
 
     show_index = 0
     ttk.Button(window, text="Show Output", command=lambda: run_vpypeline(
