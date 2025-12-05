@@ -305,6 +305,10 @@ def check_delete_temp_folder() -> None:
 
 def on_closing(win) -> None:
     """Cleanup for all Tk Inter windows"""
+
+    # Cleanup any shown file when window is closed
+    file_info["shown_files"] = [None]*len(file_info["files"]) 
+
     check_delete_temp_folder()
     win.quit()
 
