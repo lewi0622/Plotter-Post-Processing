@@ -32,3 +32,4 @@ Last tested using on:
 - Occult Version 0.4.0
 - Optional:
     - sv_ttk 2.6.1 for prettier UIs
+
