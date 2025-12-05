@@ -1,5 +1,5 @@
 """Main app gets files, launches apps, and passes files between apps"""
-from tkinter import Tk, StringVar
+from tkinter import Tk
 from tkinter import ttk
 from utils import select_files, file_info, on_closing
 import occult
@@ -48,14 +48,11 @@ def main():
 
     main_app = Tk()
 
-    # file_info_text = StringVar(main_app)
-    # ttk.Label(main_app, textvariable=file_info_text
-    #           ).grid(pady=(10, 0), row=current_row, column=0, columnspan=2)
-    # TODO add button to launch separate window for file details
     current_row += 1
 
-    select_files()
-    # file_info_text.set(f"{len(file_info["files"])} file(s) selected")
+    if len(select_files()) == 0:
+        print("No files selected, quitting Plotter Post Processing")
+        return
 
     ttk.Button(main_app, text="Occult", command=run_occult
                ).grid(padx=(10,10), pady=(10, 2), row=current_row, column=0)
