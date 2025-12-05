@@ -97,17 +97,17 @@ def main(input_files=()):
                     args += r' color -l %kept_layer% %last_color% '
 
         if show:
-            reread_file_cmd = ""
-            if "stroke" not in attribute_parse_entry.get():
-                reread_file_cmd = f'ldelete all read -a stroke --no-crop "{show_temp_file}"'
-
-            args += f' write "{show_temp_file}" end {reread_file_cmd} show '
-
-            return args
+            args += f' write "{show_temp_file}" end '
+            if reparse_with_stroke.get():
+                args += f'ldelete all read -a stroke --no-crop "{show_temp_file}" write "{show_temp_file}" '
+            args += ' show '
+            
         else:
-            args += r' write %files_out[_i]% end'
+            args += r' write %files_out[_i]% end '
+            if reparse_with_stroke.get():
+                args += f'ldelete all read -a stroke --no-crop %files_out[_i]% write %files_out[_i]% '
 
-            return args
+        return args
 
     global return_val, last_shown_command, color_list, occult_color_list
     return_val = ()
@@ -182,6 +182,12 @@ def main(input_files=()):
     occult_file_info["across"] = occult_across
     ttk.Checkbutton(window, text="Occult across layers,\nnot within",
                     variable=occult_across).grid(sticky="w", row=current_row, column=1)
+    
+    current_row += 1
+
+    reparse_with_stroke = IntVar(window, value=int(any(file_info["interleaved?"])))
+    ttk.Checkbutton(window, text="Re-read parse file as -a stroke",
+                    variable=reparse_with_stroke).grid(sticky="w", row=current_row, column=0)
 
     current_row = separator(window, current_row, max_col)
 
