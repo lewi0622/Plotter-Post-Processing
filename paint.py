@@ -30,7 +30,7 @@ def main(input_files=()):
         print("Showing: \n", last_shown_command)
         subprocess.run(last_shown_command, check=False)
 
-    def build_vpypeline(show, dip=True):
+    def build_vpypeline(show):
         global show_temp_file
         global output_filename
         global output_file_list
@@ -68,25 +68,7 @@ def main(input_files=()):
             repeat_num = len(input_file_list)
             show_or_write = r"write %files_out[_i]% end"
 
-        if dip:
-            return f"""vpype \
-eval "files_in={input_file_list}" \
-eval "files_out={output_file_list}" \
-eval "dip_details={dip_detail_list}" \
-repeat {repeat_num} \
-read -a stroke %files_in[_i]% \
-forlayer \
-eval "j=_i" \
-forlayer \
-lmove %_lid% "%_lid*2%" \
-read -l "%_lid*2-1%" %dip_details[j][0]% \
-translate -l "%_lid*2-1%" "%dip_details[j][1]%in" "%dip_details[j][2]%in" \
-end \
-lmove all %_lid% \
-end \
-{show_or_write}"""
-        else:
-            return f"""vpype \
+        return f"""vpype \
 eval "files_in={input_file_list}" \
 eval "files_out={output_file_list}" \
 eval "dip_details={dip_detail_list}" \
