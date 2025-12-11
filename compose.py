@@ -52,21 +52,36 @@ def main(input_files=()):
         col_size = float(width)
         row_size = float(height)
 
+        # create list of translation equivalents instead of using the grid block operator
+        translation_list = []
+        for i in range(cols):
+            for j in range(rows):
+                x = i * col_size
+                y = j * row_size
+                translation_dict = {"x":x, "y":y}
+                translation_list.append(translation_dict)
+
+        translation_list = list(reversed(translation_list))
+
         slots = cols * rows
         grid = slots > 1
 
-        # sort list in reverse for non-grid, but load new files in lower number layers
+        # sort list in reverse, but shift up the layers for each new incoming layer placing the new layer below the old
         sorted_info_list = sorted(
-            compose_info_list, key=lambda d: d['order'].get(), reverse=not grid)
+            compose_info_list, key=lambda d: d['order'].get(), reverse=True)
 
-        # build output files list for grid based on the order of the dropdowns
-        input_file_list = []
-        for info in sorted_info_list:
-            input_file_list.append(info['file'])
+        number_of_file_reads = len(sorted_info_list)
+        if grid:
+            number_of_file_reads = slots
+
+        built_info_list = []
+        for index in range(number_of_file_reads):
+            info = sorted_info_list[index%len(sorted_info_list)] # will wrap around the the list to populate the whole grid with designs
+            built_info_list.append(info)
 
         output_file_list = []
 
-        filename = input_file_list[0]
+        filename = built_info_list[0]["file"]
         head, tail = os.path.split(filename)
         name, _ext = os.path.splitext(tail)
         show_temp_file = os.path.join(file_info["temp_folder_path"], name + "_C.svg")
@@ -75,34 +90,34 @@ def main(input_files=()):
 
         args = r"vpype "
 
-        if grid:
-            args += f' eval "files_in={input_file_list}" '
-            args += r' eval "%grid_layer_count=1%" '
-            args += f" grid -o {col_size}in {row_size}in {cols} {rows} "
-            args += r' read -a stroke --no-crop %files_in[_i%%len(files_in)]% ' 
-            args += r' forlayer '
-            # moves each layer onto it's own unique layer so there's no merging
-            args += r' lmove %_lid% %grid_layer_count% '
-            # inc the global layer counter
-            args += r' eval "%grid_layer_count=grid_layer_count+1%" end end '
+        # Load files on top of one another, translates if gridded
+        for index, info in enumerate(built_info_list):
 
-        else:  # Load files on top of one another
-            for index, info in enumerate(sorted_info_list):
-                if index > 0:
-                    incoming_layer_number = 1
-                    if info["attribute"].get():
-                        file_info_index = file_info["files"].index(
-                            info["file"])
-                        incoming_layer_number = len(
-                            file_info["color_dicts"][file_info_index])
-                    # shift layers up the number of incoming layers
-                    args += f' forlayer lmove "%_lid%" "%_lid+{incoming_layer_number}%" end '
-                if info["attribute"].get():
-                    args += f' read -a stroke --no-crop "{info["file"]}" '
-                else:
-                    args += f' read --no-crop --layer 1 "{info["file"]}" '
-                    if info["overwrite_color"].get():
-                        args += f' color -l 1 {info["color_info"].get()}'
+            # determine number of incoming stroke layers
+            incoming_layer_number = 1
+            if info["attribute"].get():
+                file_info_index = file_info["files"].index(
+                    info["file"])
+                incoming_layer_number = len(
+                    file_info["color_dicts"][file_info_index])
+
+            # move existing layers up to make room for new ones
+            if index > 0:
+                # shift layers up the number of incoming layers
+                args += f' forlayer lmove "%_lid%" "%_lid+{incoming_layer_number}%" end '
+
+            # read new layers in
+            if info["attribute"].get():
+                args += f' read -a stroke --no-crop "{info["file"]}" '
+            else:
+                args += f' read --no-crop --layer 1 "{info["file"]}" '
+                if info["overwrite_color"].get():
+                    args += f' color -l 1 {info["color_info"].get()}'
+
+            # translate for grid
+            if grid:        
+                for layer_num in range(incoming_layer_number):
+                    args += f' translate -l {layer_num + 1} {translation_list[index]["x"]}in {translation_list[index]["y"]}in '
 
         # layout as letter centers graphics within given page size
         if layout.get():
