@@ -9,6 +9,7 @@ import compose
 import de_compose
 import settings
 
+version = 1.01
 
 def main():
     """Creates Tk gui for launching apps"""
@@ -47,6 +48,9 @@ def main():
     current_row = 0  # helper row var
 
     main_app = Tk()
+
+    main_app.title(f"Plotter Post Processing v{version}")
+    print("\n", f"Plotter Post Processing v{version}", "\n")
 
     current_row += 1
 
