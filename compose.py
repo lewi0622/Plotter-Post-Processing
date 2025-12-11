@@ -41,17 +41,6 @@ def main(input_files=()):
         global output_filename
         global output_file_list
 
-        # build output files list
-        input_file_list = list(input_files)
-        output_file_list = []
-
-        filename = input_file_list[0]
-        head, tail = os.path.split(filename)
-        name, _ext = os.path.splitext(tail)
-        show_temp_file = os.path.join(file_info["temp_folder_path"], name + "_C.svg")
-        output_filename = head + "/" + name + "_C.svg"
-        output_file_list.append(output_filename)
-
         # determine if grid is necessary
         cols = grid_col_entry.get()
         rows = grid_row_entry.get()
@@ -66,9 +55,23 @@ def main(input_files=()):
         slots = cols * rows
         grid = slots > 1
 
-        # sort list in reverse, but load new files in lower number layers
+        # sort list in reverse for non-grid, but load new files in lower number layers
         sorted_info_list = sorted(
             compose_info_list, key=lambda d: d['order'].get(), reverse=not grid)
+
+        # build output files list for grid based on the order of the dropdowns
+        input_file_list = []
+        for info in sorted_info_list:
+            input_file_list.append(info['file'])
+
+        output_file_list = []
+
+        filename = input_file_list[0]
+        head, tail = os.path.split(filename)
+        name, _ext = os.path.splitext(tail)
+        show_temp_file = os.path.join(file_info["temp_folder_path"], name + "_C.svg")
+        output_filename = head + "/" + name + "_C.svg"
+        output_file_list.append(output_filename)
 
         args = r"vpype "
 
@@ -76,7 +79,7 @@ def main(input_files=()):
             args += f' eval "files_in={input_file_list}" '
             args += r' eval "%grid_layer_count=1%" '
             args += f" grid -o {col_size}in {row_size}in {cols} {rows} "
-            args += r' read -a stroke --no-crop %files_in[_i%%len(files_in)]% '
+            args += r' read -a stroke --no-crop %files_in[_i%%len(files_in)]% ' 
             args += r' forlayer '
             # moves each layer onto it's own unique layer so there's no merging
             args += r' lmove %_lid% %grid_layer_count% '
@@ -97,7 +100,6 @@ def main(input_files=()):
                 if info["attribute"].get():
                     args += f' read -a stroke --no-crop "{info["file"]}" '
                 else:
-                    # args += r' forlayer eval "%last_layer=_lid%" end '
                     args += f' read --no-crop --layer 1 "{info["file"]}" '
                     if info["overwrite_color"].get():
                         args += f' color -l 1 {info["color_info"].get()}'
