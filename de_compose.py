@@ -210,7 +210,7 @@ def main(input_files=()):
     n_layers_entry.insert(0, "2")
     n_layers_entry.grid(sticky="w", row=current_row, column=2)
 
-    current_row = separator(window, current_row, max_col)
+    current_row += 1
 
     separator_type = IntVar(window, value=1)
     ttk.Radiobutton(window, text="Uniform", variable=separator_type,
