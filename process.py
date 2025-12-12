@@ -4,7 +4,7 @@ from tkinter import ttk
 from typing import Any
 from utils import thread_vpypelines, check_make_temp_folder, on_closing, find_closest_dimensions
 from utils import select_files, file_info, generate_random_color, open_url_in_browser
-from gui_helpers import separator, generate_file_names
+from gui_helpers import separator, generate_file_names, set_title_icon
 from settings import THEME_SETTINGS, set_theme, init
 
 DEFAULTS: dict[str, str] = {
@@ -224,6 +224,8 @@ def main(input_files: tuple = ()) -> tuple:
 
     # tk widgets and window
     window = Tk()
+
+    set_title_icon(window, "Process")
 
     title = ttk.Label(window, text="Vpype Options",
                       foreground=link_color, cursor="hand2")

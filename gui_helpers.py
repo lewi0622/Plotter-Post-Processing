@@ -26,3 +26,8 @@ def generate_file_names(files: tuple, post_pend: str) -> tuple:
         output_files.append(output_filename)
         show_files.append(show_temp_file)
     return output_files, show_files
+
+def set_title_icon(parent: Any, title: str):
+    """Set the window title and icon"""
+    parent.title(title)
+    parent.iconbitmap(r'C:\Dev\Plotter-Post-Processing\images\LewistonFace.ico')

@@ -5,7 +5,7 @@ from tkinter import ttk, END, CENTER, Tk, IntVar
 from utils import rename_replace, on_closing, check_make_temp_folder, file_info, select_files
 from utils import open_url_in_browser, generate_random_color, max_colors_per_file
 import settings
-from gui_helpers import separator
+from gui_helpers import separator, set_title_icon
 
 return_val: tuple
 current_row: int
@@ -177,6 +177,8 @@ def main(input_files=()):
 
     global window
     window = Tk()
+
+    set_title_icon(window, "Compose")
 
     ttk.Label(window, text="Compose").grid(
         pady=(10, 0), row=current_row, column=0, columnspan=max_col)

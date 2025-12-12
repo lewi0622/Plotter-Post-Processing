@@ -4,7 +4,7 @@ from tkinter import Tk, IntVar, CENTER
 from tkinter import ttk
 from utils import select_files, generate_random_color, file_info
 from utils import rename_replace, on_closing, check_make_temp_folder, open_url_in_browser
-from gui_helpers import separator
+from gui_helpers import separator, set_title_icon
 import settings
 
 
@@ -128,6 +128,8 @@ def main(input_files=()):
 
     global window
     window = Tk()
+    
+    set_title_icon(window, "Occult")
 
     title = ttk.Label(window, text="Occluded Line Removal",
                       foreground=settings.THEME_SETTINGS["link_color"], cursor="hand2")

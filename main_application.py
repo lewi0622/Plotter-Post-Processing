@@ -8,6 +8,7 @@ import process
 import compose
 import de_compose
 import settings
+from gui_helpers import set_title_icon
 
 version = 1.01
 
@@ -49,7 +50,8 @@ def main():
 
     main_app = Tk()
 
-    main_app.title(f"Plotter Post Processing v{version}")
+    set_title_icon(main_app, f"Plotter Post Processing v{version}")
+
     print("\n", f"Plotter Post Processing v{version}", "\n")
 
     current_row += 1

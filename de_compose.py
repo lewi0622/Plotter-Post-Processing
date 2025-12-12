@@ -3,7 +3,7 @@ import os
 from tkinter import Tk, ttk, CENTER, IntVar
 from utils import *
 import settings
-from gui_helpers import separator
+from gui_helpers import separator, set_title_icon
 
 def main(input_files=()):
     """"Run Decompose utility"""
@@ -174,6 +174,9 @@ def main(input_files=()):
 
     global window
     window = Tk()
+
+    set_title_icon(window, "deCompose")
+
     title = ttk.Label(window, text="deCompose")
     title.grid(pady=(10, 0), row=current_row, column=0, columnspan=max_col)
     current_row += 1

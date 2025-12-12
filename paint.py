@@ -4,7 +4,7 @@ from tkinter import *
 from tkinter import ttk
 from utils import *
 import settings
-
+from gui_helpers import set_title_icon
 
 def main(input_files=()):
     def run_vpypeline():
@@ -106,6 +106,9 @@ end \
 
     global window
     window = Tk()
+
+    set_title_icon(window, "Paint")
+
     title = ttk.Label(window, text="Vpype Paint",
                       foreground=settings.THEME_SETTINGS["link_color"], cursor="hand2")
     title.bind("<Button-1>", lambda e: open_url_in_browser(
