@@ -195,6 +195,7 @@ def build_color_dict(input_file: str) -> tuple[dict, bool]:
             color_dict[hex_string] = 0
             if hex_string != current_color:
                 color_change_count += 1
+            current_color = hex_string
         elem.clear()
     # otherwise we look in all the rest
     if not color_dict:
