@@ -113,10 +113,14 @@ def select_files(files: tuple = (), dialog_title: str = "SELECT DESIGN FILE(s)")
     """Calls get_files and file diagnositcs returns a list of files"""
     if len(files) == 0:
         files = get_files(dialog_title)  # prompt user to select files
+    
     print("Currently Loaded Files: ")
     for file in files:
         print(file)
     if len(files) == 0:
+        if len(file_info["files"]) > 0: #reselect files canceled
+            for file in file_info["files"]:
+                print(file)
         return files
     file_info["temp_folder_path"] = os.path.join(
         os.path.dirname(files[0]),
