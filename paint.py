@@ -52,7 +52,8 @@ def main(input_files=()):
             dip_detail_list.append([
                 file_name,
                 dip_details[i]["x"].get(),
-                dip_details[i]["y"].get()
+                dip_details[i]["y"].get(),
+                dip_details[i]["rotate"].get()
             ])
         if split_all.get():
             splitall = "splitall"
@@ -82,6 +83,7 @@ eval "j=_i" \
 forlayer \
 lmove %_lid% "%_lid*2%" \
 read -l "%_lid*2-1%" %dip_details[j][0]% \
+rotate -l "%_lid*2-1%" "%dip_details[j][3]%" \
 translate -l "%_lid*2-1%" "%dip_details[j][1]%in" "%dip_details[j][2]%in" \
 end \
 lmove all %_lid% \
@@ -163,32 +165,40 @@ end \
             row=current_row, column=0, columnspan=4)
         current_row += 1
 
-        ttk.Label(window, text="X (in)").grid(row=current_row, column=0)
-        dip_loc_x_entry = ttk.Entry(window, width=7)
-        dip_loc_x_entry.insert(0, f"{i * 2 + 1}")
-        dip_loc_x_entry.grid(row=current_row, column=1)
-
-        ttk.Label(window, text="Y (in)").grid(row=current_row, column=2)
-        dip_loc_y_entry = ttk.Entry(window, width=7)
-        dip_loc_y_entry.insert(0, "0")
-        dip_loc_y_entry.grid(row=current_row, column=3)
-        current_row += 1
-
         ttk.Label(window, text="Dip Layer").grid(row=current_row, column=0)
         dip_layer_combobox = ttk.Combobox(
             window,
-            width=15,
+            width=20,
             state="readonly",
             values=dip_options
         )
         dip_layer_combobox.current(0)
         dip_layer_combobox.grid(sticky="w", row=current_row, column=1)
 
+        rotate_label = ttk.Label(window, justify=CENTER, text="Rotate Clockwise (deg):")
+        rotate_label.grid(row=current_row, column=2)
+        rotate_entry = ttk.Entry(window, width=7)
+        rotate_entry.insert(0, "0")
+        rotate_entry.grid(sticky="e", row=current_row, column=3)
+
+        current_row += 1
+
+        ttk.Label(window, text="X (in):").grid(row=current_row, column=0)
+        dip_loc_x_entry = ttk.Entry(window, width=7)
+        dip_loc_x_entry.insert(0, f"{i * 2 + 1}")
+        dip_loc_x_entry.grid(sticky="w", row=current_row, column=1)
+
+        ttk.Label(window, text="Y (in):").grid(row=current_row, column=2)
+        dip_loc_y_entry = ttk.Entry(window, width=7)
+        dip_loc_y_entry.insert(0, "0")
+        dip_loc_y_entry.grid(sticky="e", row=current_row, column=3)
+
         current_row += 1
 
         dip_details.append({
             "x": dip_loc_x_entry,
             "y": dip_loc_y_entry,
+            "rotate": rotate_entry,
             "layer": dip_layer_combobox,
         })
 
