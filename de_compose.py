@@ -4,6 +4,7 @@ from tkinter import Tk, ttk, CENTER, IntVar
 from utils import *
 import settings
 from gui_helpers import separator, set_title_icon
+from links import VPYPE_URLS, PPP_URLS
 
 def main(input_files=()):
     """"Run Decompose utility"""
@@ -181,19 +182,31 @@ def main(input_files=()):
     title.grid(pady=(10, 0), row=current_row, column=0, columnspan=max_col)
     current_row += 1
 
+    youtube_label = ttk.Label(window, text="Plotter Post Processing deCompose Tutorial",
+                      foreground=settings.THEME_SETTINGS["link_color"], cursor="hand2")
+    youtube_label.bind("<Button-1>", lambda e: open_url_in_browser(
+        PPP_URLS["decompose"]))
+    youtube_label.grid(row=current_row, column=0, columnspan=max_col)
+    current_row += 1
+
+
     ttk.Label(window, text=f"{len(input_files)} file(s) selected, Input file Width(in): {svg_width_inches}, Height(in): {svg_height_inches}, Max colors in file(s): {max_num_colors}").grid(
         row=current_row, column=0, columnspan=max_col)
 
     current_row = separator(window, current_row, max_col)
 
-    ttk.Label(window, justify=CENTER, text="Attribute Parse").grid(
-            row=current_row, column=0)
+    attribute_parse_label = ttk.Label(window, justify=CENTER, text="Attribute Parse",
+                      foreground=settings.THEME_SETTINGS["link_color"], cursor="hand2")
+    attribute_parse_label.bind("<Button-1>", lambda e: open_url_in_browser(VPYPE_URLS["attribute_parse"]))
+    attribute_parse_label.grid(row=current_row, column=0)
     attribute_parse_entry = ttk.Entry(window, width=7)
     attribute_parse_entry.insert(0, f"-a stroke")
     attribute_parse_entry.grid(sticky="w", row=current_row, column=1)
 
-    ttk.Label(window, justify=CENTER, text="Remove Layers").grid(
-        row=current_row, column=2)
+    remove_layer_label = ttk.Label(window, justify=CENTER, text="Remove Layers",
+                      foreground=settings.THEME_SETTINGS["link_color"], cursor="hand2")
+    remove_layer_label.bind("<Button-1>", lambda e: open_url_in_browser(VPYPE_URLS["ldelete"]))
+    remove_layer_label.grid(row=current_row, column=2)
     remove_layer_list = []
     for index in range(max_num_colors):
         remove_layer = IntVar(window, value=0)
@@ -222,14 +235,19 @@ def main(input_files=()):
                     value=1).grid(row=current_row, column=2)
     current_row += 1
 
-    ttk.Label(window, justify=CENTER, text="Min. line length (inches)").grid(
-        row=current_row, column=0)
+    min_line_len_label = ttk.Label(window, justify=CENTER, text="Min. line length (inches)",
+                      foreground=settings.THEME_SETTINGS["link_color"], cursor="hand2")
+    min_line_len_label.bind("<Button-1>", lambda e: open_url_in_browser(VPYPE_URLS["filter"]))
+    min_line_len_label.grid(row=current_row, column=0)
     min_line_len_entry = ttk.Entry(window, width=7)
     min_line_len_entry.insert(0, "0.2")
     min_line_len_entry.grid(sticky="w", row=current_row, column=1)
 
-    ttk.Label(window, justify=CENTER, text="SplitDist (inches)").grid(
-        row=current_row, column=2)
+    split_dist_label = ttk.Label(window, text="Split Distance (in)",
+                                 foreground=settings.THEME_SETTINGS["link_color"], cursor="hand2")
+    split_dist_label.bind("<Button-1>", lambda e: open_url_in_browser(
+        VPYPE_URLS["splitdist"]))
+    split_dist_label.grid(row=current_row, column=2)
     split_dist_entry = ttk.Entry(window, width=7)
     split_dist_entry.insert(0, "20")
     split_dist_entry.grid(sticky="w", row=current_row, column=3)
@@ -246,9 +264,14 @@ def main(input_files=()):
 
     current_row = separator(window, current_row, max_col)
 
+    linesort_label = ttk.Label(window, justify=CENTER, text="Sort Lines",
+                               foreground=settings.THEME_SETTINGS["link_color"], cursor="hand2")
+    linesort_label.bind("<Button-1>", lambda e: open_url_in_browser(
+        VPYPE_URLS["linesort"]))
+    linesort_label.grid(sticky="e", row=current_row, column=0)
     linesort = IntVar(window, value=1)
-    ttk.Checkbutton(window, text="Sort after splitting into layers", variable=linesort).grid(
-        sticky="w", row=current_row, column=0, columnspan=2)
+    ttk.Checkbutton(window, text="linesort", variable=linesort).grid(
+        sticky="w", row=current_row, column=1)
 
     current_row = separator(window, current_row, max_col)
 

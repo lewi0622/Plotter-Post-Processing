@@ -1,7 +1,7 @@
 """Main app gets files, launches apps, and passes files between apps"""
 from tkinter import Tk
 from tkinter import ttk
-from utils import select_files, file_info, on_closing
+from utils import select_files, file_info, on_closing, open_url_in_browser
 import occult
 import paint
 import process
@@ -9,8 +9,10 @@ import compose
 import de_compose
 import settings
 from gui_helpers import set_title_icon
+from settings import THEME_SETTINGS
+from links import VPYPE_URLS, PPP_URLS
 
-version = 1.01
+version = 1.02
 
 def main():
     """Creates Tk gui for launching apps"""
@@ -47,6 +49,7 @@ def main():
 
     # tk widgets and window
     current_row = 0  # helper row var
+    max_col = 3
 
     main_app = Tk()
 
@@ -82,6 +85,20 @@ def main():
         the new input files. Reselect files if necessary."""
     ).grid(padx=(10,10), pady=(2, 10), row=current_row, column=1, columnspan=2)
     current_row += 1
+
+    documentation_label = ttk.Label(main_app, text="Vpype Documentation",
+                      foreground=THEME_SETTINGS["link_color"], cursor="hand2")
+    documentation_label.bind("<Button-1>", lambda e: open_url_in_browser(
+        VPYPE_URLS["vpype"]))
+    documentation_label.grid(pady=(0,10), padx=(10, 0), sticky="w", row=current_row, column=0, columnspan=max_col)
+
+    current_row += 1
+
+    youtube_label = ttk.Label(main_app, text="Plotter Post Processing Tutorials",
+                      foreground=THEME_SETTINGS["link_color"], cursor="hand2")
+    youtube_label.bind("<Button-1>", lambda e: open_url_in_browser(
+        PPP_URLS["playlist"]))
+    youtube_label.grid(pady=(0,10), padx=(10, 0), sticky="w", row=current_row, column=0, columnspan=max_col)
 
     main_app.protocol("WM_DELETE_WINDOW", lambda arg=main_app: on_closing(arg))
 

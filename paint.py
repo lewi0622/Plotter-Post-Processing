@@ -4,7 +4,8 @@ from tkinter import *
 from tkinter import ttk
 from utils import *
 import settings
-from gui_helpers import set_title_icon
+from gui_helpers import set_title_icon, separator
+from links import VPYPE_URLS, PPP_URLS
 
 def main(input_files=()):
     def run_vpypeline():
@@ -105,39 +106,50 @@ end \
 
     # tk widgets and window
     current_row = 0  # helper row var, inc-ed every time used;
+    max_col = 4
 
     global window
     window = Tk()
 
     set_title_icon(window, "Paint")
 
-    title = ttk.Label(window, text="Vpype Paint",
+    title = ttk.Label(window, text="Vpype Paint Recipe",
                       foreground=settings.THEME_SETTINGS["link_color"], cursor="hand2")
     title.bind("<Button-1>", lambda e: open_url_in_browser(
-        "https://vpype.readthedocs.io/en/latest/cookbook.html#inserting-regular-dipping-patterns-for-plotting-with-paint"))
-    title.grid(pady=(10, 0), row=current_row, column=0, columnspan=4)
+        VPYPE_URLS["dipping"]))
+    title.grid(pady=(10, 0), row=current_row, column=0, columnspan=max_col)
+    current_row += 1
+
+    youtube_label = ttk.Label(window, text="Plotter Post Processing Paint Tutorial",
+                      foreground=settings.THEME_SETTINGS["link_color"], cursor="hand2")
+    youtube_label.bind("<Button-1>", lambda e: open_url_in_browser(
+        PPP_URLS["paint"]))
+    youtube_label.grid(row=current_row, column=0, columnspan=max_col)
     current_row += 1
 
     ttk.Label(window, text="Input files should have already been processed and laid out with enough space for dipping trays").grid(
-        row=current_row, column=0, columnspan=4)
+        row=current_row, column=0, columnspan=max_col)
     current_row += 1
 
     ttk.Label(window, text="Only batch files that have the same number of colors.").grid(
-        row=current_row, column=0, columnspan=4)
+        row=current_row, column=0, columnspan=max_col)
     current_row += 1
 
-    ttk.Label(window, text="Dip locations match number of colors in file, file parsed with -a stroke.").grid(
-        row=current_row, column=0, columnspan=4)
+    dip_help_label = ttk.Label(window, text="Dip locations match number of colors in file, file parsed with -a stroke.",
+                                foreground=settings.THEME_SETTINGS["link_color"], cursor="hand2")
+    dip_help_label.bind("<Button-1>", lambda e: open_url_in_browser(
+        VPYPE_URLS["attribute_parse"]))
+    dip_help_label.grid(row=current_row, column=0, columnspan=max_col)
     current_row += 1
 
     ttk.Label(window, text=f"{len(input_files)} file(s) selected, Input file Width(in): {svg_width_inches}, Height(in): {svg_height_inches}, Max colors in file(s): {max_num_colors}").grid(
-        row=current_row, column=0, columnspan=4)
+        row=current_row, column=0, columnspan=max_col)
     current_row += 1
 
     split_all_label = ttk.Label(window, text="Split All and Merge",
                                 foreground=settings.THEME_SETTINGS["link_color"], cursor="hand2")
     split_all_label.bind("<Button-1>", lambda e: open_url_in_browser(
-        "https://vpype.readthedocs.io/en/latest/reference.html#splitall"))
+        VPYPE_URLS["splitall"]))
     split_all_label.grid(row=current_row, column=0)
     split_all = IntVar(window, value=0)
     ttk.Checkbutton(window, text="splitall", variable=split_all).grid(
@@ -146,23 +158,20 @@ end \
     split_dist_label = ttk.Label(window, text="Split Distance (in)",
                                  foreground=settings.THEME_SETTINGS["link_color"], cursor="hand2")
     split_dist_label.bind("<Button-1>", lambda e: open_url_in_browser(
-        "https://vpype.readthedocs.io/en/latest/reference.html#cmd-splitdist"))
+        VPYPE_URLS["splitdist"]))
     split_dist_label.grid(row=current_row, column=2)
 
     split_dist_entry = ttk.Entry(window, width=7)
     split_dist_entry.insert(0, "4")
     split_dist_entry.grid(row=current_row, column=3)
-    current_row += 1
 
     dip_details = []
 
     for i in range(max_num_colors):
-        ttk.Separator(window, orient='horizontal').grid(
-            sticky="we", row=current_row, column=0, columnspan=4, pady=10)
-        current_row += 1
+        current_row = separator(window, current_row, max_col)
 
         ttk.Label(window, text=f"Dip Location {i}").grid(
-            row=current_row, column=0, columnspan=4)
+            row=current_row, column=0, columnspan=max_col)
         current_row += 1
 
         ttk.Label(window, text="Dip Layer").grid(row=current_row, column=0)
@@ -175,7 +184,10 @@ end \
         dip_layer_combobox.current(0)
         dip_layer_combobox.grid(sticky="w", row=current_row, column=1)
 
-        rotate_label = ttk.Label(window, justify=CENTER, text="Rotate Clockwise (deg):")
+        rotate_label = ttk.Label(
+            window, justify=CENTER, text="Rotate Dip Clockwise (deg):",
+            foreground=settings.THEME_SETTINGS["link_color"], cursor="hand2")
+        rotate_label.bind("<Button-1>", lambda e: open_url_in_browser(VPYPE_URLS["rotate"]))
         rotate_label.grid(row=current_row, column=2)
         rotate_entry = ttk.Entry(window, width=7)
         rotate_entry.insert(0, "0")
@@ -183,17 +195,19 @@ end \
 
         current_row += 1
 
-        ttk.Label(window, text="X (in):").grid(row=current_row, column=0)
+        translate_X_label = ttk.Label(
+            window, text="Translate X (in):",
+            foreground=settings.THEME_SETTINGS["link_color"], cursor="hand2")
+        translate_X_label.bind("<Button-1>", lambda e: open_url_in_browser(VPYPE_URLS["translate"]))
+        translate_X_label.grid(row=current_row, column=0)
         dip_loc_x_entry = ttk.Entry(window, width=7)
         dip_loc_x_entry.insert(0, f"{i * 2 + 1}")
         dip_loc_x_entry.grid(sticky="w", row=current_row, column=1)
 
-        ttk.Label(window, text="Y (in):").grid(row=current_row, column=2)
+        ttk.Label(window, text="Translate Y (in):").grid(row=current_row, column=2)
         dip_loc_y_entry = ttk.Entry(window, width=7)
         dip_loc_y_entry.insert(0, "0")
         dip_loc_y_entry.grid(sticky="e", row=current_row, column=3)
-
-        current_row += 1
 
         dip_details.append({
             "x": dip_loc_x_entry,
@@ -202,9 +216,7 @@ end \
             "layer": dip_layer_combobox,
         })
 
-    ttk.Separator(window, orient='horizontal').grid(
-        sticky="we", row=current_row, column=0, columnspan=4, pady=10)
-    current_row += 1
+    current_row = separator(window, current_row, max_col)
 
     ttk.Button(window, text="Show Output", command=show_vpypeline).grid(
         pady=(0, 10), row=current_row, column=2)

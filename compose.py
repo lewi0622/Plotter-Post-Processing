@@ -6,6 +6,7 @@ from utils import rename_replace, on_closing, check_make_temp_folder, file_info,
 from utils import open_url_in_browser, generate_random_color, max_colors_per_file
 import settings
 from gui_helpers import separator, set_title_icon
+from links import PPP_URLS
 
 return_val: tuple
 current_row: int
@@ -184,6 +185,14 @@ def main(input_files=()):
         pady=(10, 0), row=current_row, column=0, columnspan=max_col)
     current_row += 1
 
+    youtube_label = ttk.Label(window, text="Plotter Post Processing Compose Tutorial",
+                      foreground=settings.THEME_SETTINGS["link_color"], cursor="hand2")
+    youtube_label.bind("<Button-1>", lambda e: open_url_in_browser(
+        PPP_URLS["compose"]))
+    youtube_label.grid(row=current_row, column=0, columnspan=max_col)
+
+    current_row += 1
+
     ttk.Label(window, justify=CENTER, text=f"{len(input_files)} Design file(s) selected,\nDesign file Width(in): {svg_width_inches}, Height(in): {svg_height_inches}").grid(
         row=current_row, column=0, columnspan=max_col)
     current_row += 1
@@ -194,10 +203,7 @@ def main(input_files=()):
     current_row = separator(window, current_row, max_col)
 
     # grid options
-    grid_label = ttk.Label(window, justify=CENTER, text="Merge Multiple SVGs into Grid",
-                           foreground=settings.THEME_SETTINGS["link_color"], cursor="hand2")
-    grid_label.bind("<Button-1>", lambda e: open_url_in_browser(
-        "https://vpype.readthedocs.io/en/latest/cookbook.html#faq-merge-to-grid"))
+    grid_label = ttk.Label(window, justify=CENTER, text="Merge Multiple SVGs into Grid")
     grid_label.grid(row=current_row, column=0, columnspan=max_col)
     current_row += 1
 

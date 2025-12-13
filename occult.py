@@ -6,7 +6,7 @@ from utils import select_files, generate_random_color, file_info
 from utils import rename_replace, on_closing, check_make_temp_folder, open_url_in_browser
 from gui_helpers import separator, set_title_icon
 import settings
-
+from links import VPYPE_URLS, PPP_URLS
 
 def main(input_files=()):
     def run_vpypeline():
@@ -131,11 +131,23 @@ def main(input_files=()):
     
     set_title_icon(window, "Occult")
 
-    title = ttk.Label(window, text="Occluded Line Removal",
+    ttk.Label(window, text="Hidden Line Removal").grid(pady=(10,0), row= current_row, column=0, columnspan=max_col)
+
+    current_row += 1
+
+    title = ttk.Label(window, text="Occult Help",
                       foreground=settings.THEME_SETTINGS["link_color"], cursor="hand2")
     title.bind(
         "<Button-1>", lambda e: open_url_in_browser("https://github.com/LoicGoulefert/occult"))
-    title.grid(pady=(10, 0), row=current_row, column=0, columnspan=max_col)
+    title.grid(row=current_row, column=0, columnspan=max_col)
+
+    current_row += 1
+
+    youtube_label = ttk.Label(window, text="Plotter Post Processing Occult Tutorial",
+                      foreground=settings.THEME_SETTINGS["link_color"], cursor="hand2")
+    youtube_label.bind("<Button-1>", lambda e: open_url_in_browser(
+        PPP_URLS["occult"]))
+    youtube_label.grid(row=current_row, column=0, columnspan=max_col)
 
     current_row += 1
 
@@ -144,8 +156,10 @@ def main(input_files=()):
 
     current_row = separator(window, current_row, max_col)
 
-    ttk.Label(window, justify=CENTER, text="Attribute Parse\nSuggested: stroke or d/points").grid(
-            row=current_row, column=0)
+    attribute_parse_label = ttk.Label(window, justify=CENTER, text="Attribute Parse\nSuggested: stroke or d/points",
+                      foreground=settings.THEME_SETTINGS["link_color"], cursor="hand2")
+    attribute_parse_label.bind("<Button-1>", lambda e: open_url_in_browser(VPYPE_URLS["attribute_parse"]))
+    attribute_parse_label.grid(row=current_row, column=0)
     attribute_parse_entry = ttk.Entry(window, width=12)
 
     if any(file_info["interleaved?"]):

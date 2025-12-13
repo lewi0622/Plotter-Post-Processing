@@ -6,6 +6,7 @@ from utils import thread_vpypelines, check_make_temp_folder, on_closing, find_cl
 from utils import select_files, file_info, generate_random_color, open_url_in_browser
 from gui_helpers import separator, generate_file_names, set_title_icon
 from settings import THEME_SETTINGS, set_theme, init
+from links import VPYPE_URLS, PPP_URLS
 
 DEFAULTS: dict[str, str] = {
     "crop_x": "0, 0",
@@ -20,24 +21,6 @@ DEFAULTS: dict[str, str] = {
     "layout_h": "0",
 }
 
-VPYPE_URLS: dict[str, str] = {
-    "title": "https://vpype.readthedocs.io/en/latest/index.html",
-    "crop_input": "https://vpype.readthedocs.io/en/latest/reference.html#cmdoption-read-c",
-    "scale": "https://vpype.readthedocs.io/en/latest/reference.html#scaleto",
-    "bbox": "https://vpype.readthedocs.io/en/latest/reference.html#bbox",
-    "crop": "https://vpype.readthedocs.io/en/stable/reference.html#crop",
-    "rotate": "https://vpype.readthedocs.io/en/latest/reference.html#rotate",
-    "linemerge": "https://vpype.readthedocs.io/en/latest/reference.html#linemerge",
-    "linesort": "https://vpype.readthedocs.io/en/latest/reference.html#linesort",
-    "reloop": "https://vpype.readthedocs.io/en/latest/reference.html#reloop",
-    "linesimplify": "https://vpype.readthedocs.io/en/latest/reference.html#linesimplify",
-    "squiggles": "https://vpype.readthedocs.io/en/latest/reference.html#squiggles",
-    "multipass": "https://vpype.readthedocs.io/en/latest/reference.html#multipass",
-    "layout": "https://vpype.readthedocs.io/en/latest/reference.html#layout",
-    "lineshuffle": "https://vpype.readthedocs.io/en/latest/reference.html#lineshuffle",
-}
-
-
 return_val: tuple
 current_row: int
 window: Any
@@ -48,7 +31,6 @@ def main(input_files: tuple = ()) -> tuple:
     global return_val, current_row, last_shown_command, window
     return_val = ()
     current_row = 0  # helper row var, inc-ed every time used;
-    link_color = THEME_SETTINGS["link_color"]
 
     def inc_row() -> int:
         """Increment the current row and return it"""
@@ -227,26 +209,29 @@ def main(input_files: tuple = ()) -> tuple:
 
     set_title_icon(window, "Process")
 
-    title = ttk.Label(window, text="Vpype Options",
-                      foreground=link_color, cursor="hand2")
-    title.bind("<Button-1>", lambda e: open_url_in_browser(
-        VPYPE_URLS["title"]))
-    title.grid(pady=(10, 0), row=current_row, column=0, columnspan=max_col)
+    youtube_label = ttk.Label(window, text="Plotter Post Processing Tutorial",
+                      foreground=THEME_SETTINGS["link_color"], cursor="hand2")
+    youtube_label.bind("<Button-1>", lambda e: open_url_in_browser(
+        PPP_URLS["process"]))
+    youtube_label.grid(pady=(10,0), row=current_row, column=0, columnspan=max_col)
+    current_row += 1
 
     ttk.Label(window, justify=CENTER, text=f"{len(input_files)} file(s) selected, Input file Width(in): {svg_width_inches}, Height(in): {svg_height_inches}").grid(
         row=inc_row(), column=0, columnspan=max_col)
     
     current_row = separator(window, current_row, max_col)
 
-    ttk.Label(window, justify=CENTER, text="Attribute Parse").grid(
-            row=current_row, column=0)
+    attribute_parse_label = ttk.Label(window, justify=CENTER, text="Attribute Parse",
+                      foreground=THEME_SETTINGS["link_color"], cursor="hand2")
+    attribute_parse_label.bind("<Button-1>", lambda e: open_url_in_browser(VPYPE_URLS["attribute_parse"]))
+    attribute_parse_label.grid(row=current_row, column=0)
     attribute_parse_entry = ttk.Entry(window, width=7)
     attribute_parse_entry.insert(0, f"-a stroke")
     attribute_parse_entry.grid(sticky="w", row=current_row, column=1)
 
 
     crop_input_label = ttk.Label(window, justify=CENTER, text="Crop to input\ndimensions on read",
-                                 foreground=link_color, cursor="hand2")
+                                 foreground=THEME_SETTINGS["link_color"], cursor="hand2")
     crop_input_label.bind("<Button-1>", lambda e: open_url_in_browser(
         VPYPE_URLS["crop_input"]))
     crop_input_label.grid(row=current_row, column=2)
@@ -257,7 +242,7 @@ def main(input_files: tuple = ()) -> tuple:
     current_row = separator(window, current_row, max_col)
 
     scale_label = ttk.Label(window, justify=CENTER, text="Scale options\n(default: input file size)",
-                            foreground=link_color, cursor="hand2")
+                            foreground=THEME_SETTINGS["link_color"], cursor="hand2")
     scale_label.bind("<Button-1>", lambda e: open_url_in_browser(
         VPYPE_URLS["scale"]))
     scale_label.grid(row=current_row, column=0)
@@ -295,7 +280,7 @@ def main(input_files: tuple = ()) -> tuple:
                     variable=center_geometries).grid(row=current_row, column=0, columnspan=2)
 
     crop_label = ttk.Label(window, justify=CENTER, text="Crop X Start, End (in):",
-                           foreground=link_color, cursor="hand2")
+                           foreground=THEME_SETTINGS["link_color"], cursor="hand2")
     crop_label.bind("<Button-1>", lambda e: open_url_in_browser(
         VPYPE_URLS["crop"]))
     crop_label.grid(row=current_row, column=2)
@@ -304,7 +289,7 @@ def main(input_files: tuple = ()) -> tuple:
     crop_x_entry.grid(sticky="w", row=current_row, column=3)
 
     rotate_label = ttk.Label(window, justify=CENTER, text="Rotate Clockwise (deg):",
-                             foreground=link_color, cursor="hand2")
+                             foreground=THEME_SETTINGS["link_color"], cursor="hand2")
     rotate_label.bind("<Button-1>", lambda e: open_url_in_browser(
         VPYPE_URLS["rotate"]))
     rotate_label.grid(row=inc_row(), column=0)
@@ -325,7 +310,7 @@ def main(input_files: tuple = ()) -> tuple:
     current_row = separator(window, current_row, max_col)
 
     linemerge_label = ttk.Label(window, justify=CENTER, text="Merge Lines with\noverlapping line endings",
-                                foreground=link_color, cursor="hand2")
+                                foreground=THEME_SETTINGS["link_color"], cursor="hand2")
     linemerge_label.bind("<Button-1>", lambda e: open_url_in_browser(
         VPYPE_URLS["linemerge"]))
     linemerge_label.grid(row=current_row, column=0)
@@ -339,7 +324,7 @@ def main(input_files: tuple = ()) -> tuple:
     linemerge_tolerance_entry.grid(sticky="w", row=current_row, column=3)
 
     linesort_label = ttk.Label(window, justify=CENTER, text="Sort Lines",
-                               foreground=link_color, cursor="hand2")
+                               foreground=THEME_SETTINGS["link_color"], cursor="hand2")
     linesort_label.bind("<Button-1>", lambda e: open_url_in_browser(
         VPYPE_URLS["linesort"]))
     linesort_label.grid(row=inc_row(), column=0)
@@ -351,7 +336,7 @@ def main(input_files: tuple = ()) -> tuple:
         window,
         justify=CENTER,
         text="Randomize seam location\non closed paths",
-        foreground=link_color, cursor="hand2"
+        foreground=THEME_SETTINGS["link_color"], cursor="hand2"
     )
     reloop_label.bind("<Button-1>", lambda e: open_url_in_browser(
         VPYPE_URLS["reloop"]))
@@ -361,7 +346,7 @@ def main(input_files: tuple = ()) -> tuple:
         sticky="w", row=current_row, column=3)
 
     linesimplify_label = ttk.Label(window, justify=CENTER, text="Reduce geometry complexity",
-                                   foreground=link_color, cursor="hand2")
+                                   foreground=THEME_SETTINGS["link_color"], cursor="hand2")
     linesimplify_label.bind("<Button-1>", lambda e: open_url_in_browser(
         VPYPE_URLS["linesimplify"]))
     linesimplify_label.grid(row=inc_row(), column=0)
@@ -377,7 +362,7 @@ def main(input_files: tuple = ()) -> tuple:
     current_row = separator(window, current_row, max_col)
 
     squiggle_label = ttk.Label(window, justify=CENTER, text="Add squiggle filter",
-                               foreground=link_color, cursor="hand2")
+                               foreground=THEME_SETTINGS["link_color"], cursor="hand2")
     squiggle_label.bind("<Button-1>", lambda e: open_url_in_browser(
         VPYPE_URLS["squiggles"]))
     squiggle_label.grid(row=inc_row(), column=0)
@@ -400,7 +385,7 @@ def main(input_files: tuple = ()) -> tuple:
     current_row = separator(window, current_row, max_col)
 
     multipass_label = ttk.Label(window, justify=CENTER, text="Add multiple passes to all lines",
-                                foreground=link_color, cursor="hand2")
+                                foreground=THEME_SETTINGS["link_color"], cursor="hand2")
     multipass_label.bind("<Button-1>", lambda e: open_url_in_browser(
         VPYPE_URLS["multipass"]))
     multipass_label.grid(row=current_row, column=0)
@@ -409,7 +394,7 @@ def main(input_files: tuple = ()) -> tuple:
         sticky="w", row=current_row, column=1)
     
     lineshuffle_label = ttk.Label(window, justify=CENTER, text="Randomize line order",
-                                foreground=link_color, cursor="hand2")
+                                foreground=THEME_SETTINGS["link_color"], cursor="hand2")
     lineshuffle_label.bind("<Button-1>", lambda e: open_url_in_browser(
         VPYPE_URLS["lineshuffle"]))
     lineshuffle_label.grid(row=current_row, column=2)
@@ -424,7 +409,7 @@ def main(input_files: tuple = ()) -> tuple:
         window,
         justify=CENTER,
         text="Layout centers scaled\ndesign in page size)",
-        foreground=link_color,
+        foreground=THEME_SETTINGS["link_color"],
         cursor="hand2"
     )
     layout_label.bind("<Button-1>", lambda e: open_url_in_browser(
