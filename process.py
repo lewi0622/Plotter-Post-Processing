@@ -19,6 +19,7 @@ DEFAULTS: dict[str, str] = {
     "squiggle_period": "0.1181",
     "layout_w": "0",
     "layout_h": "0",
+    "multipass": "1",
 }
 
 return_val: tuple
@@ -137,8 +138,13 @@ def main(input_files: tuple = ()) -> tuple:
             if squiggle_period_entry.get() != "0.11811":
                 args += f" -p {squiggle_period_entry.get()}in "
 
-        if multipass.get():
-            args += " multipass "
+        num_multipass = multipass_entry.get()
+        try:
+            num_multipass = int(num_multipass)
+            if num_multipass > 1:
+                args += f" multipass -n {num_multipass} "
+        except: 
+            pass
 
         if lineshuffle.get():
             args += " lineshuffle "
@@ -385,14 +391,14 @@ def main(input_files: tuple = ()) -> tuple:
 
     current_row = separator(window, current_row, max_col)
 
-    multipass_label = ttk.Label(window, justify=CENTER, text="Add multiple passes to all lines",
+    multipass_label = ttk.Label(window, justify=CENTER, text="Number of passes",
                                 foreground=THEME_SETTINGS["link_color"], cursor="hand2")
     multipass_label.bind("<Button-1>", lambda e: open_url_in_browser(
         VPYPE_URLS["multipass"]))
     multipass_label.grid(row=current_row, column=0)
-    multipass = IntVar(window, value=0)
-    ttk.Checkbutton(window, text="multipass", variable=multipass).grid(
-        sticky="w", row=current_row, column=1)
+    multipass_entry = ttk.Entry(window, width=7)
+    multipass_entry.insert(0, DEFAULTS["multipass"])
+    multipass_entry.grid(sticky="w", row=current_row, column=1)
     
     lineshuffle_label = ttk.Label(window, justify=CENTER, text="Randomize line order",
                                 foreground=THEME_SETTINGS["link_color"], cursor="hand2")
