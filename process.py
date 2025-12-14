@@ -9,8 +9,9 @@ from settings import THEME_SETTINGS, set_theme, init
 from links import VPYPE_URLS, PPP_URLS
 
 DEFAULTS: dict[str, str] = {
-    "crop_x": "0, 0",
-    "crop_y": "0, 0",
+    "bbox_xy": "0, 0",
+    "crop_xy": "0, 0",
+    "crop_wh": "0, 0",
     "rotate_small": "90",
     "rotate_large": "0",
     "linemerge_tol": "0.0019",
@@ -79,15 +80,21 @@ def main(input_files: tuple = ()) -> tuple:
 
         if scale_option.get():
             args += f" scaleto {scale_width_entry.get()}in {scale_height_entry.get()}in "
-            bbox_width = f"{scale_width_entry.get()}in"
-            bbox_height = f"{scale_height_entry.get()}in"
-        else:
-            bbox_width = f"{svg_width_inches}in"
-            bbox_height = f"{svg_height_inches}in"
 
         if bbox_option.get():
+            bbox_x, bbox_y = bbox_xy_entry.get().split(",")
+            bbox_w, bbox_h = bbox_wh_entry.get().split(",")
+            try:
+                bbox_x = float(bbox_x)
+                bbox_y = float(bbox_y)
+                bbox_w = float(bbox_w)
+                bbox_h = float(bbox_h)
+
+            except:
+                print("Bounding Box values unable to be parsed into floats")
+
             args += r' forlayer lmove %_lid% %_lid+1% end '  # moves each layer up by one
-            args += f" rect --layer 1 0 0 {bbox_width} {bbox_height} "
+            args += f" rect --layer 1 {bbox_x}in {bbox_y}in {bbox_w}in {bbox_h}in "
             args += f" color --layer 1 {bbox_color_entry.get()} "
 
         if center_geometries.get():
@@ -274,11 +281,29 @@ def main(input_files: tuple = ()) -> tuple:
     bbox_option = IntVar(window, value=0)
     ttk.Checkbutton(window, text="Add bounding box?", variable=bbox_option).grid(
         row=current_row, column=0, columnspan=2)
+    
+    bbox_entry_label = ttk.Label(window, justify=CENTER, text="Bbox Start, X, Y(in):",
+                           foreground=THEME_SETTINGS["link_color"], cursor="hand2")
+    bbox_entry_label.bind("<Button-1>", lambda e: open_url_in_browser(
+        VPYPE_URLS["rect"]))
+    bbox_entry_label.grid(row=current_row, column=2)
+    bbox_xy_entry = ttk.Entry(window, width=7)
+    bbox_xy_entry.insert(0, DEFAULTS["bbox_xy"])
+    bbox_xy_entry.grid(sticky="w", row=current_row, column=3)
+
+    current_row += 1
+
     ttk.Label(window, justify=CENTER, text="Bounding Box color:").grid(
-        row=current_row, column=2)
+        row=current_row, column=0)
     bbox_color_entry = ttk.Entry(window, width=7)
     bbox_color_entry.insert(0, f"{bbox_color}")
-    bbox_color_entry.grid(sticky="w", row=current_row, column=3)
+    bbox_color_entry.grid(sticky="w", row=current_row, column=1)
+
+    ttk.Label(window, justify=CENTER, text="Bbox Width, Height(in)").grid(
+        row=current_row, column=2)
+    bbox_wh_entry = ttk.Entry(window, width=7)
+    bbox_wh_entry.insert(0, f"{svg_width_inches}, {svg_height_inches}")
+    bbox_wh_entry.grid(sticky="w", row=current_row, column=3)
 
     current_row = separator(window, current_row, max_col)
 
@@ -292,7 +317,7 @@ def main(input_files: tuple = ()) -> tuple:
         VPYPE_URLS["crop"]))
     crop_label.grid(row=current_row, column=2)
     crop_xy_entry = ttk.Entry(window, width=7)
-    crop_xy_entry.insert(0, DEFAULTS["crop_x"])
+    crop_xy_entry.insert(0, DEFAULTS["crop_xy"])
     crop_xy_entry.grid(sticky="w", row=current_row, column=3)
 
     rotate_label = ttk.Label(window, justify=CENTER, text="Rotate Clockwise (deg):",
@@ -311,7 +336,7 @@ def main(input_files: tuple = ()) -> tuple:
     ttk.Label(window, justify=CENTER, text="Crop Width, Height(in)").grid(
         row=current_row, column=2)
     crop_wh_entry = ttk.Entry(window, width=7)
-    crop_wh_entry.insert(0, DEFAULTS["crop_y"])
+    crop_wh_entry.insert(0, DEFAULTS["crop_wh"])
     crop_wh_entry.grid(sticky="w", row=current_row, column=3)
 
     current_row = separator(window, current_row, max_col)
