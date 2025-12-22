@@ -156,14 +156,14 @@ def main(input_files=()):
 
     current_row = separator(window, current_row, max_col)
 
-    attribute_parse_label = ttk.Label(window, justify=CENTER, text="Attribute Parse\nSuggested: stroke or d/points",
+    attribute_parse_label = ttk.Label(window, justify=CENTER, text="Attribute Parse\nSuggested: stroke or d/points/x1/y1/x2/y2",
                       foreground=settings.THEME_SETTINGS["link_color"], cursor="hand2")
     attribute_parse_label.bind("<Button-1>", lambda e: open_url_in_browser(VPYPE_URLS["attribute_parse"]))
     attribute_parse_label.grid(row=current_row, column=0)
     attribute_parse_entry = ttk.Entry(window, width=12)
 
     if any(file_info["interleaved?"]):
-        attribute_parse_entry.insert(0, f"-a d -a points")
+        attribute_parse_entry.insert(0, f"-a d -a points -a x1 -a x2 -a y1 -a y2") # attribute d is used by p5js-svg, but when saved by vpype, it converts everything to lines
     else:
         attribute_parse_entry.insert(0, f"-a stroke")
 
