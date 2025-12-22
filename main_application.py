@@ -23,29 +23,29 @@ def main():
             select_files(files)
 
     def run_occult():
-        occulted_files = occult.main(file_info["files"])
+        returned_files = occult.main(file_info["files"])
         occult.window.destroy()
-        verify_output_files(occulted_files, "Occult")
+        verify_output_files(returned_files, "Occult")
 
     def run_process():
-        processed_files = process.main(file_info["files"])
+        returned_files = process.main(file_info["files"])
         process.window.destroy()
-        verify_output_files(processed_files, "Process")
+        verify_output_files(returned_files, "Process")
 
     def run_paint():
-        painted_files = paint.main(file_info["files"])
+        returned_files = paint.main(file_info["files"])
         paint.window.destroy()
-        verify_output_files(painted_files, "Paint")
+        verify_output_files(returned_files, "Paint")
 
     def run_compose():
-        painted_files = compose.main(file_info["files"])
+        returned_files = compose.main(file_info["files"])
         compose.window.destroy()
-        verify_output_files(painted_files, "Compose")
+        verify_output_files(returned_files, "Compose")
 
     def run_decompose():
-        painted_files = de_compose.main(file_info["files"])
+        returned_files = de_compose.main(file_info["files"])
         de_compose.window.destroy()
-        verify_output_files(painted_files, "deCompose")
+        verify_output_files(returned_files, "deCompose")
 
     # tk widgets and window
     current_row = 0  # helper row var
