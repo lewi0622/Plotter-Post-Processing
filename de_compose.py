@@ -3,23 +3,28 @@ import os
 from tkinter import Tk, ttk, CENTER, IntVar
 from utils import *
 import settings
-from gui_helpers import separator, set_title_icon
+from gui_helpers import separator, set_title_icon, on_focus_in, on_focus_out
 from links import VPYPE_URLS, PPP_URLS
+
+DEFAULTS: dict[str, str] = {
+    "remove_placeholder": "e.g. 1, 3-5"
+}
 
 def main(input_files=()):
     """"Run Decompose utility"""
     def run_vpypeline():
         global return_val
-
-        if len(input_files) == 1 and last_shown_command == build_vpypeline(True):
+        return_val = output_file_list
+        if not separate_files.get() and len(input_files) == 1 and last_shown_command == build_vpypeline(True):
             rename_replace(show_temp_file, output_file_list[0])
             print("Same command as shown file, not re-running Vpype pipeline")
         else:
             command = build_vpypeline(False)
             print("Running: \n", command)
-            subprocess.run(command, capture_output=True, shell=True, check=False)
+            result = subprocess.run(command, stdout=subprocess.PIPE, universal_newlines = True)
+            if separate_files.get():
+                return_val = str.splitlines(result.stdout)
 
-        return_val = output_file_list
         print("Closing deCompose")
         on_closing(window)
 
@@ -30,8 +35,6 @@ def main(input_files=()):
         last_shown_command = build_vpypeline(True)
         print("Showing: \n", last_shown_command)
         subprocess.run(last_shown_command, check=False)
-        if separate_files.get():  # hacky solution to the separate files portion not being included in the show command
-            last_shown_command = ""
 
     def build_vpypeline(show):
         global show_temp_file
@@ -48,11 +51,7 @@ def main(input_files=()):
             show_temp_file = os.path.join(file_info["temp_folder_path"], name + "_deC.svg")
             output_filename = head + "/" + name + "_deC"
 
-            if separate_files.get():
-                for i in range(len(file_info["color_dicts"][index])):
-                    output_file_list.append(output_filename + str(i) + ".svg")
-            else:
-                output_file_list.append(output_filename + ".svg")
+            output_file_list.append(output_filename + ".svg")
 
         # build color list
         num_layers = int(n_layers_entry.get())
@@ -65,52 +64,42 @@ def main(input_files=()):
         args = f'vpype eval "files_in={input_file_list}" eval "files_out={output_file_list}" '
         args += r' eval "random_colors=' + f"{color_list}" + '"'
 
-        if separate_files.get() and not show:
-            args += r' eval "%k=0%" '
-
-        if separate.get():
-            args += f' eval "%num_layers={n_layers_entry.get()}%" '
-
         repeat_num = len(input_file_list)
         if show:
             repeat_num = 1
+
         args += f" repeat {repeat_num} "
 
-        # check for any layer removal
-        remove_any = False
-        for index, layer in enumerate(remove_layer_list):
-            if layer.get():
-                remove_any = True
+        # keep track of last parsed used so that we can re-parse as necessary
+        last_parse = ""
 
-        attribute_parse = attribute_parse_entry.get()
+        file_input = r'%files_in[_i]%'
 
-        if not remove_any and not separate.get() and show:  # just show case
-            args += f" read {attribute_parse} --no-crop %files_in[_i]%  end show"
-            return args
+        sort = False
+        if pre_linesort.get() or pre_line_shuffle.get():
+            sort = True
+            last_parse = pre_attribute_parse_entry.get()
+            args += f" read {last_parse} --no-crop {file_input} "
 
-        # remove color layers
-        if remove_any:
-            args += f" read {attribute_parse} --no-crop %files_in[_i]% "
-            for index, layer in enumerate(remove_layer_list):
-                if layer.get():
-                    args += f' ldelete {index+1} '
+        # presort/shuffle
+        if pre_linesort.get():
+            args += " linesort "
+        
+        if pre_line_shuffle.get():
+            args += " lineshuffle "
 
-            if show and not separate.get():
-                args += f' write "{show_temp_file}" end show '
-                return args
-
-        # separate
+        # separate design into layers
         if separate.get():
-            if remove_any:
-                # save to temp so it can be read by the separate step
-                args += f' write "{show_temp_file}" ldelete all '
+            args += f' eval "%num_layers={n_layers_entry.get()}%" '
 
-            file_input = r'%files_in[_i]%'
-            if remove_any:
-                file_input = show_temp_file
+            if last_parse != "":
+                    args += f' write "{show_temp_file}" ldelete all ' #TODO this would be a problem if I moved to multi-threading
+                    file_input = show_temp_file
 
-            if separator_type.get():
-                args += f" read --no-crop {file_input} "
+            if separator_type.get(): #by distance
+                last_parse = "single_layer"
+                args += f" read --no-crop {file_input} " # read as single layer
+                
                 if split_all.get():
                     args += " splitall "
                 args += f" splitdist {split_dist_entry.get()}in "
@@ -119,41 +108,106 @@ def main(input_files=()):
                 args += r' forlayer eval "%new_id=_i%%num_layers+1%" '
                 args += r' lmove %_lid% "%new_id%" '
                 args += r' color -l "%new_id%" "%random_colors[_lid%%num_layers]%" end '
-            else:
-                args += f" read -a d -a points --no-crop {file_input} "
-                args += f" filter --min-length {min_line_len_entry.get()}in "
+            else: # uniformly
+                last_parse = uniform_attribute_parse_entry.get()
+                args += f' read {last_parse} --no-crop "{file_input}" '
                 args += r" forlayer "
                 args += r' color -l %_lid% "%random_colors[_lid%%num_layers]%" '
                 args += r' lmove %_lid% "%_lid%%num_layers+1%" '
                 args += r' end '
 
-            if linesort.get():
-                args += r' linesort '
 
-            if show:
-                args += f' write "{show_temp_file}" ldelete all'
+        # remove layers
+        def layer_parse(num_str, placeholder):
+            """Takes a string with mixed numbers, commas, and dashes to create a list of numberered layers"""
+            num = []
+            if num_str == placeholder:
+                return num
+            
+            "".join(num_str.split()) # strip out all whitespace
 
-        if separate_files.get() and not show:
-            file_input = r'%files_in[_i]%'
-            if remove_any or separate.get():
+            for part in num_str.split(','):
+                p1 = part.split('-')
+                if len(p1) == 1:
+                    num.append(int(p1[0]))
+                else:
+                    num.extend(list(range(int(p1[0]),int(p1[1])+1)))
+            return num
+
+        layers_to_remove = layer_parse(remove_layer_entry.get(), DEFAULTS["remove_placeholder"])
+
+        remove_any = len(layers_to_remove) > 0
+
+        if remove_any:
+            remove_parse = remove_attribute_parse_entry.get()
+            if last_parse == "":
+                args += f' read {remove_parse} --no-crop "{file_input}" '
+            elif last_parse != remove_parse:
+                args += f' write "{show_temp_file}" ldelete all ' #TODO this would be a problem if I moved to multi-threading
                 file_input = show_temp_file
-            args += f" read {attribute_parse} --no-crop {file_input} "
-            args += r" forlayer write "
-            args += r' %files_out[k]% '
-            args += r' eval "k=k+1" '
+                args += f' read {remove_parse} --no-crop "{file_input}" '
+
+            last_parse = remove_parse
+
+            for layer in layers_to_remove:
+                args += f" ldelete {layer} "
+
+
+        # Post sort/shuffle
+        if linesort.get() or line_shuffle.get():
+            sort = True
+            post_parse = post_attribute_parse_entry.get()
+
+            if last_parse == "":
+                args += f" read {post_parse} --no-crop {file_input} "
+            elif last_parse != post_parse:
+                args += f' write "{show_temp_file}" ldelete all ' #TODO this would be a problem if I moved to multi-threading
+                file_input = show_temp_file
+                args += f" read {post_parse} --no-crop {file_input} "
+
+            last_parse = post_parse
+
+        if linesort.get():
+            args += " linesort "
+        
+        if line_shuffle.get():
+            args += " lineshuffle "
+
+        # Split into separate files
+        if separate_files.get() and not show: # doesn't work with show
+            separate_parse = files_attribute_parse_entry.get()
+
+            if last_parse == "":
+                args += f" read {separate_parse} --no-crop {file_input} "
+            elif last_parse != separate_parse:
+                args += f' write "{show_temp_file}" ldelete all ' #TODO this would be a problem if I moved to multi-threading
+                file_input = show_temp_file
+                args += f" read {separate_parse} --no-crop {file_input} "
+
+            last_parse = separate_parse
+
+            args += r' eval "%k=_i%" '
+            args += r" forlayer "
+            args += r' eval "%filename = files_out[k].replace(' + r"'.svg'" + r", str(_lid)+" + r"'.svg'" + r')%" '
+            args += r' eval "%print(filename)%"' # to be captured after running command
+            args += r' write "%filename%" '
             args += r" end end"
 
             return args
 
+        # CHECK IF NO OPTIONS ARE SELECTED AND RETURN AN EMPTY ARG AND FILE LIST
+        if not remove_any and not separate.get() and not separate_files.get() and not sort: # no operations
+            if not show:
+                output_file_list = []
+                return ""
+            else: # if show is selected with no operations, parse as stroke and show
+                args += f" read -a stroke --no-crop {file_input} "
+
         if show:
-            args += f' end ldelete all read {attribute_parse} --no-crop "{show_temp_file}" show '
+            args += f' write "{show_temp_file}" end show'
+            return args
         else:
             args += r" write %files_out[_i]% end "
-
-        # CHECK IF NO OPTIONS ARE SELECTED AND RETURN AN EMPTY ARG AND FILE LIST
-        if not show and not remove_any and not separate.get() and not separate_files.get():
-            output_file_list = []
-            return ""
 
         return args
 
@@ -189,31 +243,38 @@ def main(input_files=()):
     youtube_label.grid(row=current_row, column=0, columnspan=max_col)
     current_row += 1
 
-
     ttk.Label(window, text=f"{len(input_files)} file(s) selected, Input file Width(in): {svg_width_inches}, Height(in): {svg_height_inches}, Max colors in file(s): {max_num_colors}").grid(
         row=current_row, column=0, columnspan=max_col)
 
     current_row = separator(window, current_row, max_col)
 
-    attribute_parse_label = ttk.Label(window, justify=CENTER, text="Attribute Parse",
+    pre_attribute_parse_label = ttk.Label(window, justify=CENTER, text="Attribute Parse",
                       foreground=settings.THEME_SETTINGS["link_color"], cursor="hand2")
-    attribute_parse_label.bind("<Button-1>", lambda e: open_url_in_browser(VPYPE_URLS["attribute_parse"]))
-    attribute_parse_label.grid(row=current_row, column=0)
-    attribute_parse_entry = ttk.Entry(window, width=7)
-    attribute_parse_entry.insert(0, f"-a stroke")
-    attribute_parse_entry.grid(sticky="w", row=current_row, column=1)
+    pre_attribute_parse_label.bind("<Button-1>", lambda e: open_url_in_browser(VPYPE_URLS["attribute_parse"]))
+    pre_attribute_parse_label.grid(row=current_row, column=0)
+    pre_attribute_parse_entry = ttk.Entry(window, width=12)
+    pre_attribute_parse_entry.insert(0, f"-a stroke")
+    pre_attribute_parse_entry.grid(sticky="w", row=current_row, column=1)
 
-    remove_layer_label = ttk.Label(window, justify=CENTER, text="Remove Layers",
-                      foreground=settings.THEME_SETTINGS["link_color"], cursor="hand2")
-    remove_layer_label.bind("<Button-1>", lambda e: open_url_in_browser(VPYPE_URLS["ldelete"]))
-    remove_layer_label.grid(row=current_row, column=2)
-    remove_layer_list = []
-    for index in range(max_num_colors):
-        remove_layer = IntVar(window, value=0)
-        remove_layer_list.append(remove_layer)
-        ttk.Checkbutton(window, text=f"Layer {index + 1}", variable=remove_layer).grid(
-            sticky="w", row=current_row, column=3)
-        current_row += 1
+    current_row += 1 
+
+    pre_linesort_label = ttk.Label(window, justify=CENTER, text="Sort Lines",
+                               foreground=settings.THEME_SETTINGS["link_color"], cursor="hand2")
+    pre_linesort_label.bind("<Button-1>", lambda e: open_url_in_browser(
+        VPYPE_URLS["linesort"]))
+    pre_linesort_label.grid(sticky="e", row=current_row, column=0)
+    pre_linesort = IntVar(window, value=0)
+    ttk.Checkbutton(window, text="linesort", variable=pre_linesort).grid(
+        sticky="w", row=current_row, column=1)
+    
+    pre_lineshuffle_label = ttk.Label(window, justify=CENTER, text="Shuffle Lines",
+                               foreground=settings.THEME_SETTINGS["link_color"], cursor="hand2")
+    pre_lineshuffle_label.bind("<Button-1>", lambda e: open_url_in_browser(
+        VPYPE_URLS["lineshuffle"]))
+    pre_lineshuffle_label.grid(sticky="e", row=current_row, column=2)
+    pre_line_shuffle = IntVar(window, value=0)
+    ttk.Checkbutton(window, text="lineshuffle", variable=pre_line_shuffle).grid(
+        sticky="w", row=current_row, column=3)
 
     current_row = separator(window, current_row, max_col)
 
@@ -224,24 +285,24 @@ def main(input_files=()):
     ttk.Label(window, justify=CENTER, text="N").grid(row=current_row, column=1)
     n_layers_entry = ttk.Entry(window, width=7)
     n_layers_entry.insert(0, "2")
-    n_layers_entry.grid(sticky="w", row=current_row, column=2)
+    n_layers_entry.grid(pady=(0,10), sticky="w", row=current_row, column=2)
 
     current_row += 1
 
     separator_type = IntVar(window, value=1)
     ttk.Radiobutton(window, text="Uniform", variable=separator_type,
                     value=0).grid(row=current_row, column=0)
-    ttk.Radiobutton(window, text="By Distance", variable=separator_type,
+    ttk.Radiobutton(window, text="By Distance (parse as single layer)", variable=separator_type,
                     value=1).grid(row=current_row, column=2)
     current_row += 1
 
-    min_line_len_label = ttk.Label(window, justify=CENTER, text="Min. line length (inches)",
+    uniform_attribute_parse_label = ttk.Label(window, justify=CENTER, text="Attribute Parse",
                       foreground=settings.THEME_SETTINGS["link_color"], cursor="hand2")
-    min_line_len_label.bind("<Button-1>", lambda e: open_url_in_browser(VPYPE_URLS["filter"]))
-    min_line_len_label.grid(row=current_row, column=0)
-    min_line_len_entry = ttk.Entry(window, width=7)
-    min_line_len_entry.insert(0, "0.2")
-    min_line_len_entry.grid(sticky="w", row=current_row, column=1)
+    uniform_attribute_parse_label.bind("<Button-1>", lambda e: open_url_in_browser(VPYPE_URLS["attribute_parse"]))
+    uniform_attribute_parse_label.grid(row=current_row, column=0)
+    uniform_attribute_parse_entry = ttk.Entry(window, width=12)
+    uniform_attribute_parse_entry.insert(0, f"-a d -a points -a x1 -a x2 -a y1 -a y2")# attribute d is used by p5js-svg, but when saved by vpype, it converts everything to lines
+    uniform_attribute_parse_entry.grid(sticky="w", row=current_row, column=1)
 
     split_dist_label = ttk.Label(window, text="Split Distance (in)",
                                  foreground=settings.THEME_SETTINGS["link_color"], cursor="hand2")
@@ -264,6 +325,39 @@ def main(input_files=()):
 
     current_row = separator(window, current_row, max_col)
 
+    remove_attribute_parse_label = ttk.Label(window, justify=CENTER, text="Attribute Parse",
+                      foreground=settings.THEME_SETTINGS["link_color"], cursor="hand2")
+    remove_attribute_parse_label.bind("<Button-1>", lambda e: open_url_in_browser(VPYPE_URLS["attribute_parse"]))
+    remove_attribute_parse_label.grid(row=current_row, column=0)
+    remove_attribute_parse_entry = ttk.Entry(window, width=12)
+    remove_attribute_parse_entry.insert(0, f"-a stroke")
+    remove_attribute_parse_entry.grid(sticky="w", row=current_row, column=1)
+
+    remove_layer_label = ttk.Label(window, justify=CENTER, text="Remove Layers",
+                      foreground=settings.THEME_SETTINGS["link_color"], cursor="hand2")
+    remove_layer_label.bind("<Button-1>", lambda e: open_url_in_browser(VPYPE_URLS["ldelete"]))
+    remove_layer_label.grid(row=current_row, column=2)
+    remove_layer_list = []
+
+    remove_layer_entry = ttk.Entry(window, width=12)
+    remove_layer_entry.insert(0, DEFAULTS["remove_placeholder"])
+    remove_layer_entry.grid(sticky="w", row=current_row, column=3)
+
+    remove_layer_entry.bind('<Button-1>', lambda x: on_focus_in(remove_layer_entry, DEFAULTS["remove_placeholder"]))
+    remove_layer_entry.bind('<FocusOut>', lambda x: on_focus_out(remove_layer_entry, DEFAULTS["remove_placeholder"]))
+
+    current_row = separator(window, current_row, max_col)
+
+    post_attribute_parse_label = ttk.Label(window, justify=CENTER, text="Attribute Parse",
+                      foreground=settings.THEME_SETTINGS["link_color"], cursor="hand2")
+    post_attribute_parse_label.bind("<Button-1>", lambda e: open_url_in_browser(VPYPE_URLS["attribute_parse"]))
+    post_attribute_parse_label.grid(row=current_row, column=0)
+    post_attribute_parse_entry = ttk.Entry(window, width=12)
+    post_attribute_parse_entry.insert(0, f"-a stroke")
+    post_attribute_parse_entry.grid(sticky="w", row=current_row, column=1)
+
+    current_row += 1 
+
     linesort_label = ttk.Label(window, justify=CENTER, text="Sort Lines",
                                foreground=settings.THEME_SETTINGS["link_color"], cursor="hand2")
     linesort_label.bind("<Button-1>", lambda e: open_url_in_browser(
@@ -272,17 +366,34 @@ def main(input_files=()):
     linesort = IntVar(window, value=1)
     ttk.Checkbutton(window, text="linesort", variable=linesort).grid(
         sticky="w", row=current_row, column=1)
+    
+    lineshuffle_label = ttk.Label(window, justify=CENTER, text="Shuffle Lines",
+                               foreground=settings.THEME_SETTINGS["link_color"], cursor="hand2")
+    lineshuffle_label.bind("<Button-1>", lambda e: open_url_in_browser(
+        VPYPE_URLS["lineshuffle"]))
+    lineshuffle_label.grid(sticky="e", row=current_row, column=2)
+    line_shuffle = IntVar(window, value=0)
+    ttk.Checkbutton(window, text="lineshuffle", variable=line_shuffle).grid(
+        sticky="w", row=current_row, column=3)
 
     current_row = separator(window, current_row, max_col)
+
+    files_attribute_parse_label = ttk.Label(window, justify=CENTER, text="Attribute Parse",
+                      foreground=settings.THEME_SETTINGS["link_color"], cursor="hand2")
+    files_attribute_parse_label.bind("<Button-1>", lambda e: open_url_in_browser(VPYPE_URLS["attribute_parse"]))
+    files_attribute_parse_label.grid(row=current_row, column=0)
+    files_attribute_parse_entry = ttk.Entry(window, width=12)
+    files_attribute_parse_entry.insert(0, f"-a stroke")
+    files_attribute_parse_entry.grid(sticky="w", row=current_row, column=1)
 
     separate_files_label = ttk.Label(window, justify=CENTER, text="Separate SVG Layers into individual files\n(doesn't work with Show)",
                                      foreground=settings.THEME_SETTINGS["link_color"], cursor="hand2")
     separate_files_label.bind("<Button-1>", lambda e: open_url_in_browser(
         "https://vpype.readthedocs.io/en/latest/cookbook.html#saving-each-layer-as-a-separate-file"))
-    separate_files_label.grid(row=current_row, column=0, columnspan=2)
+    separate_files_label.grid(row=current_row, column=2)
     separate_files = IntVar(window, value=0)
     ttk.Checkbutton(window, text="Separate\nFiles", variable=separate_files).grid(
-        sticky="w", row=current_row, column=2)
+        sticky="w", row=current_row, column=3)
 
     current_row = separator(window, current_row, max_col)
 
