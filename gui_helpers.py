@@ -31,3 +31,13 @@ def set_title_icon(parent: Any, title: str):
     """Set the window title and icon"""
     parent.title(title)
     parent.iconbitmap(r'C:\Dev\Plotter-Post-Processing\images\LewistonFace.ico')
+
+def on_focus_in(entry, placeholder): 
+    """Will delete placeholder text in an entry when user interacts with it"""
+    if entry.get() == placeholder:
+        entry.delete(0, 'end')
+
+def on_focus_out(entry, placeholder):
+    """Will replace a blank entry with placeholder text when a user stops interacting with it"""
+    if entry.get() == "":
+        entry.insert(0, placeholder)
