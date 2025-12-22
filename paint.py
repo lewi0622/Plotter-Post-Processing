@@ -56,13 +56,13 @@ def main(input_files=()):
                 dip_details[i]["y"].get(),
                 dip_details[i]["rotate"].get()
             ])
+
+        splitall = ""
+        linemerge = ""
         if split_all.get():
             splitall = "splitall"
             linemerge = "linemerge"
-        else:
-            splitall = ""
-            linemerge = ""
-
+        
         if show:
             repeat_num = 1
             show_or_write = f' end write "{show_temp_file}" show '
@@ -82,10 +82,14 @@ splitdist {split_dist_entry.get()}in \
 {linemerge} \
 eval "j=_i" \
 forlayer \
+eval "stroke_color=_prop.vp_color" \
+eval "stroke_width=_prop.vp_pen_width" \
 lmove %_lid% "%_lid*2%" \
 read -l "%_lid*2-1%" %dip_details[j][0]% \
 rotate -l "%_lid*2-1%" "%dip_details[j][3]%" \
 translate -l "%_lid*2-1%" "%dip_details[j][1]%in" "%dip_details[j][2]%in" \
+color -l %_lid% %stroke_color% \
+propset -l %_lid% -t float vp_pen_width %stroke_width% \
 end \
 lmove all %_lid% \
 end \
