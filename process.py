@@ -1,10 +1,10 @@
 """General Vpype post-processing steps"""
 from tkinter import Tk, IntVar, CENTER, END
-from tkinter import ttk
+from tkinter import ttk, Toplevel
 from typing import Any
 from utils import thread_vpypelines, check_make_temp_folder, on_closing, find_closest_dimensions
 from utils import select_files, file_info, generate_random_color, open_url_in_browser
-from gui_helpers import separator, generate_file_names, set_title_icon
+from gui_helpers import separator, generate_file_names, set_title_icon, create_scrollbar
 from settings import THEME_SETTINGS, set_theme, init
 from links import VPYPE_URLS, PPP_URLS
 
@@ -221,111 +221,115 @@ def main(input_files: tuple = ()) -> tuple:
     # tk widgets and window
     window = Tk()
 
+    window.geometry("555x828")
+
     set_title_icon(window, "Process")
 
-    youtube_label = ttk.Label(window, text="Plotter Post Processing Tutorial",
+    frame = create_scrollbar(window)
+
+    youtube_label = ttk.Label(frame, text="Plotter Post Processing Tutorial",
                       foreground=THEME_SETTINGS["link_color"], cursor="hand2")
     youtube_label.bind("<Button-1>", lambda e: open_url_in_browser(
         PPP_URLS["process"]))
     youtube_label.grid(pady=(10,0), row=current_row, column=0, columnspan=max_col)
     current_row += 1
 
-    ttk.Label(window, justify=CENTER, text=f"{len(input_files)} file(s) selected, Input file Width(in): {svg_width_inches}, Height(in): {svg_height_inches}").grid(
+    ttk.Label(frame, justify=CENTER, text=f"{len(input_files)} file(s) selected, Input file Width(in): {svg_width_inches}, Height(in): {svg_height_inches}").grid(
         row=inc_row(), column=0, columnspan=max_col)
     
-    current_row = separator(window, current_row, max_col)
+    current_row = separator(frame, current_row, max_col)
 
-    attribute_parse_label = ttk.Label(window, justify=CENTER, text="Attribute Parse",
+    attribute_parse_label = ttk.Label(frame, justify=CENTER, text="Attribute Parse",
                       foreground=THEME_SETTINGS["link_color"], cursor="hand2")
     attribute_parse_label.bind("<Button-1>", lambda e: open_url_in_browser(VPYPE_URLS["attribute_parse"]))
     attribute_parse_label.grid(row=current_row, column=0)
-    attribute_parse_entry = ttk.Entry(window, width=7)
+    attribute_parse_entry = ttk.Entry(frame, width=7)
     attribute_parse_entry.insert(0, f"-a stroke")
     attribute_parse_entry.grid(sticky="w", row=current_row, column=1)
 
 
-    crop_input_label = ttk.Label(window, justify=CENTER, text="Crop to input\ndimensions on read",
+    crop_input_label = ttk.Label(frame, justify=CENTER, text="Crop to input\ndimensions on read",
                                  foreground=THEME_SETTINGS["link_color"], cursor="hand2")
     crop_input_label.bind("<Button-1>", lambda e: open_url_in_browser(
         VPYPE_URLS["crop_input"]))
     crop_input_label.grid(row=current_row, column=2)
-    crop_input = IntVar(window, value=0)
-    ttk.Checkbutton(window, text="Crop input", variable=crop_input).grid(
+    crop_input = IntVar(frame, value=0)
+    ttk.Checkbutton(frame, text="Crop input", variable=crop_input).grid(
         sticky="w", row=current_row, column=3)
 
-    current_row = separator(window, current_row, max_col)
+    current_row = separator(frame, current_row, max_col)
 
-    scale_label = ttk.Label(window, justify=CENTER, text="Scale options\n(default: input file size)",
+    scale_label = ttk.Label(frame, justify=CENTER, text="Scale options\n(default: input file size)",
                             foreground=THEME_SETTINGS["link_color"], cursor="hand2")
     scale_label.bind("<Button-1>", lambda e: open_url_in_browser(
         VPYPE_URLS["scale"]))
     scale_label.grid(row=current_row, column=0)
-    scale_option = IntVar(window, value=1)
-    ttk.Checkbutton(window, text="Scale?", variable=scale_option).grid(
+    scale_option = IntVar(frame, value=1)
+    ttk.Checkbutton(frame, text="Scale?", variable=scale_option).grid(
         sticky="w", row=current_row, column=1)
 
-    ttk.Label(window, justify=CENTER, text="Width Scale to (in):").grid(
+    ttk.Label(frame, justify=CENTER, text="Width Scale to (in):").grid(
         row=current_row, column=2)
-    scale_width_entry = ttk.Entry(window, width=7)
+    scale_width_entry = ttk.Entry(frame, width=7)
     scale_width_entry.insert(0, f"{svg_width_inches}")
     scale_width_entry.grid(sticky="w", row=current_row, column=3)
 
-    ttk.Label(window, justify=CENTER, text="Height Scale to (in):").grid(
+    ttk.Label(frame, justify=CENTER, text="Height Scale to (in):").grid(
         row=inc_row(), column=2)
-    scale_height_entry = ttk.Entry(window, width=7)
+    scale_height_entry = ttk.Entry(frame, width=7)
     scale_height_entry.insert(0, f"{svg_height_inches}")
     scale_height_entry.grid(sticky="w", row=current_row, column=3)
 
-    current_row = separator(window, current_row, max_col)
+    current_row = separator(frame, current_row, max_col)
 
-    bbox_option = IntVar(window, value=0)
-    ttk.Checkbutton(window, text="Add bounding box?", variable=bbox_option).grid(
+    bbox_option = IntVar(frame, value=0)
+    ttk.Checkbutton(frame, text="Add bounding box?", variable=bbox_option).grid(
         row=current_row, column=0, columnspan=2)
     
-    bbox_entry_label = ttk.Label(window, justify=CENTER, text="Bbox Start, X, Y(in):",
+    bbox_entry_label = ttk.Label(frame, justify=CENTER, text="Bbox Start, X, Y(in):",
                            foreground=THEME_SETTINGS["link_color"], cursor="hand2")
     bbox_entry_label.bind("<Button-1>", lambda e: open_url_in_browser(
         VPYPE_URLS["rect"]))
     bbox_entry_label.grid(row=current_row, column=2)
-    bbox_xy_entry = ttk.Entry(window, width=7)
+    bbox_xy_entry = ttk.Entry(frame, width=7)
     bbox_xy_entry.insert(0, DEFAULTS["bbox_xy"])
     bbox_xy_entry.grid(sticky="w", row=current_row, column=3)
 
     current_row += 1
 
-    ttk.Label(window, justify=CENTER, text="Bounding Box color:").grid(
+    ttk.Label(frame, justify=CENTER, text="Bounding Box color:").grid(
         row=current_row, column=0)
-    bbox_color_entry = ttk.Entry(window, width=7)
+    bbox_color_entry = ttk.Entry(frame, width=7)
     bbox_color_entry.insert(0, f"{bbox_color}")
     bbox_color_entry.grid(sticky="w", row=current_row, column=1)
 
-    ttk.Label(window, justify=CENTER, text="Bbox Width, Height(in)").grid(
+    ttk.Label(frame, justify=CENTER, text="Bbox Width, Height(in)").grid(
         row=current_row, column=2)
-    bbox_wh_entry = ttk.Entry(window, width=7)
+    bbox_wh_entry = ttk.Entry(frame, width=7)
     bbox_wh_entry.insert(0, f"{svg_width_inches}, {svg_height_inches}")
     bbox_wh_entry.grid(sticky="w", row=current_row, column=3)
 
-    current_row = separator(window, current_row, max_col)
+    current_row = separator(frame, current_row, max_col)
 
-    center_geometries = IntVar(window, value=1)
-    ttk.Checkbutton(window, text="Center Geometries to Input File Size",
+    center_geometries = IntVar(frame, value=1)
+    ttk.Checkbutton(frame, text="Center Geometries to Input File Size",
                     variable=center_geometries).grid(row=current_row, column=0, columnspan=2)
 
-    crop_label = ttk.Label(window, justify=CENTER, text="Crop Start, X, Y(in):",
+    crop_label = ttk.Label(frame, justify=CENTER, text="Crop Start, X, Y(in):",
                            foreground=THEME_SETTINGS["link_color"], cursor="hand2")
     crop_label.bind("<Button-1>", lambda e: open_url_in_browser(
         VPYPE_URLS["crop"]))
     crop_label.grid(row=current_row, column=2)
-    crop_xy_entry = ttk.Entry(window, width=7)
+    crop_xy_entry = ttk.Entry(frame, width=7)
     crop_xy_entry.insert(0, DEFAULTS["crop_xy"])
     crop_xy_entry.grid(sticky="w", row=current_row, column=3)
 
-    rotate_label = ttk.Label(window, justify=CENTER, text="Rotate Clockwise (deg):",
+    rotate_label = ttk.Label(frame, justify=CENTER, text="Rotate Clockwise (deg):",
                              foreground=THEME_SETTINGS["link_color"], cursor="hand2")
     rotate_label.bind("<Button-1>", lambda e: open_url_in_browser(
         VPYPE_URLS["rotate"]))
     rotate_label.grid(row=inc_row(), column=0)
-    rotate_entry = ttk.Entry(window, width=7)
+    rotate_entry = ttk.Entry(frame, width=7)
     if float(svg_width_inches) < float(svg_height_inches) and float(svg_width_inches) < 12:
         # autorotate for small axidraw designs where the width is the long side
         rotate_entry.insert(0, DEFAULTS["rotate_small"])
@@ -333,39 +337,39 @@ def main(input_files: tuple = ()) -> tuple:
         rotate_entry.insert(0, DEFAULTS["rotate_large"])
     rotate_entry.grid(sticky="w", row=current_row, column=1)
 
-    ttk.Label(window, justify=CENTER, text="Crop Width, Height(in)").grid(
+    ttk.Label(frame, justify=CENTER, text="Crop Width, Height(in)").grid(
         row=current_row, column=2)
-    crop_wh_entry = ttk.Entry(window, width=7)
+    crop_wh_entry = ttk.Entry(frame, width=7)
     crop_wh_entry.insert(0, DEFAULTS["crop_wh"])
     crop_wh_entry.grid(sticky="w", row=current_row, column=3)
 
-    current_row = separator(window, current_row, max_col)
+    current_row = separator(frame, current_row, max_col)
 
-    linemerge_label = ttk.Label(window, justify=CENTER, text="Merge Lines with\noverlapping line endings",
+    linemerge_label = ttk.Label(frame, justify=CENTER, text="Merge Lines with\noverlapping line endings",
                                 foreground=THEME_SETTINGS["link_color"], cursor="hand2")
     linemerge_label.bind("<Button-1>", lambda e: open_url_in_browser(
         VPYPE_URLS["linemerge"]))
     linemerge_label.grid(row=current_row, column=0)
-    linemerge = IntVar(window, value=1)
-    ttk.Checkbutton(window, text="linemerge", variable=linemerge).grid(
+    linemerge = IntVar(frame, value=1)
+    ttk.Checkbutton(frame, text="linemerge", variable=linemerge).grid(
         sticky="w", row=current_row, column=1)
-    ttk.Label(window, justify=CENTER, text="Linemerge tolerance (in):").grid(
+    ttk.Label(frame, justify=CENTER, text="Linemerge tolerance (in):").grid(
         row=current_row, column=2)
-    linemerge_tolerance_entry = ttk.Entry(window, width=7)
+    linemerge_tolerance_entry = ttk.Entry(frame, width=7)
     linemerge_tolerance_entry.insert(0, DEFAULTS["linemerge_tol"])
     linemerge_tolerance_entry.grid(sticky="w", row=current_row, column=3)
 
-    linesort_label = ttk.Label(window, justify=CENTER, text="Sort Lines",
+    linesort_label = ttk.Label(frame, justify=CENTER, text="Sort Lines",
                                foreground=THEME_SETTINGS["link_color"], cursor="hand2")
     linesort_label.bind("<Button-1>", lambda e: open_url_in_browser(
         VPYPE_URLS["linesort"]))
     linesort_label.grid(row=inc_row(), column=0)
-    linesort = IntVar(window, value=1)
-    ttk.Checkbutton(window, text="linesort", variable=linesort).grid(
+    linesort = IntVar(frame, value=1)
+    ttk.Checkbutton(frame, text="linesort", variable=linesort).grid(
         sticky="w", row=current_row, column=1)
 
     reloop_label = ttk.Label(
-        window,
+        frame,
         justify=CENTER,
         text="Randomize seam location\non closed paths",
         foreground=THEME_SETTINGS["link_color"], cursor="hand2"
@@ -373,72 +377,72 @@ def main(input_files: tuple = ()) -> tuple:
     reloop_label.bind("<Button-1>", lambda e: open_url_in_browser(
         VPYPE_URLS["reloop"]))
     reloop_label.grid(row=current_row, column=2)
-    reloop = IntVar(window, value=1)
-    ttk.Checkbutton(window, text="reloop", variable=reloop).grid(
+    reloop = IntVar(frame, value=1)
+    ttk.Checkbutton(frame, text="reloop", variable=reloop).grid(
         sticky="w", row=current_row, column=3)
 
-    linesimplify_label = ttk.Label(window, justify=CENTER, text="Reduce geometry complexity",
+    linesimplify_label = ttk.Label(frame, justify=CENTER, text="Reduce geometry complexity",
                                    foreground=THEME_SETTINGS["link_color"], cursor="hand2")
     linesimplify_label.bind("<Button-1>", lambda e: open_url_in_browser(
         VPYPE_URLS["linesimplify"]))
     linesimplify_label.grid(row=inc_row(), column=0)
-    linesimplify = IntVar(window, value=1)
-    ttk.Checkbutton(window, text="linesimplify", variable=linesimplify).grid(
+    linesimplify = IntVar(frame, value=1)
+    ttk.Checkbutton(frame, text="linesimplify", variable=linesimplify).grid(
         sticky="w", row=current_row, column=1)
-    ttk.Label(window, justify=CENTER, text="Linesimplify tolerance (in):").grid(
+    ttk.Label(frame, justify=CENTER, text="Linesimplify tolerance (in):").grid(
         row=current_row, column=2)
-    linesimplify_tolerance_entry = ttk.Entry(window, width=7)
+    linesimplify_tolerance_entry = ttk.Entry(frame, width=7)
     linesimplify_tolerance_entry.insert(0, DEFAULTS["linesimplify_tol"])
     linesimplify_tolerance_entry.grid(sticky="w", row=current_row, column=3)
 
-    current_row = separator(window, current_row, max_col)
+    current_row = separator(frame, current_row, max_col)
 
-    squiggle_label = ttk.Label(window, justify=CENTER, text="Add squiggle filter",
+    squiggle_label = ttk.Label(frame, justify=CENTER, text="Add squiggle filter",
                                foreground=THEME_SETTINGS["link_color"], cursor="hand2")
     squiggle_label.bind("<Button-1>", lambda e: open_url_in_browser(
         VPYPE_URLS["squiggles"]))
     squiggle_label.grid(row=inc_row(), column=0)
-    squiggle = IntVar(window, value=0)
-    ttk.Checkbutton(window, text="squiggle", variable=squiggle).grid(
+    squiggle = IntVar(frame, value=0)
+    ttk.Checkbutton(frame, text="squiggle", variable=squiggle).grid(
         sticky="w", row=current_row, column=1)
 
-    ttk.Label(window, justify=CENTER, text="Amplitude of squiggle (in):").grid(
+    ttk.Label(frame, justify=CENTER, text="Amplitude of squiggle (in):").grid(
         row=current_row, column=2)
-    squiggle_amplitude_entry = ttk.Entry(window, width=7)
+    squiggle_amplitude_entry = ttk.Entry(frame, width=7)
     squiggle_amplitude_entry.insert(0, DEFAULTS["squiggle_amp"])
     squiggle_amplitude_entry.grid(sticky="w", row=current_row, column=3)
 
-    ttk.Label(window, justify=CENTER, text="Period of squiggle (in):").grid(
+    ttk.Label(frame, justify=CENTER, text="Period of squiggle (in):").grid(
         row=inc_row(), column=2)
-    squiggle_period_entry = ttk.Entry(window, width=7)
+    squiggle_period_entry = ttk.Entry(frame, width=7)
     squiggle_period_entry.insert(0, DEFAULTS["squiggle_period"])
     squiggle_period_entry.grid(sticky="w", row=current_row, column=3)
 
-    current_row = separator(window, current_row, max_col)
+    current_row = separator(frame, current_row, max_col)
 
-    multipass_label = ttk.Label(window, justify=CENTER, text="Number of passes",
+    multipass_label = ttk.Label(frame, justify=CENTER, text="Number of passes",
                                 foreground=THEME_SETTINGS["link_color"], cursor="hand2")
     multipass_label.bind("<Button-1>", lambda e: open_url_in_browser(
         VPYPE_URLS["multipass"]))
     multipass_label.grid(row=current_row, column=0)
-    multipass_entry = ttk.Entry(window, width=7)
+    multipass_entry = ttk.Entry(frame, width=7)
     multipass_entry.insert(0, DEFAULTS["multipass"])
     multipass_entry.grid(sticky="w", row=current_row, column=1)
     
-    lineshuffle_label = ttk.Label(window, justify=CENTER, text="Randomize line order",
+    lineshuffle_label = ttk.Label(frame, justify=CENTER, text="Randomize line order",
                                 foreground=THEME_SETTINGS["link_color"], cursor="hand2")
     lineshuffle_label.bind("<Button-1>", lambda e: open_url_in_browser(
         VPYPE_URLS["lineshuffle"]))
     lineshuffle_label.grid(row=current_row, column=2)
-    lineshuffle = IntVar(window, value=0)
-    ttk.Checkbutton(window, text="lineshuffle", variable=lineshuffle).grid(
+    lineshuffle = IntVar(frame, value=0)
+    ttk.Checkbutton(frame, text="lineshuffle", variable=lineshuffle).grid(
         sticky="w", row=current_row, column=3)
     
 
-    current_row = separator(window, current_row, max_col)
+    current_row = separator(frame, current_row, max_col)
 
     layout_label = ttk.Label(
-        window,
+        frame,
         justify=CENTER,
         text="Layout centers scaled\ndesign in page size)",
         foreground=THEME_SETTINGS["link_color"],
@@ -447,29 +451,29 @@ def main(input_files: tuple = ()) -> tuple:
     layout_label.bind("<Button-1>", lambda e: open_url_in_browser(
         VPYPE_URLS["layout"]))
     layout_label.grid(row=current_row, column=0)
-    layout = IntVar(window, value=1)
-    ttk.Checkbutton(window, text="Layout?", variable=layout).grid(
+    layout = IntVar(frame, value=1)
+    ttk.Checkbutton(frame, text="Layout?", variable=layout).grid(
         sticky="w", row=current_row, column=1)
 
-    ttk.Label(window, justify=CENTER, text="Page Layout Width(in):").grid(
+    ttk.Label(frame, justify=CENTER, text="Page Layout Width(in):").grid(
         row=current_row, column=2)
-    layout_width_entry = ttk.Entry(window, width=7)
+    layout_width_entry = ttk.Entry(frame, width=7)
     layout_width_entry.insert(0, DEFAULTS["layout_w"])
     layout_width_entry.grid(sticky="w", row=current_row, column=3)
 
-    ttk.Label(window, justify=CENTER, text="Page Layout Height(in):").grid(
+    ttk.Label(frame, justify=CENTER, text="Page Layout Height(in):").grid(
         row=inc_row(), column=2)
-    layout_height_entry = ttk.Entry(window, width=7)
+    layout_height_entry = ttk.Entry(frame, width=7)
     layout_height_entry.insert(0, DEFAULTS["layout_h"])
     layout_height_entry.grid(sticky="w", row=current_row, column=3)
 
     page_size_values = ["Letter", "A4", "11x17 in", "A3", "17x23 in", "A2"]
     current_value_index = find_closest_dimensions(
         svg_width_inches, svg_height_inches)
-    ttk.Label(window, justify=CENTER, text="Page Size").grid(
+    ttk.Label(frame, justify=CENTER, text="Page Size").grid(
         row=current_row, column=0)
     layout_combobox = ttk.Combobox(
-        window,
+        frame,
         width=7,
         state="readonly",
         values=page_size_values
@@ -480,29 +484,29 @@ def main(input_files: tuple = ()) -> tuple:
     layout_selection_changed()
 
     layout_landscape_label = ttk.Label(
-        window,
+        frame,
         justify=CENTER,
         text="By default, the larger layout size is the height,\nLandscape flips the orientation"
     )
     layout_landscape_label.grid(row=inc_row(), column=0, columnspan=2)
-    layout_landscape = IntVar(window, value=1)
-    ttk.Checkbutton(window, text="Landscape", variable=layout_landscape).grid(
+    layout_landscape = IntVar(frame, value=1)
+    ttk.Checkbutton(frame, text="Landscape", variable=layout_landscape).grid(
         sticky="w", row=current_row, column=2)
 
-    crop_to_page_size = IntVar(window, value=1)
-    ttk.Checkbutton(window, text="Crop to\nPage Size", variable=crop_to_page_size).grid(
+    crop_to_page_size = IntVar(frame, value=1)
+    ttk.Checkbutton(frame, text="Crop to\nPage Size", variable=crop_to_page_size).grid(
         sticky="w", row=current_row, column=3)
 
-    current_row = separator(window, current_row, max_col)
+    current_row = separator(frame, current_row, max_col)
 
     show_index = 0
-    ttk.Button(window, text="Show Output", command=lambda: run_vpypeline(
+    ttk.Button(frame, text="Show Output", command=lambda: run_vpypeline(
         show_index)).grid(pady=(0, 10), row=current_row, column=2)
     if len(input_files) > 1:
-        ttk.Button(window, text="Apply to All", command=run_vpypeline).grid(
+        ttk.Button(frame, text="Apply to All", command=run_vpypeline).grid(
             pady=(0, 10), row=current_row, column=3)
     else:
-        ttk.Button(window, text="Confirm", command=run_vpypeline).grid(
+        ttk.Button(frame, text="Confirm", command=run_vpypeline).grid(
             pady=(0, 10), row=current_row, column=3)
 
     window.protocol("WM_DELETE_WINDOW", lambda arg=window: on_closing(arg))
