@@ -12,7 +12,7 @@ from gui_helpers import set_title_icon
 from settings import THEME_SETTINGS
 from links import VPYPE_URLS, PPP_URLS
 
-version = 1.1
+version = "1.1.1"
 
 def main():
     """Creates Tk gui for launching apps"""

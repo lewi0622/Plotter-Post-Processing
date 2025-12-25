@@ -30,7 +30,11 @@ def generate_file_names(files: tuple, post_pend: str) -> tuple:
 def set_title_icon(parent: Any, title: str):
     """Set the window title and icon"""
     parent.title(title)
-    parent.iconbitmap(r'C:\Dev\Plotter-Post-Processing\images\LewistonFace.ico')
+    icon_path = path.join(path.dirname(__file__), r'images\LewistonFace.ico')
+    try:
+        parent.iconbitmap(icon_path)
+    except:
+        pass
     parent.attributes('-topmost', True) # make window topmost window https://stackoverflow.com/questions/8691655/how-to-put-a-tkinter-window-on-top-of-the-others
     parent.update()
 
