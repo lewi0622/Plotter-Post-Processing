@@ -1,5 +1,5 @@
 """Commonly reused helper functions for simplifying GUI building"""
-from tkinter import ttk, Canvas
+from tkinter import Tk, ttk, Canvas
 from typing import Any
 from os import path
 from utils import file_info
@@ -27,6 +27,18 @@ def generate_file_names(files: tuple, post_pend: str) -> tuple:
         show_files.append(show_temp_file)
     return output_files, show_files
 
+def make_topmost_temp(window: Any):
+    """Unminimizes, pops the given window to the top of all others, and makes it the focused window"""
+    if window.state()=="iconic":
+        window.wm_state('normal') # un-minimize if it is minimized
+
+    window.attributes('-topmost', True) # make window topmost window https://stackoverflow.com/questions/8691655/how-to-put-a-tkinter-window-on-top-of-the-others
+    window.update()
+    window.attributes('-topmost', False) # stop making topmost window (but it's still on top)
+    window.update()
+    window.focus_force() # bring focus to the window
+
+
 def set_title_icon(parent: Any, title: str):
     """Set the window title and icon"""
     parent.title(title)
@@ -35,20 +47,19 @@ def set_title_icon(parent: Any, title: str):
         parent.iconbitmap(icon_path)
     except:
         pass
-    parent.attributes('-topmost', True) # make window topmost window https://stackoverflow.com/questions/8691655/how-to-put-a-tkinter-window-on-top-of-the-others
-    parent.update()
+    make_topmost_temp(parent)
 
-def on_focus_in(entry, placeholder): 
+def on_focus_in(entry: Any, placeholder: str): 
     """Will delete placeholder text in an entry when user interacts with it"""
     if entry.get() == placeholder:
         entry.delete(0, 'end')
 
-def on_focus_out(entry, placeholder):
+def on_focus_out(entry: Any, placeholder: str):
     """Will replace a blank entry with placeholder text when a user stops interacting with it"""
     if entry.get() == "":
         entry.insert(0, placeholder)
 
-def create_scrollbar(root: Any):
+def create_scrollbar(root: Any, row=0, span=1):
     """Creates and returns a scrollframe that all other widgets should attach themselves to"""
     # Configure root grid
     root.grid_rowconfigure(0, weight=1)
@@ -56,18 +67,17 @@ def create_scrollbar(root: Any):
 
     # Container frame
     container = ttk.Frame(root)
-    container.grid(row=0, column=0, sticky="nsew")
+    container.grid(row=row, column=0, columnspan=span, sticky="nsew")
 
     container.grid_rowconfigure(0, weight=1)
     container.grid_columnconfigure(0, weight=1)
 
-    # Canvas
     canvas = Canvas(container)
-    canvas.grid(row=0, column=0, sticky="nsew")
+    canvas.grid(row=row, column=0, sticky="nsew")
 
     # Scrollbar
     scrollbar = ttk.Scrollbar(container, orient="vertical", command=canvas.yview)
-    scrollbar.grid(row=0, column=1, sticky="ns")
+    scrollbar.grid(row=row, column=1, sticky="ns")
 
     canvas.configure(yscrollcommand=scrollbar.set)
 
@@ -90,8 +100,17 @@ def create_scrollbar(root: Any):
             elif event.num == 5:
                 canvas.yview_scroll(1, "units")
 
-    canvas.bind_all("<MouseWheel>", _on_mousewheel)      # Windows / macOS
-    canvas.bind_all("<Button-4>", _on_mousewheel)        # Linux scroll up
-    canvas.bind_all("<Button-5>", _on_mousewheel)        # Linux scroll down
+    scrollable_frame.bind_all("<MouseWheel>", _on_mousewheel)      # Windows / macOS
+    scrollable_frame.bind_all("<Button-4>", _on_mousewheel)        # Linux scroll up
+    scrollable_frame.bind_all("<Button-5>", _on_mousewheel)        # Linux scroll down
 
     return scrollable_frame
+
+def disable_combobox_scroll(root: Any):
+    """Changes the Combobox class for the window to not allow scrolling to change its' value"""
+    def _empty(_event):
+        return "break" #stops the event from going further
+    
+    root.bind_class("TCombobox", "<MouseWheel>", _empty)      # Windows / macOS
+    root.bind_class("TCombobox", "<Button-4>", _empty)        # Linux scroll up
+    root.bind_class("TCombobox", "<Button-5>", _empty)        # Linux scroll down
