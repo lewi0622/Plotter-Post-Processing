@@ -5,7 +5,7 @@ from tkinter import ttk, END, CENTER, Tk, IntVar
 from utils import rename_replace, on_closing, check_make_temp_folder, file_info, select_files
 from utils import open_url_in_browser, generate_random_color, max_colors_per_file
 import settings
-from gui_helpers import separator, set_title_icon
+from gui_helpers import separator, set_title_icon, create_scrollbar, make_topmost_temp, disable_combobox_scroll
 from links import PPP_URLS
 
 return_val: tuple
@@ -36,6 +36,7 @@ def main(input_files=()):
         last_shown_command = build_vpypeline(True)
         print("Showing: \n", last_shown_command)
         subprocess.run(last_shown_command, check=False)
+        make_topmost_temp(window)
 
     def build_vpypeline(show):
         global show_temp_file
@@ -178,6 +179,7 @@ def main(input_files=()):
 
     global window
     window = Tk()
+    disable_combobox_scroll(window)
 
     set_title_icon(window, "Compose")
 
@@ -238,16 +240,23 @@ def main(input_files=()):
 
     compose_info_list = []
 
+    frame = window
+    if len(input_files) > 2:
+        frame = create_scrollbar(window, current_row, max_col)
+
     for index, file in enumerate(input_files):
+        if index !=0:
+            current_row = separator(frame, current_row, max_col)
+
         compose_info = {"file": file}
 
         name = os.path.basename(os.path.normpath(file))
-        ttk.Label(window, text=f"File: {name}").grid(
+        ttk.Label(frame, text=f"File: {name}").grid(
             row=current_row, column=0, columnspan=2)
 
-        ttk.Label(window, text=f"Order: ").grid(row=current_row, column=2)
+        ttk.Label(frame, text=f"Order: ").grid(row=current_row, column=2)
         compose_order = ttk.Combobox(
-            window,
+            frame,
             width=4,
             state="readonly",
             values=[*range(len(input_files))]
@@ -257,31 +266,31 @@ def main(input_files=()):
         compose_info["order"] = compose_order
         current_row += 1
 
-        ttk.Label(window, text=f"Colors in file: {len(file_info['color_dicts'][index])}").grid(
+        ttk.Label(frame, text=f"Colors in file: {len(file_info['color_dicts'][index])}").grid(
             row=current_row, column=0)
 
-        attribute = IntVar(window, value=0)
+        attribute = IntVar(frame, value=0)
         if max_colors_per_file() == 1:
-            attribute = IntVar(window, value=1)
+            attribute = IntVar(frame, value=1)
         compose_info["attribute"] = attribute
-        ttk.Radiobutton(window, text="single layer", variable=attribute, value=0).grid(
+        ttk.Radiobutton(frame, text="single layer", variable=attribute, value=0).grid(
             row=current_row, column=1)
-        ttk.Radiobutton(window, text="stroke layer(s)", variable=attribute, value=1).grid(
+        ttk.Radiobutton(frame, text="stroke layer(s)", variable=attribute, value=1).grid(
             row=current_row, column=2)
         current_row += 1
 
-        overwrite_color = IntVar(window, value=0)
+        overwrite_color = IntVar(frame, value=0)
         compose_info["overwrite_color"] = overwrite_color
-        ttk.Checkbutton(window, text="If single layer, overwrite color?", variable=overwrite_color).grid(
+        ttk.Checkbutton(frame, text="If single layer, overwrite color?", variable=overwrite_color).grid(
             sticky="e", row=current_row, column=0, columnspan=2)
-        compose_color_entry = ttk.Entry(window, width=7)
+        compose_color_entry = ttk.Entry(frame, width=7)
         compose_info["color_info"] = compose_color_entry
         compose_color_entry.insert(0, f"{compose_color_list[index]}")
         compose_color_entry.grid(sticky="w", row=current_row, column=2)
 
-        current_row = separator(window, current_row, max_col)
-
         compose_info_list.append(compose_info)
+
+    current_row = separator(window, current_row, max_col)
 
     condense  = IntVar(window, value=1)
     ttk.Checkbutton(window, text="Condense same color layers into single layer", variable=condense).grid(
