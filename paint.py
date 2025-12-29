@@ -4,7 +4,7 @@ from tkinter import *
 from tkinter import ttk
 from utils import *
 import settings
-from gui_helpers import set_title_icon, separator
+from gui_helpers import set_title_icon, separator, create_scrollbar, make_topmost_temp, disable_combobox_scroll
 from links import VPYPE_URLS, PPP_URLS
 
 def main(input_files=()):
@@ -30,6 +30,7 @@ def main(input_files=()):
         last_shown_command = build_vpypeline(True)
         print("Showing: \n", last_shown_command)
         subprocess.run(last_shown_command, check=False)
+        make_topmost_temp(window)
 
     def build_vpypeline(show):
         global show_temp_file
@@ -114,6 +115,7 @@ end \
 
     global window
     window = Tk()
+    disable_combobox_scroll(window)
 
     set_title_icon(window, "Paint")
 
@@ -169,18 +171,25 @@ end \
     split_dist_entry.insert(0, "4")
     split_dist_entry.grid(row=current_row, column=3)
 
+    current_row = separator(window, current_row, max_col)
+
     dip_details = []
 
-    for i in range(max_num_colors):
-        current_row = separator(window, current_row, max_col)
+    frame = window
+    if max_num_colors > 2:
+        frame = create_scrollbar(window, current_row, max_col)
 
-        ttk.Label(window, text=f"Dip Location {i}").grid(
+    for i in range(max_num_colors):
+        if i !=0:
+            current_row = separator(frame, current_row, max_col)
+
+        ttk.Label(frame, text=f"Dip Location {i}").grid(
             row=current_row, column=0, columnspan=max_col)
         current_row += 1
 
-        ttk.Label(window, text="Dip Layer").grid(row=current_row, column=0)
+        ttk.Label(frame, text="Dip Layer").grid(row=current_row, column=0)
         dip_layer_combobox = ttk.Combobox(
-            window,
+            frame,
             width=20,
             state="readonly",
             values=dip_options
@@ -189,27 +198,27 @@ end \
         dip_layer_combobox.grid(sticky="w", row=current_row, column=1)
 
         rotate_label = ttk.Label(
-            window, justify=CENTER, text="Rotate Dip Clockwise (deg):",
+            frame, justify=CENTER, text="Rotate Dip Clockwise (deg):",
             foreground=settings.THEME_SETTINGS["link_color"], cursor="hand2")
         rotate_label.bind("<Button-1>", lambda e: open_url_in_browser(VPYPE_URLS["rotate"]))
         rotate_label.grid(row=current_row, column=2)
-        rotate_entry = ttk.Entry(window, width=7)
+        rotate_entry = ttk.Entry(frame, width=7)
         rotate_entry.insert(0, "0")
         rotate_entry.grid(sticky="e", row=current_row, column=3)
 
         current_row += 1
 
         translate_X_label = ttk.Label(
-            window, text="Translate X (in):",
+            frame, text="Translate X (in):",
             foreground=settings.THEME_SETTINGS["link_color"], cursor="hand2")
         translate_X_label.bind("<Button-1>", lambda e: open_url_in_browser(VPYPE_URLS["translate"]))
         translate_X_label.grid(row=current_row, column=0)
-        dip_loc_x_entry = ttk.Entry(window, width=7)
+        dip_loc_x_entry = ttk.Entry(frame, width=7)
         dip_loc_x_entry.insert(0, f"{i * 2 + 1}")
         dip_loc_x_entry.grid(sticky="w", row=current_row, column=1)
 
-        ttk.Label(window, text="Translate Y (in):").grid(row=current_row, column=2)
-        dip_loc_y_entry = ttk.Entry(window, width=7)
+        ttk.Label(frame, text="Translate Y (in):").grid(row=current_row, column=2)
+        dip_loc_y_entry = ttk.Entry(frame, width=7)
         dip_loc_y_entry.insert(0, "0")
         dip_loc_y_entry.grid(sticky="e", row=current_row, column=3)
 
