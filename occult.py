@@ -4,7 +4,7 @@ from tkinter import Tk, IntVar, CENTER
 from tkinter import ttk
 from utils import select_files, generate_random_color, file_info
 from utils import rename_replace, on_closing, check_make_temp_folder, open_url_in_browser
-from gui_helpers import separator, set_title_icon
+from gui_helpers import separator, set_title_icon, make_topmost_temp, disable_combobox_scroll
 import settings
 from links import VPYPE_URLS, PPP_URLS
 
@@ -32,6 +32,7 @@ def main(input_files=()):
         last_shown_command = build_vpypeline(show=True)
         print("Showing: \n", last_shown_command)
         subprocess.run(last_shown_command, capture_output=True, shell=True, check=False)
+        make_topmost_temp(window)
 
     def build_vpypeline(show):
         """Builds vpype command based on GUI selections"""
@@ -128,6 +129,7 @@ def main(input_files=()):
 
     global window
     window = Tk()
+    disable_combobox_scroll(window)
     
     set_title_icon(window, "Occult")
 
@@ -173,12 +175,6 @@ def main(input_files=()):
 
     occult_info_list = []
     occult_file_info = {}
-    occult_order = ttk.Combobox(
-        window,
-        values=[0]
-    )
-    occult_order.current(0)
-    occult_file_info["order"] = occult_order
 
     occult = IntVar(window, value=1)
     occult_file_info["occult"] = occult
