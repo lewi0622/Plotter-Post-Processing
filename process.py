@@ -1,10 +1,10 @@
 """General Vpype post-processing steps"""
 from tkinter import Tk, IntVar, CENTER, END
-from tkinter import ttk, Toplevel
+from tkinter import ttk
 from typing import Any
 from utils import thread_vpypelines, check_make_temp_folder, on_closing, find_closest_dimensions
 from utils import select_files, file_info, generate_random_color, open_url_in_browser
-from gui_helpers import separator, generate_file_names, set_title_icon, create_scrollbar
+from gui_helpers import separator, generate_file_names, set_title_icon, create_scrollbar, make_topmost_temp, disable_combobox_scroll
 from settings import THEME_SETTINGS, set_theme, init
 from links import VPYPE_URLS, PPP_URLS
 
@@ -54,7 +54,9 @@ def main(input_files: tuple = ()) -> tuple:
                 "show_path": show_file_list[show_index],
                 "output_path": output_file_list[show_index]
             }
+        
         thread_vpypelines(commands, show_commands, "Process", show_info)
+        make_topmost_temp(window)
 
         if not show:
             return_val = output_file_list
@@ -220,6 +222,8 @@ def main(input_files: tuple = ()) -> tuple:
 
     # tk widgets and window
     window = Tk()
+
+    disable_combobox_scroll(window)
 
     window.geometry("555x828")
 
