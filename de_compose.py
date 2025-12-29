@@ -3,7 +3,7 @@ import os
 from tkinter import Tk, ttk, CENTER, IntVar
 from utils import *
 import settings
-from gui_helpers import separator, set_title_icon, on_focus_in, on_focus_out
+from gui_helpers import separator, set_title_icon, on_focus_in, on_focus_out, make_topmost_temp, disable_combobox_scroll
 from links import VPYPE_URLS, PPP_URLS
 
 DEFAULTS: dict[str, str] = {
@@ -35,6 +35,7 @@ def main(input_files=()):
         last_shown_command = build_vpypeline(True)
         print("Showing: \n", last_shown_command)
         subprocess.run(last_shown_command, check=False)
+        make_topmost_temp(window)
 
     def build_vpypeline(show):
         global show_temp_file
@@ -229,6 +230,7 @@ def main(input_files=()):
 
     global window
     window = Tk()
+    disable_combobox_scroll(window)
 
     set_title_icon(window, "deCompose")
 
