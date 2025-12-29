@@ -8,7 +8,7 @@ import process
 import compose
 import de_compose
 import settings
-from gui_helpers import set_title_icon
+from gui_helpers import set_title_icon, make_topmost_temp, disable_combobox_scroll
 from settings import THEME_SETTINGS
 from links import VPYPE_URLS, PPP_URLS
 
@@ -21,6 +21,8 @@ def main():
             print(f"Files unchanged from {util_name}")
         else:
             select_files(files)
+
+        make_topmost_temp(main_app)
 
     def run_occult():
         returned_files = occult.main(file_info["files"])
@@ -52,6 +54,8 @@ def main():
     max_col = 3
 
     main_app = Tk()
+
+    disable_combobox_scroll(main_app)
 
     set_title_icon(main_app, f"Plotter Post Processing v{version}")
 
