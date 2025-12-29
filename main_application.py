@@ -25,26 +25,31 @@ def main():
         make_topmost_temp(main_app)
 
     def run_occult():
+        main_app.wm_state("icon")
         returned_files = occult.main(file_info["files"])
         occult.window.destroy()
         verify_output_files(returned_files, "Occult")
 
     def run_process():
+        main_app.wm_state("icon")
         returned_files = process.main(file_info["files"])
         process.window.destroy()
         verify_output_files(returned_files, "Process")
 
     def run_paint():
+        main_app.wm_state("icon")
         returned_files = paint.main(file_info["files"])
         paint.window.destroy()
         verify_output_files(returned_files, "Paint")
 
     def run_compose():
+        main_app.wm_state("icon")
         returned_files = compose.main(file_info["files"])
         compose.window.destroy()
         verify_output_files(returned_files, "Compose")
 
     def run_decompose():
+        main_app.wm_state("icon")
         returned_files = de_compose.main(file_info["files"])
         de_compose.window.destroy()
         verify_output_files(returned_files, "deCompose")
