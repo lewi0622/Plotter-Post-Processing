@@ -43,8 +43,7 @@ write "{output_file}" """
         else:
             command = build_vpypeline(False)
             print("Running: \n", command)
-            subprocess.run(command, capture_output=True, shell=True, check=False)
-
+            result = subprocess.run(command, stdout=subprocess.PIPE, universal_newlines = True)
         return_val = output_file_list
         print("Closing Paint")
         on_closing(window)
@@ -55,7 +54,7 @@ write "{output_file}" """
         check_make_temp_folder()
         last_shown_command = build_vpypeline(True)
         print("Showing: \n", last_shown_command)
-        subprocess.run(last_shown_command, check=False)
+        result = subprocess.run(last_shown_command, stdout=subprocess.PIPE, universal_newlines = True)
         make_topmost_temp(window)
 
     def populate_dip_details():
@@ -119,10 +118,10 @@ lmove %_lid% "%_lid*2%" \
 read -l "%_lid*2-1%" %dip_details[j][0]% \
 rotate -l "%_lid*2-1%" "%dip_details[j][3]%" \
 translate -l "%_lid*2-1%" "%dip_details[j][1]%in" "%dip_details[j][2]%in" \
-color -l %_lid% %stroke_color% \
-propset -l %_lid% -t float vp_pen_width %stroke_width% \
 end \
 lmove all %_lid% \
+color -l %_lid% %stroke_color% \
+propset -l %_lid% -t float vp_pen_width %stroke_width% \
 end \
 {show_or_write}"""
 
