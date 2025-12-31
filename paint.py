@@ -107,13 +107,13 @@ eval "dip_details={dip_detail_list}" \
 repeat {repeat_num} \
 read -a stroke %files_in[_i]% \
 forlayer \
+eval "stroke_color=_prop.vp_color" \
+eval "stroke_width=_prop.vp_pen_width" \
 {splitall} \
 splitdist {split_dist_entry.get()}in \
 {linemerge} \
 eval "j=_i" \
 forlayer \
-eval "stroke_color=_prop.vp_color" \
-eval "stroke_width=_prop.vp_pen_width" \
 lmove %_lid% "%_lid*2%" \
 read -l "%_lid*2-1%" %dip_details[j][0]% \
 rotate -l "%_lid*2-1%" "%dip_details[j][3]%" \
@@ -166,7 +166,7 @@ end \
         row=current_row, column=0, columnspan=max_col)
     current_row += 1
 
-    ttk.Label(window, text="Only batch files that have the same number of colors.").grid(
+    ttk.Label(window, text="Only batch files that have the same number of colors and you want to have the same dip details").grid(
         row=current_row, column=0, columnspan=max_col)
     current_row += 1
 
