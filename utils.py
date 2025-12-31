@@ -113,7 +113,10 @@ def select_files(files: tuple = (), dialog_title: str = "SELECT DESIGN FILE(s)")
     """Calls get_files and file diagnositcs returns a list of files"""
     if len(files) == 0:
         files = get_files(dialog_title)  # prompt user to select files
-    
+    else:
+        if not files_exist(files): # check if given files exist
+            print("Please reselect files, could not locate all selected files")
+            files = get_files(dialog_title)  # prompt user to select files
     print("Currently Loaded Files: ")
     for file in files:
         print(file)
@@ -122,6 +125,7 @@ def select_files(files: tuple = (), dialog_title: str = "SELECT DESIGN FILE(s)")
             for file in file_info["files"]:
                 print(file)
         return files
+
     file_info["temp_folder_path"] = os.path.join(
         os.path.dirname(files[0]),
         r"ppp_temp"
@@ -141,6 +145,15 @@ def select_files(files: tuple = (), dialog_title: str = "SELECT DESIGN FILE(s)")
     get_all_size_info()
     return files
 
+def files_exist(files):
+    """Checks if a list of files all exist and prints an error if any don't. Returns False if any don't exist."""
+    all_exist = True
+    for file in files:
+        if not os.path.exists(file):
+            all_exist = False
+            print("Cannot find selected file:")
+            print(file)
+    return all_exist
 
 def get_files(title: str = "") -> tuple:
     """Opens dialog box to select files and returns a tuple of the selected files"""
