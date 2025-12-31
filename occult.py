@@ -1,5 +1,6 @@
 import subprocess
 import os
+from posixpath import join
 from tkinter import Tk, IntVar, CENTER
 from tkinter import ttk
 from utils import select_files, generate_random_color, file_info
@@ -47,12 +48,14 @@ def main(input_files=()):
         for filename in input_file_list:
             head, tail = os.path.split(filename)
             name, _ext = os.path.splitext(tail)
-            show_temp_file = os.path.join(file_info["temp_folder_path"], name + "_O.svg")
-            output_filename = head + "/" + name + "_O.svg"
+            show_temp_file = join(file_info["temp_folder_path"], name + "_O.svg")
+            output_filename = join(head, name + "_O.svg")
             output_file_list.append(output_filename)
 
-        sorted_occult_info_list = sorted(
-            occult_info_list, key=lambda d: d['order'].get())
+        print(occult_info_list)
+
+        sorted_occult_info_list = occult_info_list#sorted(
+            #occult_info_list, key=lambda d: d['order'].get())
 
         args = r"vpype "
         args += r' eval "files_in=' + f"{input_file_list}" + '"'
