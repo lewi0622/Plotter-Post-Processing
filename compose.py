@@ -1,5 +1,6 @@
 import subprocess
 import os
+from posixpath import join
 from typing import Any
 from tkinter import ttk, END, CENTER, Tk, IntVar
 from utils import rename_replace, on_closing, check_make_temp_folder, file_info, select_files
@@ -86,8 +87,8 @@ def main(input_files=()):
         filename = built_info_list[0]["file"]
         head, tail = os.path.split(filename)
         name, _ext = os.path.splitext(tail)
-        show_temp_file = os.path.join(file_info["temp_folder_path"], name + "_C.svg")
-        output_filename = head + "/" + name + "_C.svg"
+        show_temp_file = join(file_info["temp_folder_path"], name + "_C.svg")
+        output_filename = join(head, name + "_C.svg")
         output_file_list.append(output_filename)
 
         args = r"vpype "

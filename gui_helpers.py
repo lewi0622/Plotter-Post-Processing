@@ -2,6 +2,7 @@
 from tkinter import Tk, ttk, Canvas
 from typing import Any
 from os import path
+from posixpath import join
 from utils import file_info
 
 def separator(parent: Any, r: int, span: int) -> int:
@@ -20,8 +21,8 @@ def generate_file_names(files: tuple, post_pend: str) -> tuple:
         head, tail = path.split(filename)
         name, _ext = path.splitext(tail)
 
-        output_filename = path.join(head, name + post_pend)
-        show_temp_file = path.join(file_info["temp_folder_path"], name + post_pend)
+        output_filename = join(head, name + post_pend)
+        show_temp_file = join(file_info["temp_folder_path"], name + post_pend)
 
         output_files.append(output_filename)
         show_files.append(show_temp_file)
@@ -42,7 +43,7 @@ def make_topmost_temp(window: Any):
 def set_title_icon(parent: Any, title: str):
     """Set the window title and icon"""
     parent.title(title)
-    icon_path = path.join(path.dirname(__file__), r'images\LewistonFace.ico')
+    icon_path = join(path.dirname(__file__), 'images/LewistonFace.ico')
     try:
         parent.iconbitmap(icon_path)
     except:

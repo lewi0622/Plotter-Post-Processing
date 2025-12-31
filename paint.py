@@ -1,5 +1,6 @@
 import subprocess
 import os
+from posixpath import join
 from tkinter import *
 from tkinter import ttk
 from utils import *
@@ -60,7 +61,7 @@ write "{output_file}" """
     def populate_dip_details():
         dip_detail_list = []
         for i in range(max_num_colors):
-            file_name = os.path.join(
+            file_name = join(
                 directory_name, "Dip_Locations", dip_details[i]['layer'].get())
             dip_detail_list.append([
                 file_name,
@@ -81,8 +82,8 @@ write "{output_file}" """
         for filename in input_file_list:
             head, tail = os.path.split(filename)
             name, _ext = os.path.splitext(tail)
-            show_temp_file = os.path.join(file_info["temp_folder_path"], name + "_PAINT.svg")
-            output_filename = head + "/" + name + "_PAINT.svg"
+            show_temp_file = join(file_info["temp_folder_path"], name + "_PAINT.svg")
+            output_filename = join(head, name + "_PAINT.svg")
             output_file_list.append(output_filename)
 
         dip_detail_list = populate_dip_details()
@@ -129,7 +130,7 @@ end \
     return_val = ()
 
     directory_name = get_directory_name("Paint.py")
-    dip_options = os.listdir(os.path.join(directory_name, "Dip_Locations"))
+    dip_options = os.listdir(join(directory_name, "Dip_Locations"))
 
     last_shown_command = ""
 

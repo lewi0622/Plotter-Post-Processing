@@ -1,5 +1,6 @@
 import subprocess
 import os
+from posixpath import join
 from tkinter import Tk, ttk, CENTER, IntVar
 from utils import *
 import settings
@@ -49,10 +50,10 @@ def main(input_files=()):
         for index, filename in enumerate(input_file_list):
             head, tail = os.path.split(filename)
             name, _ext = os.path.splitext(tail)
-            show_temp_file = os.path.join(file_info["temp_folder_path"], name + "_deC.svg")
-            output_filename = head + "/" + name + "_deC"
+            show_temp_file = join(file_info["temp_folder_path"], name + "_deC.svg")
+            output_filename = join(head, name + "_deC.svg")
 
-            output_file_list.append(output_filename + ".svg")
+            output_file_list.append(output_filename)
 
         # build color list
         num_layers = int(n_layers_entry.get())

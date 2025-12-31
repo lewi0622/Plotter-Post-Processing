@@ -3,6 +3,7 @@ function. Any common functions that multiple apps share should be placed here"""
 import glob
 import math
 import os
+from posixpath import join
 import random
 import re
 import shutil
@@ -15,7 +16,7 @@ from tkinter.filedialog import askopenfilenames
 from typing import Any
 from lxml import etree
 
-initial_dir = os.path.expandvars(r"C:\Users\$USERNAME\Downloads")
+initial_dir = os.path.expandvars("C:/Users/$USERNAME/Downloads")
 
 file_info: dict[str, Any] = {
     "files": (),
@@ -120,20 +121,23 @@ def select_files(files: tuple = (), dialog_title: str = "SELECT DESIGN FILE(s)")
     print("Currently Loaded Files: ")
     for file in files:
         print(file)
-    if len(files) == 0:
-        if len(file_info["files"]) > 0: #reselect files canceled
-            for file in file_info["files"]:
-                print(file)
-        return files
+    if len(files) == 0 and len(file_info["files"]) > 0: #reselect files canceled
+        if not files_exist(file_info["files"]): # check if given files exist
+            print("Please reselect files, could not locate all selected files")
+            files = get_files(dialog_title)  # prompt user to select files
+    if len(files) == 0 and len(file_info["files"]) > 0: #still canceled and there's no files chosen
+        for file in file_info["files"]:
+            print(file)
+        return file_info["files"]
 
-    file_info["temp_folder_path"] = os.path.join(
+    file_info["temp_folder_path"] = join(
         os.path.dirname(files[0]),
-        r"ppp_temp"
+        "ppp_temp"
     )
     # to handle multiple instances of ppp running simultaneously, each one should handle its' own temp folder
     folder_loop_count = 1
     while os.path.isdir(file_info["temp_folder_path"]):
-        file_info["temp_folder_path"] = os.path.join(
+        file_info["temp_folder_path"] = join(
             os.path.dirname(files[0]),
             r"ppp_temp" + str(folder_loop_count)
         )
@@ -145,7 +149,7 @@ def select_files(files: tuple = (), dialog_title: str = "SELECT DESIGN FILE(s)")
     get_all_size_info()
     return files
 
-def files_exist(files):
+def files_exist(files: tuple):
     """Checks if a list of files all exist and prints an error if any don't. Returns False if any don't exist."""
     all_exist = True
     for file in files:
