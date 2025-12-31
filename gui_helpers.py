@@ -114,3 +114,9 @@ def disable_combobox_scroll(root: Any):
     root.bind_class("TCombobox", "<MouseWheel>", _empty)      # Windows / macOS
     root.bind_class("TCombobox", "<Button-4>", _empty)        # Linux scroll up
     root.bind_class("TCombobox", "<Button-5>", _empty)        # Linux scroll down
+
+def create_toast(root: Any, duration_milliseconds: int, message: str, ):
+    """Generates a toast message that destroys itself after duration"""
+    toast = ttk.Button(root, text=message)
+    toast.place(relx=0.5, rely=1, anchor="s")
+    root.after(duration_milliseconds, toast.destroy)

@@ -4,10 +4,36 @@ from tkinter import *
 from tkinter import ttk
 from utils import *
 import settings
-from gui_helpers import set_title_icon, separator, create_scrollbar, make_topmost_temp, disable_combobox_scroll
+from gui_helpers import set_title_icon, separator, create_scrollbar, make_topmost_temp, disable_combobox_scroll, create_toast
 from links import VPYPE_URLS, PPP_URLS
 
 def main(input_files=()):
+    def generate_dips():
+        input_file = list(input_files)[0]
+        dip_detail_list = populate_dip_details()
+        output_file = input_file.replace(".svg", "_DIPS.svg")
+
+        command = f"""vpype \
+eval "dip_details={dip_detail_list}" \
+read -a stroke "{input_file}" \
+forlayer \
+eval "stroke_color=_prop.vp_color" \
+eval "stroke_width=_prop.vp_pen_width" \
+ldelete %_lid% \
+read -l "%_lid%" %dip_details[_i][0]% \
+rotate -l "%_lid%" "%dip_details[_i][3]%" \
+translate -l "%_lid%" "%dip_details[_i][1]%in" "%dip_details[_i][2]%in" \
+color -l %_lid% %stroke_color% \
+propset -l %_lid% -t float vp_pen_width %stroke_width% \
+end \
+write "{output_file}" """
+        print("Generating Dips with: \n", command)
+        result = subprocess.run(command, stdout=subprocess.PIPE, universal_newlines = True)
+        
+        create_toast(window, 4000, f"Saved DIP file at: \n{output_file}")
+
+        print("\nSaved Dips Only SVG at:\n", output_file)
+
     def run_vpypeline():
         global return_val
 
@@ -32,6 +58,19 @@ def main(input_files=()):
         subprocess.run(last_shown_command, check=False)
         make_topmost_temp(window)
 
+    def populate_dip_details():
+        dip_detail_list = []
+        for i in range(max_num_colors):
+            file_name = os.path.join(
+                directory_name, "Dip_Locations", dip_details[i]['layer'].get())
+            dip_detail_list.append([
+                file_name,
+                dip_details[i]["x"].get(),
+                dip_details[i]["y"].get(),
+                dip_details[i]["rotate"].get()
+            ])
+        return dip_detail_list
+
     def build_vpypeline(show):
         global show_temp_file
         global output_filename
@@ -47,16 +86,7 @@ def main(input_files=()):
             output_filename = head + "/" + name + "_PAINT.svg"
             output_file_list.append(output_filename)
 
-        dip_detail_list = []
-        for i in range(max_num_colors):
-            file_name = os.path.join(
-                directory_name, "Dip_Locations", dip_details[i]['layer'].get())
-            dip_detail_list.append([
-                file_name,
-                dip_details[i]["x"].get(),
-                dip_details[i]["y"].get(),
-                dip_details[i]["rotate"].get()
-            ])
+        dip_detail_list = populate_dip_details()
 
         splitall = ""
         linemerge = ""
@@ -230,6 +260,8 @@ end \
         })
 
     current_row = separator(window, current_row, max_col)
+    ttk.Button(window, text="Save Dips Only SVG", command=generate_dips).grid(
+        pady=(0,10), row=current_row, column=0)
 
     ttk.Button(window, text="Show Output", command=show_vpypeline).grid(
         pady=(0, 10), row=current_row, column=2)
