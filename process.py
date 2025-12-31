@@ -158,7 +158,11 @@ def main(input_files: tuple = ()) -> tuple:
         if lineshuffle.get():
             args += " lineshuffle "
 
-        # layout as letter centers graphics within given page size
+        if reverse_order.get():
+            args += " reverse "
+            if flip_paths.get():
+                args += " -f "
+
         if layout.get():
             args += r" layout "
             if layout_landscape.get():
@@ -442,6 +446,19 @@ def main(input_files: tuple = ()) -> tuple:
     ttk.Checkbutton(frame, text="lineshuffle", variable=lineshuffle).grid(
         sticky="w", row=current_row, column=3)
     
+    current_row += 1
+
+    reverse_label = ttk.Label(frame, justify=CENTER, text="Reverse Drawing Order",
+                                foreground=THEME_SETTINGS["link_color"], cursor="hand2")
+    reverse_label.bind("<Button-1>", lambda e: open_url_in_browser(
+        VPYPE_URLS["reverse"]))
+    reverse_label.grid(row=current_row, column=0)
+    reverse_order = IntVar(frame, value=0)
+    flip_paths = IntVar(frame, value=0)
+    ttk.Checkbutton(frame, text="Reverse", variable=reverse_order).grid(
+        sticky="w", row=current_row, column=1)
+    ttk.Checkbutton(frame, text="Flip Path Direction", variable=flip_paths).grid(
+        sticky="w", row=current_row, column=2)
 
     current_row = separator(frame, current_row, max_col)
 
