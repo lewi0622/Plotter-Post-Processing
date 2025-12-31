@@ -22,6 +22,7 @@ VPYPE_URLS: dict[str, str] = {
     "ldelete": "https://vpype.readthedocs.io/en/latest/reference.html#ldelete",
     "filter": "https://vpype.readthedocs.io/en/latest/reference.html#filter",
     "rect": "https://vpype.readthedocs.io/en/stable/reference.html#rect",
+    "reverse": "https://vpype.readthedocs.io/en/latest/reference.html#reverse",
 }
 
 PPP_URLS: dict[str, str] = {
