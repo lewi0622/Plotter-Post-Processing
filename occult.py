@@ -65,11 +65,6 @@ def main(input_files=()):
             output_filename = join(head, name + "_O.svg")
             output_file_list.append(output_filename)
 
-        print(occult_info_list)
-
-        sorted_occult_info_list = occult_info_list  # sorted(
-        # occult_info_list, key=lambda d: d['order'].get())
-
         args = r"vpype "
         args += r' eval "files_in=' + f"{input_file_list}" + '"'
         args += r' eval "files_out=' + f"{output_file_list}" + '"'
@@ -87,33 +82,20 @@ def main(input_files=()):
 
         args += f" read {parse} --no-crop %files_in[_i]% "
 
-        for occult_info in sorted_occult_info_list:
-            if "file" in occult_info:
-                args += r' forlayer eval "%last_layer=_lid%" end '
-                args += r" read "
-                if not occult_file_info["crop"].get():
-                    args += r" --no-crop "
-                args += r' --layer "%last_layer+1%" '
-                args += f' "{occult_info["file"]}" '
-                if occult_info["color"].get():
-                    args += (
-                        f' color -l "%last_layer+1%" {occult_info["color_info"].get()} '
-                    )
-
-            args += r' forlayer eval "%last_layer=_lid%" end '
-            if occult_info["occult"].get():
-                args += r" occult "
-                if occult_info["ignore"].get():
-                    args += r" -i "
-                elif occult_info["across"].get():
-                    args += r" -a "
-                if occult_info["keep"].get():
-                    args += r" -k "
-                    args += r' forlayer eval "%kept_layer=_lid%" end '
-                    args += f' eval "%last_color=random_colors[{occult_info["order"].get()}]%" '
-                    # recolor kept lines if there are any kept lines
-                    args += r' forlayer eval "%if(kept_layer<last_layer+1):last_color=_color%" end '
-                    args += r" color -l %kept_layer% %last_color% "
+        args += r' forlayer eval "%last_layer=_lid%" end '
+        if occult.get():
+            args += r" occult "
+            if occult_ignore.get():
+                args += r" -i "
+            elif occult_across.get():
+                args += r" -a "
+            if occult_keep_lines.get():
+                args += r" -k "
+                args += r' forlayer eval "%kept_layer=_lid%" end '
+                args += f' eval "%last_color=random_colors[_i]%" '
+                # recolor kept lines if there are any kept lines
+                args += r' forlayer eval "%if(kept_layer<last_layer+1):last_color=_color%" end '
+                args += r" color -l %kept_layer% %last_color% "
 
         if show:
             args += f' write "{show_temp_file}" end '
@@ -128,7 +110,7 @@ def main(input_files=()):
 
         return args
 
-    global return_val, last_shown_command, color_list, occult_color_list
+    global return_val, last_shown_command, color_list
     return_val = ()
     last_shown_command = ""
 
@@ -214,28 +196,21 @@ def main(input_files=()):
 
     current_row = separator(window, current_row, max_col)
 
-    occult_info_list = []
-    occult_file_info = {}
-
     occult = IntVar(window, value=1)
-    occult_file_info["occult"] = occult
     ttk.Checkbutton(window, text="Occult", variable=occult).grid(
         sticky="w", row=current_row, column=0
     )
     occult_keep_lines = IntVar(window, value=0)
-    occult_file_info["keep"] = occult_keep_lines
     ttk.Checkbutton(
         window, text="Keep occulted lines", variable=occult_keep_lines
     ).grid(sticky="w", row=current_row, column=1)
     current_row += 1
 
     occult_ignore = IntVar(window, value=1)
-    occult_file_info["ignore"] = occult_ignore
     ttk.Checkbutton(window, text="Ignores layers", variable=occult_ignore).grid(
         sticky="w", row=current_row, column=0
     )
     occult_across = IntVar(window, value=0)
-    occult_file_info["across"] = occult_across
     ttk.Checkbutton(
         window, text="Occult across layers,\nnot within", variable=occult_across
     ).grid(sticky="w", row=current_row, column=1)
@@ -248,8 +223,6 @@ def main(input_files=()):
     ).grid(sticky="w", row=current_row, column=0)
 
     current_row = separator(window, current_row, max_col)
-
-    occult_info_list.append(occult_file_info)
 
     ttk.Button(window, text="Show Output", command=show_vpypeline).grid(
         pady=(0, 10), row=current_row, column=0
