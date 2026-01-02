@@ -287,6 +287,7 @@ def main(input_files: tuple = ()) -> tuple:
     scale_width_entry = ttk.Entry(frame, width=7)
     scale_width_entry.insert(0, f"{svg_width_inches}")
     scale_width_entry.grid(sticky="w", row=current_row, column=3)
+    current_row += 1
 
     ttk.Label(frame, justify=CENTER, text="Height Scale to (in):").grid(
         row=current_row, column=2
