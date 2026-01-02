@@ -4,7 +4,6 @@ function. Any common functions that multiple apps share should be placed here"""
 import glob
 import math
 import os
-from posixpath import join
 import random
 import re
 import shutil
@@ -13,8 +12,10 @@ import subprocess
 import sys
 import threading
 import webbrowser
+from posixpath import join
 from tkinter.filedialog import askopenfilenames
 from typing import Any
+
 from lxml import etree
 
 initial_dir = os.path.expandvars("C:/Users/$USERNAME/Downloads")

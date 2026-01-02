@@ -1,25 +1,28 @@
-import subprocess
 import os
+import subprocess
 from posixpath import join
+from tkinter import CENTER, END, IntVar, Tk, ttk
 from typing import Any
-from tkinter import ttk, END, CENTER, Tk, IntVar
-from utils import (
-    rename_replace,
-    on_closing,
-    check_make_temp_folder,
-    file_info,
-    select_files,
-)
-from utils import open_url_in_browser, generate_random_color, max_colors_per_file
+
 import settings
 from gui_helpers import (
+    create_scrollbar,
+    disable_combobox_scroll,
+    make_topmost_temp,
     separator,
     set_title_icon,
-    create_scrollbar,
-    make_topmost_temp,
-    disable_combobox_scroll,
 )
 from links import PPP_URLS
+from utils import (
+    check_make_temp_folder,
+    file_info,
+    generate_random_color,
+    max_colors_per_file,
+    on_closing,
+    open_url_in_browser,
+    rename_replace,
+    select_files,
+)
 
 return_val: tuple
 current_row: int

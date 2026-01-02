@@ -1,17 +1,17 @@
 """Main app gets files, launches apps, and passes files between apps"""
 
-from tkinter import Tk
-from tkinter import ttk
-from utils import select_files, file_info, on_closing, open_url_in_browser
+from tkinter import Tk, ttk
+
+import compose
+import de_compose
 import occult
 import paint
 import process
-import compose
-import de_compose
 import settings
-from gui_helpers import set_title_icon, make_topmost_temp, disable_combobox_scroll
+from gui_helpers import disable_combobox_scroll, make_topmost_temp, set_title_icon
+from links import PPP_URLS, VPYPE_URLS
 from settings import THEME_SETTINGS
-from links import VPYPE_URLS, PPP_URLS
+from utils import file_info, on_closing, open_url_in_browser, select_files
 
 version = "1.2.0"
 

@@ -1,9 +1,10 @@
 """Commonly reused helper functions for simplifying GUI building"""
 
-from tkinter import Tk, ttk, Canvas
-from typing import Any
 from os import path
 from posixpath import join
+from tkinter import Canvas, Tk, ttk
+from typing import Any
+
 from utils import file_info
 
 

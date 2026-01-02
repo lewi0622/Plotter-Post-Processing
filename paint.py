@@ -1,19 +1,20 @@
-import subprocess
 import os
+import subprocess
 from posixpath import join
 from tkinter import *
 from tkinter import ttk
-from utils import *
+
 import settings
 from gui_helpers import (
-    set_title_icon,
-    separator,
     create_scrollbar,
-    make_topmost_temp,
-    disable_combobox_scroll,
     create_toast,
+    disable_combobox_scroll,
+    make_topmost_temp,
+    separator,
+    set_title_icon,
 )
-from links import VPYPE_URLS, PPP_URLS
+from links import PPP_URLS, VPYPE_URLS
+from utils import *
 
 
 def main(input_files=()):

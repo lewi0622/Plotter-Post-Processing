@@ -1,18 +1,19 @@
-import subprocess
 import os
+import subprocess
 from posixpath import join
-from tkinter import Tk, ttk, CENTER, IntVar
-from utils import *
+from tkinter import CENTER, IntVar, Tk, ttk
+
 import settings
 from gui_helpers import (
-    separator,
-    set_title_icon,
+    disable_combobox_scroll,
+    make_topmost_temp,
     on_focus_in,
     on_focus_out,
-    make_topmost_temp,
-    disable_combobox_scroll,
+    separator,
+    set_title_icon,
 )
-from links import VPYPE_URLS, PPP_URLS
+from links import PPP_URLS, VPYPE_URLS
+from utils import *
 
 DEFAULTS: dict[str, str] = {"remove_placeholder": "e.g. 1, 3-5"}
 

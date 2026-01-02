@@ -1,25 +1,28 @@
 """General Vpype post-processing steps"""
 
-from tkinter import Tk, IntVar, CENTER, END
-from tkinter import ttk
+from tkinter import CENTER, END, IntVar, Tk, ttk
 from typing import Any
-from utils import (
-    thread_vpypelines,
-    check_make_temp_folder,
-    on_closing,
-    find_closest_dimensions,
-)
-from utils import select_files, file_info, generate_random_color, open_url_in_browser
+
 from gui_helpers import (
-    separator,
-    generate_file_names,
-    set_title_icon,
     create_scrollbar,
-    make_topmost_temp,
     disable_combobox_scroll,
+    generate_file_names,
+    make_topmost_temp,
+    separator,
+    set_title_icon,
 )
-from settings import THEME_SETTINGS, set_theme, init
-from links import VPYPE_URLS, PPP_URLS
+from links import PPP_URLS, VPYPE_URLS
+from settings import THEME_SETTINGS, init, set_theme
+from utils import (
+    check_make_temp_folder,
+    file_info,
+    find_closest_dimensions,
+    generate_random_color,
+    on_closing,
+    open_url_in_browser,
+    select_files,
+    thread_vpypelines,
+)
 
 DEFAULTS: dict[str, str] = {
     "bbox_xy": "0, 0",

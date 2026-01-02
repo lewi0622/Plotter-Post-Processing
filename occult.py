@@ -1,23 +1,25 @@
-import subprocess
 import os
+import subprocess
 from posixpath import join
-from tkinter import Tk, IntVar, CENTER
-from tkinter import ttk
-from utils import select_files, generate_random_color, file_info
-from utils import (
-    rename_replace,
-    on_closing,
-    check_make_temp_folder,
-    open_url_in_browser,
-)
+from tkinter import CENTER, IntVar, Tk, ttk
+
+import settings
 from gui_helpers import (
+    disable_combobox_scroll,
+    make_topmost_temp,
     separator,
     set_title_icon,
-    make_topmost_temp,
-    disable_combobox_scroll,
 )
-import settings
-from links import VPYPE_URLS, PPP_URLS
+from links import PPP_URLS, VPYPE_URLS
+from utils import (
+    check_make_temp_folder,
+    file_info,
+    generate_random_color,
+    on_closing,
+    open_url_in_browser,
+    rename_replace,
+    select_files,
+)
 
 
 def main(input_files=()):
