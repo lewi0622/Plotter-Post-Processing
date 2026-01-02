@@ -3,18 +3,32 @@ import os
 from posixpath import join
 from typing import Any
 from tkinter import ttk, END, CENTER, Tk, IntVar
-from utils import rename_replace, on_closing, check_make_temp_folder, file_info, select_files
+from utils import (
+    rename_replace,
+    on_closing,
+    check_make_temp_folder,
+    file_info,
+    select_files,
+)
 from utils import open_url_in_browser, generate_random_color, max_colors_per_file
 import settings
-from gui_helpers import separator, set_title_icon, create_scrollbar, make_topmost_temp, disable_combobox_scroll
+from gui_helpers import (
+    separator,
+    set_title_icon,
+    create_scrollbar,
+    make_topmost_temp,
+    disable_combobox_scroll,
+)
 from links import PPP_URLS
 
 return_val: tuple
 current_row: int
 window: Any
 
+
 def main(input_files=()):
-    """"Run Compose utility"""
+    """ "Run Compose utility"""
+
     def run_vpypeline():
         global return_val
 
@@ -61,7 +75,7 @@ def main(input_files=()):
             for j in range(rows):
                 x = i * col_size
                 y = j * row_size
-                translation_dict = {"x":x, "y":y}
+                translation_dict = {"x": x, "y": y}
                 translation_list.append(translation_dict)
 
         translation_list = list(reversed(translation_list))
@@ -71,7 +85,8 @@ def main(input_files=()):
 
         # sort list in reverse, but shift up the layers for each new incoming layer placing the new layer below the old
         sorted_info_list = sorted(
-            compose_info_list, key=lambda d: d['order'].get(), reverse=True)
+            compose_info_list, key=lambda d: d["order"].get(), reverse=True
+        )
 
         number_of_file_reads = len(sorted_info_list)
         if grid:
@@ -79,7 +94,9 @@ def main(input_files=()):
 
         built_info_list = []
         for index in range(number_of_file_reads):
-            info = sorted_info_list[index%len(sorted_info_list)] # will wrap around the the list to populate the whole grid with designs
+            info = sorted_info_list[
+                index % len(sorted_info_list)
+            ]  # will wrap around the the list to populate the whole grid with designs
             built_info_list.append(info)
 
         output_file_list = []
@@ -99,15 +116,15 @@ def main(input_files=()):
             # determine number of incoming stroke layers
             incoming_layer_number = 1
             if info["attribute"].get():
-                file_info_index = file_info["files"].index(
-                    info["file"])
-                incoming_layer_number = len(
-                    file_info["color_dicts"][file_info_index])
+                file_info_index = file_info["files"].index(info["file"])
+                incoming_layer_number = len(file_info["color_dicts"][file_info_index])
 
             # move existing layers up to make room for new ones
             if index > 0:
                 # shift layers up the number of incoming layers
-                args += f' forlayer lmove "%_lid%" "%_lid+{incoming_layer_number}%" end '
+                args += (
+                    f' forlayer lmove "%_lid%" "%_lid+{incoming_layer_number}%" end '
+                )
 
             # read new layers in
             if info["attribute"].get():
@@ -118,7 +135,7 @@ def main(input_files=()):
                     args += f' color -l 1 {info["color_info"].get()}'
 
             # translate for grid
-            if grid:        
+            if grid:
                 for layer_num in range(incoming_layer_number):
                     args += f' translate -l {layer_num + 1} {translation_list[index]["x"]}in {translation_list[index]["y"]}in '
 
@@ -131,12 +148,12 @@ def main(input_files=()):
 
         if show:
             args += f' write "{show_temp_file}" '
-            if condense.get(): # reread rewrite file
+            if condense.get():  # reread rewrite file
                 args += f' ldelete all read -a stroke --no-crop "{show_temp_file}" write "{show_temp_file}" '
-            args += ' show '
+            args += " show "
         else:
             args += f' write "{output_filename}" '
-            if condense.get(): # reread rewrite file
+            if condense.get():  # reread rewrite file
                 args += f' ldelete all read -a stroke --no-crop "{output_filename}" write "{output_filename}" '
 
         return args
@@ -185,24 +202,34 @@ def main(input_files=()):
     set_title_icon(window, "Compose")
 
     ttk.Label(window, text="Compose").grid(
-        pady=(10, 0), row=current_row, column=0, columnspan=max_col)
+        pady=(10, 0), row=current_row, column=0, columnspan=max_col
+    )
     current_row += 1
 
-    youtube_label = ttk.Label(window, text="Plotter Post Processing Compose Tutorial",
-                      foreground=settings.THEME_SETTINGS["link_color"], cursor="hand2")
-    youtube_label.bind("<Button-1>", lambda e: open_url_in_browser(
-        PPP_URLS["compose"]))
+    youtube_label = ttk.Label(
+        window,
+        text="Plotter Post Processing Compose Tutorial",
+        foreground=settings.THEME_SETTINGS["link_color"],
+        cursor="hand2",
+    )
+    youtube_label.bind("<Button-1>", lambda e: open_url_in_browser(PPP_URLS["compose"]))
     youtube_label.grid(row=current_row, column=0, columnspan=max_col)
 
     current_row += 1
 
-    ttk.Label(window, justify=CENTER, text=f"{len(input_files)} Design file(s) selected,\nDesign file Width(in): {svg_width_inches}, Height(in): {svg_height_inches}").grid(
-        row=current_row, column=0, columnspan=max_col)
+    ttk.Label(
+        window,
+        justify=CENTER,
+        text=f"{len(input_files)} Design file(s) selected,\nDesign file Width(in): {svg_width_inches}, Height(in): {svg_height_inches}",
+    ).grid(row=current_row, column=0, columnspan=max_col)
     current_row += 1
 
-    ttk.Label(window, justify=CENTER, text="If Grid Cols and Rows equal 1,\ndesigns are simply loaded on top of one another").grid(
-        row=current_row, column=0, columnspan=max_col)
-    
+    ttk.Label(
+        window,
+        justify=CENTER,
+        text="If Grid Cols and Rows equal 1,\ndesigns are simply loaded on top of one another",
+    ).grid(row=current_row, column=0, columnspan=max_col)
+
     current_row = separator(window, current_row, max_col)
 
     # grid options
@@ -211,23 +238,25 @@ def main(input_files=()):
     current_row += 1
 
     ttk.Label(window, justify=CENTER, text="Grid Col Width(in):").grid(
-        row=current_row, column=0)
+        row=current_row, column=0
+    )
     grid_col_width_entry = ttk.Entry(window, width=7)
     grid_col_width_entry.grid(sticky="w", row=current_row, column=1)
 
     ttk.Label(window, justify=CENTER, text="Grid Row Height(in):").grid(
-        row=current_row, column=2)
+        row=current_row, column=2
+    )
     grid_row_height_entry = ttk.Entry(window, width=7)
     grid_row_height_entry.grid(sticky="w", row=current_row, column=3)
     current_row += 1
 
     ttk.Label(window, justify=CENTER, text="Grid Columns:").grid(
-        row=current_row, column=0)
+        row=current_row, column=0
+    )
     grid_col_entry = ttk.Entry(window, width=7)
     grid_col_entry.grid(sticky="w", row=current_row, column=1)
 
-    ttk.Label(window, justify=CENTER, text="Grid Rows:").grid(
-        row=current_row, column=2)
+    ttk.Label(window, justify=CENTER, text="Grid Rows:").grid(row=current_row, column=2)
     grid_row_entry = ttk.Entry(window, width=7)
     grid_row_entry.grid(sticky="w", row=current_row, column=3)
 
@@ -246,44 +275,46 @@ def main(input_files=()):
         frame = create_scrollbar(window, current_row, max_col)
 
     for index, file in enumerate(input_files):
-        if index !=0:
+        if index != 0:
             current_row = separator(frame, current_row, max_col)
 
         compose_info = {"file": file}
 
         name = os.path.basename(os.path.normpath(file))
         ttk.Label(frame, text=f"File: {name}").grid(
-            row=current_row, column=0, columnspan=2)
+            row=current_row, column=0, columnspan=2
+        )
 
         ttk.Label(frame, text=f"Order: ").grid(row=current_row, column=2)
         compose_order = ttk.Combobox(
-            frame,
-            width=4,
-            state="readonly",
-            values=[*range(len(input_files))]
+            frame, width=4, state="readonly", values=[*range(len(input_files))]
         )
         compose_order.current(index)
         compose_order.grid(sticky="w", row=current_row, column=3)
         compose_info["order"] = compose_order
         current_row += 1
 
-        ttk.Label(frame, text=f"Colors in file: {len(file_info['color_dicts'][index])}").grid(
-            row=current_row, column=0)
+        ttk.Label(
+            frame, text=f"Colors in file: {len(file_info['color_dicts'][index])}"
+        ).grid(row=current_row, column=0)
 
         attribute = IntVar(frame, value=0)
         if max_colors_per_file() == 1:
             attribute = IntVar(frame, value=1)
         compose_info["attribute"] = attribute
         ttk.Radiobutton(frame, text="single layer", variable=attribute, value=0).grid(
-            row=current_row, column=1)
-        ttk.Radiobutton(frame, text="stroke layer(s)", variable=attribute, value=1).grid(
-            row=current_row, column=2)
+            row=current_row, column=1
+        )
+        ttk.Radiobutton(
+            frame, text="stroke layer(s)", variable=attribute, value=1
+        ).grid(row=current_row, column=2)
         current_row += 1
 
         overwrite_color = IntVar(frame, value=0)
         compose_info["overwrite_color"] = overwrite_color
-        ttk.Checkbutton(frame, text="If single layer, overwrite color?", variable=overwrite_color).grid(
-            sticky="e", row=current_row, column=0, columnspan=2)
+        ttk.Checkbutton(
+            frame, text="If single layer, overwrite color?", variable=overwrite_color
+        ).grid(sticky="e", row=current_row, column=0, columnspan=2)
         compose_color_entry = ttk.Entry(frame, width=7)
         compose_info["color_info"] = compose_color_entry
         compose_color_entry.insert(0, f"{compose_color_list[index]}")
@@ -293,61 +324,76 @@ def main(input_files=()):
 
     current_row = separator(window, current_row, max_col)
 
-    condense  = IntVar(window, value=1)
-    ttk.Checkbutton(window, text="Condense same color layers into single layer", variable=condense).grid(
-        sticky="w", row=current_row, column=0)
-    
+    condense = IntVar(window, value=1)
+    ttk.Checkbutton(
+        window, text="Condense same color layers into single layer", variable=condense
+    ).grid(sticky="w", row=current_row, column=0)
+
     current_row += 1
 
-    layout_label = ttk.Label(window, justify=CENTER, text="Layout centers scaled\ndesign in page size)",
-                             foreground=settings.THEME_SETTINGS["link_color"], cursor="hand2")
-    layout_label.bind("<Button-1>", lambda e: open_url_in_browser(
-        "https://vpype.readthedocs.io/en/latest/reference.html#layout"))
+    layout_label = ttk.Label(
+        window,
+        justify=CENTER,
+        text="Layout centers scaled\ndesign in page size)",
+        foreground=settings.THEME_SETTINGS["link_color"],
+        cursor="hand2",
+    )
+    layout_label.bind(
+        "<Button-1>",
+        lambda e: open_url_in_browser(
+            "https://vpype.readthedocs.io/en/latest/reference.html#layout"
+        ),
+    )
     layout_label.grid(row=current_row, column=0)
     layout = IntVar(window, value=1)
     ttk.Checkbutton(window, text="Layout?", variable=layout).grid(
-        sticky="w", row=current_row, column=1)
+        sticky="w", row=current_row, column=1
+    )
 
     ttk.Label(window, justify=CENTER, text="Page Layout Width(in):").grid(
-        row=current_row, column=2)
+        row=current_row, column=2
+    )
     layout_width_entry = ttk.Entry(window, width=7)
     layout_width_entry.insert(0, f"8.5")
     layout_width_entry.grid(sticky="w", row=current_row, column=3)
     current_row += 1
 
-    ttk.Label(window, justify=CENTER, text="Page Size").grid(
-        row=current_row, column=0)
+    ttk.Label(window, justify=CENTER, text="Page Size").grid(row=current_row, column=0)
     layout_combobox = ttk.Combobox(
-        window,
-        width=7,
-        state="readonly",
-        values=["Letter", "A4", "A3", "A2"]
+        window, width=7, state="readonly", values=["Letter", "A4", "A3", "A2"]
     )
     layout_combobox.current(0)
     layout_combobox.grid(sticky="w", row=current_row, column=1)
     layout_combobox.bind("<<ComboboxSelected>>", layout_selection_changed)
 
     ttk.Label(window, justify=CENTER, text="Page Layout Height(in):").grid(
-        row=current_row, column=2)
+        row=current_row, column=2
+    )
     layout_height_entry = ttk.Entry(window, width=7)
     layout_height_entry.insert(0, f"11")
     layout_height_entry.grid(sticky="w", row=current_row, column=3)
     current_row += 1
 
     layout_landscape_label = ttk.Label(
-        window, justify=CENTER, text="By default, the larger layout size is the height,\nLandscape flips the orientation")
+        window,
+        justify=CENTER,
+        text="By default, the larger layout size is the height,\nLandscape flips the orientation",
+    )
     layout_landscape_label.grid(row=current_row, column=0, columnspan=2)
     layout_landscape = IntVar(window, value=1)
     ttk.Checkbutton(window, text="Landscape", variable=layout_landscape).grid(
-        sticky="w", row=current_row, column=2)
+        sticky="w", row=current_row, column=2
+    )
 
     current_row = separator(window, current_row, max_col)
 
     ttk.Button(window, text="Show Output", command=show_vpypeline).grid(
-        pady=(0, 10), row=current_row, column=0)
+        pady=(0, 10), row=current_row, column=0
+    )
 
     ttk.Button(window, text="Confirm", command=run_vpypeline).grid(
-        pady=(0, 10), row=current_row, column=1)
+        pady=(0, 10), row=current_row, column=1
+    )
 
     window.protocol("WM_DELETE_WINDOW", lambda arg=window: on_closing(arg))
 

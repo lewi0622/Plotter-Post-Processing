@@ -1,17 +1,21 @@
 """Commonly reused helper functions for simplifying GUI building"""
+
 from tkinter import Tk, ttk, Canvas
 from typing import Any
 from os import path
 from posixpath import join
 from utils import file_info
 
+
 def separator(parent: Any, r: int, span: int) -> int:
     """Pre and Post increments the row, creates a separator, returns row"""
     r += 1
-    ttk.Separator(parent, orient='horizontal').grid(
-        sticky="ew", row=r, column=0, columnspan=span, pady=10)
+    ttk.Separator(parent, orient="horizontal").grid(
+        sticky="ew", row=r, column=0, columnspan=span, pady=10
+    )
     r += 1
     return r
+
 
 def generate_file_names(files: tuple, post_pend: str) -> tuple:
     """Generate the file paths for output and showing"""
@@ -28,37 +32,45 @@ def generate_file_names(files: tuple, post_pend: str) -> tuple:
         show_files.append(show_temp_file)
     return output_files, show_files
 
+
 def make_topmost_temp(window: Any):
     """Unminimizes, pops the given window to the top of all others, and makes it the focused window"""
-    if window.state()=="iconic":
-        window.wm_state('normal') # un-minimize if it is minimized
+    if window.state() == "iconic":
+        window.wm_state("normal")  # un-minimize if it is minimized
 
-    window.attributes('-topmost', True) # make window topmost window https://stackoverflow.com/questions/8691655/how-to-put-a-tkinter-window-on-top-of-the-others
+    window.attributes(
+        "-topmost", True
+    )  # make window topmost window https://stackoverflow.com/questions/8691655/how-to-put-a-tkinter-window-on-top-of-the-others
     window.update()
-    window.attributes('-topmost', False) # stop making topmost window (but it's still on top)
+    window.attributes(
+        "-topmost", False
+    )  # stop making topmost window (but it's still on top)
     window.update()
-    window.focus_force() # bring focus to the window
+    window.focus_force()  # bring focus to the window
 
 
 def set_title_icon(parent: Any, title: str):
     """Set the window title and icon"""
     parent.title(title)
-    icon_path = join(path.dirname(__file__), 'images/LewistonFace.ico')
+    icon_path = join(path.dirname(__file__), "images/LewistonFace.ico")
     try:
         parent.iconbitmap(icon_path)
     except:
         pass
     make_topmost_temp(parent)
 
-def on_focus_in(entry: Any, placeholder: str): 
+
+def on_focus_in(entry: Any, placeholder: str):
     """Will delete placeholder text in an entry when user interacts with it"""
     if entry.get() == placeholder:
-        entry.delete(0, 'end')
+        entry.delete(0, "end")
+
 
 def on_focus_out(entry: Any, placeholder: str):
     """Will replace a blank entry with placeholder text when a user stops interacting with it"""
     if entry.get() == "":
         entry.insert(0, placeholder)
+
 
 def create_scrollbar(root: Any, row=0, span=1):
     """Creates and returns a scrollframe that all other widgets should attach themselves to"""
@@ -86,8 +98,7 @@ def create_scrollbar(root: Any, row=0, span=1):
     scrollable_frame = ttk.Frame(canvas)
 
     scrollable_frame.bind(
-        "<Configure>",
-        lambda e: canvas.configure(scrollregion=canvas.bbox("all"))
+        "<Configure>", lambda e: canvas.configure(scrollregion=canvas.bbox("all"))
     )
 
     canvas.create_window((0, 0), window=scrollable_frame, anchor="nw")
@@ -101,22 +112,29 @@ def create_scrollbar(root: Any, row=0, span=1):
             elif event.num == 5:
                 canvas.yview_scroll(1, "units")
 
-    scrollable_frame.bind_all("<MouseWheel>", _on_mousewheel)      # Windows / macOS
-    scrollable_frame.bind_all("<Button-4>", _on_mousewheel)        # Linux scroll up
-    scrollable_frame.bind_all("<Button-5>", _on_mousewheel)        # Linux scroll down
+    scrollable_frame.bind_all("<MouseWheel>", _on_mousewheel)  # Windows / macOS
+    scrollable_frame.bind_all("<Button-4>", _on_mousewheel)  # Linux scroll up
+    scrollable_frame.bind_all("<Button-5>", _on_mousewheel)  # Linux scroll down
 
     return scrollable_frame
 
+
 def disable_combobox_scroll(root: Any):
     """Changes the Combobox class for the window to not allow scrolling to change its' value"""
-    def _empty(_event):
-        return "break" #stops the event from going further
-    
-    root.bind_class("TCombobox", "<MouseWheel>", _empty)      # Windows / macOS
-    root.bind_class("TCombobox", "<Button-4>", _empty)        # Linux scroll up
-    root.bind_class("TCombobox", "<Button-5>", _empty)        # Linux scroll down
 
-def create_toast(root: Any, duration_milliseconds: int, message: str, ):
+    def _empty(_event):
+        return "break"  # stops the event from going further
+
+    root.bind_class("TCombobox", "<MouseWheel>", _empty)  # Windows / macOS
+    root.bind_class("TCombobox", "<Button-4>", _empty)  # Linux scroll up
+    root.bind_class("TCombobox", "<Button-5>", _empty)  # Linux scroll down
+
+
+def create_toast(
+    root: Any,
+    duration_milliseconds: int,
+    message: str,
+):
     """Generates a toast message that destroys itself after duration"""
     toast = ttk.Button(root, text=message)
     toast.place(relx=0.5, rely=1, anchor="s")

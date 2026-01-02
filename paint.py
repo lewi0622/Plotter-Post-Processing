@@ -5,8 +5,16 @@ from tkinter import *
 from tkinter import ttk
 from utils import *
 import settings
-from gui_helpers import set_title_icon, separator, create_scrollbar, make_topmost_temp, disable_combobox_scroll, create_toast
+from gui_helpers import (
+    set_title_icon,
+    separator,
+    create_scrollbar,
+    make_topmost_temp,
+    disable_combobox_scroll,
+    create_toast,
+)
 from links import VPYPE_URLS, PPP_URLS
+
 
 def main(input_files=()):
     def generate_dips():
@@ -29,8 +37,10 @@ propset -l %_lid% -t float vp_pen_width %stroke_width% \
 end \
 write "{output_file}" """
         print("Generating Dips with: \n", command)
-        result = subprocess.run(command, stdout=subprocess.PIPE, universal_newlines = True)
-        
+        result = subprocess.run(
+            command, stdout=subprocess.PIPE, universal_newlines=True
+        )
+
         create_toast(window, 4000, f"Saved DIP file at: \n{output_file}")
 
         print("\nSaved Dips Only SVG at:\n", output_file)
@@ -44,7 +54,9 @@ write "{output_file}" """
         else:
             command = build_vpypeline(False)
             print("Running: \n", command)
-            result = subprocess.run(command, stdout=subprocess.PIPE, universal_newlines = True)
+            result = subprocess.run(
+                command, stdout=subprocess.PIPE, universal_newlines=True
+            )
         return_val = output_file_list
         print("Closing Paint")
         on_closing(window)
@@ -55,20 +67,25 @@ write "{output_file}" """
         check_make_temp_folder()
         last_shown_command = build_vpypeline(True)
         print("Showing: \n", last_shown_command)
-        result = subprocess.run(last_shown_command, stdout=subprocess.PIPE, universal_newlines = True)
+        result = subprocess.run(
+            last_shown_command, stdout=subprocess.PIPE, universal_newlines=True
+        )
         make_topmost_temp(window)
 
     def populate_dip_details():
         dip_detail_list = []
         for i in range(max_num_colors):
             file_name = join(
-                directory_name, "Dip_Locations", dip_details[i]['layer'].get())
-            dip_detail_list.append([
-                file_name,
-                dip_details[i]["x"].get(),
-                dip_details[i]["y"].get(),
-                dip_details[i]["rotate"].get()
-            ])
+                directory_name, "Dip_Locations", dip_details[i]["layer"].get()
+            )
+            dip_detail_list.append(
+                [
+                    file_name,
+                    dip_details[i]["x"].get(),
+                    dip_details[i]["y"].get(),
+                    dip_details[i]["rotate"].get(),
+                ]
+            )
         return dip_detail_list
 
     def build_vpypeline(show):
@@ -93,7 +110,7 @@ write "{output_file}" """
         if split_all.get():
             splitall = "splitall"
             linemerge = "linemerge"
-        
+
         if show:
             repeat_num = 1
             show_or_write = f' end write "{show_temp_file}" show '
@@ -149,52 +166,80 @@ end \
 
     set_title_icon(window, "Paint")
 
-    title = ttk.Label(window, text="Vpype Paint Recipe",
-                      foreground=settings.THEME_SETTINGS["link_color"], cursor="hand2")
-    title.bind("<Button-1>", lambda e: open_url_in_browser(
-        VPYPE_URLS["dipping"]))
+    title = ttk.Label(
+        window,
+        text="Vpype Paint Recipe",
+        foreground=settings.THEME_SETTINGS["link_color"],
+        cursor="hand2",
+    )
+    title.bind("<Button-1>", lambda e: open_url_in_browser(VPYPE_URLS["dipping"]))
     title.grid(pady=(10, 0), row=current_row, column=0, columnspan=max_col)
     current_row += 1
 
-    youtube_label = ttk.Label(window, text="Plotter Post Processing Paint Tutorial",
-                      foreground=settings.THEME_SETTINGS["link_color"], cursor="hand2")
-    youtube_label.bind("<Button-1>", lambda e: open_url_in_browser(
-        PPP_URLS["paint"]))
+    youtube_label = ttk.Label(
+        window,
+        text="Plotter Post Processing Paint Tutorial",
+        foreground=settings.THEME_SETTINGS["link_color"],
+        cursor="hand2",
+    )
+    youtube_label.bind("<Button-1>", lambda e: open_url_in_browser(PPP_URLS["paint"]))
     youtube_label.grid(row=current_row, column=0, columnspan=max_col)
     current_row += 1
 
-    ttk.Label(window, text="Input files should have already been processed and laid out with enough space for dipping trays").grid(
-        row=current_row, column=0, columnspan=max_col)
+    ttk.Label(
+        window,
+        text="Input files should have already been processed and laid out with enough space for dipping trays",
+    ).grid(row=current_row, column=0, columnspan=max_col)
     current_row += 1
 
-    ttk.Label(window, text="Only batch files that have the same number of colors and you want to have the same dip details").grid(
-        row=current_row, column=0, columnspan=max_col)
+    ttk.Label(
+        window,
+        text="Only batch files that have the same number of colors and you want to have the same dip details",
+    ).grid(row=current_row, column=0, columnspan=max_col)
     current_row += 1
 
-    dip_help_label = ttk.Label(window, text="Dip locations match number of colors in file, file parsed with -a stroke.",
-                                foreground=settings.THEME_SETTINGS["link_color"], cursor="hand2")
-    dip_help_label.bind("<Button-1>", lambda e: open_url_in_browser(
-        VPYPE_URLS["attribute_parse"]))
+    dip_help_label = ttk.Label(
+        window,
+        text="Dip locations match number of colors in file, file parsed with -a stroke.",
+        foreground=settings.THEME_SETTINGS["link_color"],
+        cursor="hand2",
+    )
+    dip_help_label.bind(
+        "<Button-1>", lambda e: open_url_in_browser(VPYPE_URLS["attribute_parse"])
+    )
     dip_help_label.grid(row=current_row, column=0, columnspan=max_col)
     current_row += 1
 
-    ttk.Label(window, text=f"{len(input_files)} file(s) selected, Input file Width(in): {svg_width_inches}, Height(in): {svg_height_inches}, Max colors in file(s): {max_num_colors}").grid(
-        row=current_row, column=0, columnspan=max_col)
+    ttk.Label(
+        window,
+        text=f"{len(input_files)} file(s) selected, Input file Width(in): {svg_width_inches}, Height(in): {svg_height_inches}, Max colors in file(s): {max_num_colors}",
+    ).grid(row=current_row, column=0, columnspan=max_col)
     current_row += 1
 
-    split_all_label = ttk.Label(window, text="Split All and Merge",
-                                foreground=settings.THEME_SETTINGS["link_color"], cursor="hand2")
-    split_all_label.bind("<Button-1>", lambda e: open_url_in_browser(
-        VPYPE_URLS["splitall"]))
+    split_all_label = ttk.Label(
+        window,
+        text="Split All and Merge",
+        foreground=settings.THEME_SETTINGS["link_color"],
+        cursor="hand2",
+    )
+    split_all_label.bind(
+        "<Button-1>", lambda e: open_url_in_browser(VPYPE_URLS["splitall"])
+    )
     split_all_label.grid(row=current_row, column=0)
     split_all = IntVar(window, value=0)
     ttk.Checkbutton(window, text="splitall", variable=split_all).grid(
-        sticky="w", row=current_row, column=1)
+        sticky="w", row=current_row, column=1
+    )
 
-    split_dist_label = ttk.Label(window, text="Split Distance (in)",
-                                 foreground=settings.THEME_SETTINGS["link_color"], cursor="hand2")
-    split_dist_label.bind("<Button-1>", lambda e: open_url_in_browser(
-        VPYPE_URLS["splitdist"]))
+    split_dist_label = ttk.Label(
+        window,
+        text="Split Distance (in)",
+        foreground=settings.THEME_SETTINGS["link_color"],
+        cursor="hand2",
+    )
+    split_dist_label.bind(
+        "<Button-1>", lambda e: open_url_in_browser(VPYPE_URLS["splitdist"])
+    )
     split_dist_label.grid(row=current_row, column=2)
 
     split_dist_entry = ttk.Entry(window, width=7)
@@ -210,27 +255,31 @@ end \
         frame = create_scrollbar(window, current_row, max_col)
 
     for i in range(max_num_colors):
-        if i !=0:
+        if i != 0:
             current_row = separator(frame, current_row, max_col)
 
         ttk.Label(frame, text=f"Dip Location {i}").grid(
-            row=current_row, column=0, columnspan=max_col)
+            row=current_row, column=0, columnspan=max_col
+        )
         current_row += 1
 
         ttk.Label(frame, text="Dip Layer").grid(row=current_row, column=0)
         dip_layer_combobox = ttk.Combobox(
-            frame,
-            width=20,
-            state="readonly",
-            values=dip_options
+            frame, width=20, state="readonly", values=dip_options
         )
         dip_layer_combobox.current(0)
         dip_layer_combobox.grid(sticky="w", row=current_row, column=1)
 
         rotate_label = ttk.Label(
-            frame, justify=CENTER, text="Rotate Dip Clockwise (deg):",
-            foreground=settings.THEME_SETTINGS["link_color"], cursor="hand2")
-        rotate_label.bind("<Button-1>", lambda e: open_url_in_browser(VPYPE_URLS["rotate"]))
+            frame,
+            justify=CENTER,
+            text="Rotate Dip Clockwise (deg):",
+            foreground=settings.THEME_SETTINGS["link_color"],
+            cursor="hand2",
+        )
+        rotate_label.bind(
+            "<Button-1>", lambda e: open_url_in_browser(VPYPE_URLS["rotate"])
+        )
         rotate_label.grid(row=current_row, column=2)
         rotate_entry = ttk.Entry(frame, width=7)
         rotate_entry.insert(0, "0")
@@ -239,9 +288,14 @@ end \
         current_row += 1
 
         translate_X_label = ttk.Label(
-            frame, text="Translate X (in):",
-            foreground=settings.THEME_SETTINGS["link_color"], cursor="hand2")
-        translate_X_label.bind("<Button-1>", lambda e: open_url_in_browser(VPYPE_URLS["translate"]))
+            frame,
+            text="Translate X (in):",
+            foreground=settings.THEME_SETTINGS["link_color"],
+            cursor="hand2",
+        )
+        translate_X_label.bind(
+            "<Button-1>", lambda e: open_url_in_browser(VPYPE_URLS["translate"])
+        )
         translate_X_label.grid(row=current_row, column=0)
         dip_loc_x_entry = ttk.Entry(frame, width=7)
         dip_loc_x_entry.insert(0, f"{i * 2 + 1}")
@@ -252,25 +306,31 @@ end \
         dip_loc_y_entry.insert(0, "0")
         dip_loc_y_entry.grid(sticky="e", row=current_row, column=3)
 
-        dip_details.append({
-            "x": dip_loc_x_entry,
-            "y": dip_loc_y_entry,
-            "rotate": rotate_entry,
-            "layer": dip_layer_combobox,
-        })
+        dip_details.append(
+            {
+                "x": dip_loc_x_entry,
+                "y": dip_loc_y_entry,
+                "rotate": rotate_entry,
+                "layer": dip_layer_combobox,
+            }
+        )
 
     current_row = separator(window, current_row, max_col)
     ttk.Button(window, text="Save Dips Only SVG", command=generate_dips).grid(
-        pady=(0,10), row=current_row, column=0)
+        pady=(0, 10), row=current_row, column=0
+    )
 
     ttk.Button(window, text="Show Output", command=show_vpypeline).grid(
-        pady=(0, 10), row=current_row, column=2)
+        pady=(0, 10), row=current_row, column=2
+    )
     if len(input_files) > 1:
         ttk.Button(window, text="Apply to All", command=run_vpypeline).grid(
-            pady=(0, 10), row=current_row, column=3)
+            pady=(0, 10), row=current_row, column=3
+        )
     else:
         ttk.Button(window, text="Confirm", command=run_vpypeline).grid(
-            pady=(0, 10), row=current_row, column=3)
+            pady=(0, 10), row=current_row, column=3
+        )
 
     window.protocol("WM_DELETE_WINDOW", lambda arg=window: on_closing(arg))
 

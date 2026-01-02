@@ -17,7 +17,7 @@ VPYPE_URLS: dict[str, str] = {
     "dipping": "https://vpype.readthedocs.io/en/latest/cookbook.html#inserting-regular-dipping-patterns-for-plotting-with-paint",
     "splitall": "https://vpype.readthedocs.io/en/latest/reference.html#splitall",
     "splitdist": "https://vpype.readthedocs.io/en/latest/reference.html#cmd-splitdist",
-    "occult": "https://github.com/LoicGoulefert/occult", 
+    "occult": "https://github.com/LoicGoulefert/occult",
     "attribute_parse": "https://vpype.readthedocs.io/en/latest/reference.html#cmdoption-read-a",
     "ldelete": "https://vpype.readthedocs.io/en/latest/reference.html#ldelete",
     "filter": "https://vpype.readthedocs.io/en/latest/reference.html#filter",

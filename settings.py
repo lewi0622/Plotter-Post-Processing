@@ -1,6 +1,8 @@
 """Functions for stored graphical settings"""
+
 import sys
 from typing import Any
+
 try:
     import sv_ttk
 except ImportError:
@@ -11,10 +13,7 @@ if "sv_ttk" in sys.modules:
 else:
     THEME = ""
 
-THEME_SETTINGS = {  # default theme settings
-    "theme": THEME,
-    "link_color": "blue"
-}
+THEME_SETTINGS = {"theme": THEME, "link_color": "blue"}  # default theme settings
 
 
 def init() -> None:

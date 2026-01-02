@@ -4,10 +4,21 @@ from posixpath import join
 from tkinter import Tk, IntVar, CENTER
 from tkinter import ttk
 from utils import select_files, generate_random_color, file_info
-from utils import rename_replace, on_closing, check_make_temp_folder, open_url_in_browser
-from gui_helpers import separator, set_title_icon, make_topmost_temp, disable_combobox_scroll
+from utils import (
+    rename_replace,
+    on_closing,
+    check_make_temp_folder,
+    open_url_in_browser,
+)
+from gui_helpers import (
+    separator,
+    set_title_icon,
+    make_topmost_temp,
+    disable_combobox_scroll,
+)
 import settings
 from links import VPYPE_URLS, PPP_URLS
+
 
 def main(input_files=()):
     def run_vpypeline():
@@ -54,8 +65,8 @@ def main(input_files=()):
 
         print(occult_info_list)
 
-        sorted_occult_info_list = occult_info_list#sorted(
-            #occult_info_list, key=lambda d: d['order'].get())
+        sorted_occult_info_list = occult_info_list  # sorted(
+        # occult_info_list, key=lambda d: d['order'].get())
 
         args = r"vpype "
         args += r' eval "files_in=' + f"{input_file_list}" + '"'
@@ -77,13 +88,15 @@ def main(input_files=()):
         for occult_info in sorted_occult_info_list:
             if "file" in occult_info:
                 args += r' forlayer eval "%last_layer=_lid%" end '
-                args += r' read '
+                args += r" read "
                 if not occult_file_info["crop"].get():
-                    args += r' --no-crop '
+                    args += r" --no-crop "
                 args += r' --layer "%last_layer+1%" '
                 args += f' "{occult_info["file"]}" '
                 if occult_info["color"].get():
-                    args += f' color -l "%last_layer+1%" {occult_info["color_info"].get()} '
+                    args += (
+                        f' color -l "%last_layer+1%" {occult_info["color_info"].get()} '
+                    )
 
             args += r' forlayer eval "%last_layer=_lid%" end '
             if occult_info["occult"].get():
@@ -98,18 +111,18 @@ def main(input_files=()):
                     args += f' eval "%last_color=random_colors[{occult_info["order"].get()}]%" '
                     # recolor kept lines if there are any kept lines
                     args += r' forlayer eval "%if(kept_layer<last_layer+1):last_color=_color%" end '
-                    args += r' color -l %kept_layer% %last_color% '
+                    args += r" color -l %kept_layer% %last_color% "
 
         if show:
             args += f' write "{show_temp_file}" end '
             if reparse_with_stroke.get():
                 args += f'ldelete all read -a stroke --no-crop "{show_temp_file}" write "{show_temp_file}" '
-            args += ' show '
-            
+            args += " show "
+
         else:
-            args += r' write %files_out[_i]% end '
+            args += r" write %files_out[_i]% end "
             if reparse_with_stroke.get():
-                args += f'ldelete all read -a stroke --no-crop %files_out[_i]% write %files_out[_i]% '
+                args += f"ldelete all read -a stroke --no-crop %files_out[_i]% write %files_out[_i]% "
 
         return args
 
@@ -133,42 +146,65 @@ def main(input_files=()):
     global window
     window = Tk()
     disable_combobox_scroll(window)
-    
+
     set_title_icon(window, "Occult")
 
-    ttk.Label(window, text="Hidden Line Removal").grid(pady=(10,0), row= current_row, column=0, columnspan=max_col)
+    ttk.Label(window, text="Hidden Line Removal").grid(
+        pady=(10, 0), row=current_row, column=0, columnspan=max_col
+    )
 
     current_row += 1
 
-    title = ttk.Label(window, text="Occult Help",
-                      foreground=settings.THEME_SETTINGS["link_color"], cursor="hand2")
+    title = ttk.Label(
+        window,
+        text="Occult Help",
+        foreground=settings.THEME_SETTINGS["link_color"],
+        cursor="hand2",
+    )
     title.bind(
-        "<Button-1>", lambda e: open_url_in_browser("https://github.com/LoicGoulefert/occult"))
+        "<Button-1>",
+        lambda e: open_url_in_browser("https://github.com/LoicGoulefert/occult"),
+    )
     title.grid(row=current_row, column=0, columnspan=max_col)
 
     current_row += 1
 
-    youtube_label = ttk.Label(window, text="Plotter Post Processing Occult Tutorial",
-                      foreground=settings.THEME_SETTINGS["link_color"], cursor="hand2")
-    youtube_label.bind("<Button-1>", lambda e: open_url_in_browser(
-        PPP_URLS["occult"]))
+    youtube_label = ttk.Label(
+        window,
+        text="Plotter Post Processing Occult Tutorial",
+        foreground=settings.THEME_SETTINGS["link_color"],
+        cursor="hand2",
+    )
+    youtube_label.bind("<Button-1>", lambda e: open_url_in_browser(PPP_URLS["occult"]))
     youtube_label.grid(row=current_row, column=0, columnspan=max_col)
 
     current_row += 1
 
-    ttk.Label(window, justify=CENTER, text=f"{len(input_files)} Design file(s) selected \nDesign file Width(in): {svg_width_inches}, Height(in): {svg_height_inches}").grid(
-        row=current_row, column=0, columnspan=max_col)
+    ttk.Label(
+        window,
+        justify=CENTER,
+        text=f"{len(input_files)} Design file(s) selected \nDesign file Width(in): {svg_width_inches}, Height(in): {svg_height_inches}",
+    ).grid(row=current_row, column=0, columnspan=max_col)
 
     current_row = separator(window, current_row, max_col)
 
-    attribute_parse_label = ttk.Label(window, justify=CENTER, text="Attribute Parse\nSuggested: stroke or d/points/x1/y1/x2/y2",
-                      foreground=settings.THEME_SETTINGS["link_color"], cursor="hand2")
-    attribute_parse_label.bind("<Button-1>", lambda e: open_url_in_browser(VPYPE_URLS["attribute_parse"]))
+    attribute_parse_label = ttk.Label(
+        window,
+        justify=CENTER,
+        text="Attribute Parse\nSuggested: stroke or d/points/x1/y1/x2/y2",
+        foreground=settings.THEME_SETTINGS["link_color"],
+        cursor="hand2",
+    )
+    attribute_parse_label.bind(
+        "<Button-1>", lambda e: open_url_in_browser(VPYPE_URLS["attribute_parse"])
+    )
     attribute_parse_label.grid(row=current_row, column=0)
     attribute_parse_entry = ttk.Entry(window, width=12)
 
     if any(file_info["interleaved?"]):
-        attribute_parse_entry.insert(0, f"-a d -a points -a x1 -a x2 -a y1 -a y2") # attribute d is used by p5js-svg, but when saved by vpype, it converts everything to lines
+        attribute_parse_entry.insert(
+            0, f"-a d -a points -a x1 -a x2 -a y1 -a y2"
+        )  # attribute d is used by p5js-svg, but when saved by vpype, it converts everything to lines
     else:
         attribute_parse_entry.insert(0, f"-a stroke")
 
@@ -182,40 +218,48 @@ def main(input_files=()):
     occult = IntVar(window, value=1)
     occult_file_info["occult"] = occult
     ttk.Checkbutton(window, text="Occult", variable=occult).grid(
-        sticky="w", row=current_row, column=0)
+        sticky="w", row=current_row, column=0
+    )
     occult_keep_lines = IntVar(window, value=0)
     occult_file_info["keep"] = occult_keep_lines
-    ttk.Checkbutton(window, text="Keep occulted lines", variable=occult_keep_lines).grid(
-        sticky="w", row=current_row, column=1)
+    ttk.Checkbutton(
+        window, text="Keep occulted lines", variable=occult_keep_lines
+    ).grid(sticky="w", row=current_row, column=1)
     current_row += 1
 
     occult_ignore = IntVar(window, value=1)
     occult_file_info["ignore"] = occult_ignore
     ttk.Checkbutton(window, text="Ignores layers", variable=occult_ignore).grid(
-        sticky="w", row=current_row, column=0)
+        sticky="w", row=current_row, column=0
+    )
     occult_across = IntVar(window, value=0)
     occult_file_info["across"] = occult_across
-    ttk.Checkbutton(window, text="Occult across layers,\nnot within",
-                    variable=occult_across).grid(sticky="w", row=current_row, column=1)
-    
+    ttk.Checkbutton(
+        window, text="Occult across layers,\nnot within", variable=occult_across
+    ).grid(sticky="w", row=current_row, column=1)
+
     current_row += 1
 
     reparse_with_stroke = IntVar(window, value=int(any(file_info["interleaved?"])))
-    ttk.Checkbutton(window, text="Re-read parse file as -a stroke",
-                    variable=reparse_with_stroke).grid(sticky="w", row=current_row, column=0)
+    ttk.Checkbutton(
+        window, text="Re-read parse file as -a stroke", variable=reparse_with_stroke
+    ).grid(sticky="w", row=current_row, column=0)
 
     current_row = separator(window, current_row, max_col)
 
     occult_info_list.append(occult_file_info)
 
     ttk.Button(window, text="Show Output", command=show_vpypeline).grid(
-        pady=(0, 10), row=current_row, column=0)
+        pady=(0, 10), row=current_row, column=0
+    )
     if len(input_files) > 1:
         ttk.Button(window, text="Apply to All", command=run_vpypeline).grid(
-            pady=(0, 10), row=current_row, column=1)
+            pady=(0, 10), row=current_row, column=1
+        )
     else:
         ttk.Button(window, text="Confirm", command=run_vpypeline).grid(
-            pady=(0, 10), row=current_row, column=1)
+            pady=(0, 10), row=current_row, column=1
+        )
 
     window.protocol("WM_DELETE_WINDOW", lambda arg=window: on_closing(arg))
 

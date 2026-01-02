@@ -1,5 +1,6 @@
-"""Utils provides helpful functions for any Plotter Post Processing apps as well as the main 
+"""Utils provides helpful functions for any Plotter Post Processing apps as well as the main
 function. Any common functions that multiple apps share should be placed here"""
+
 import glob
 import math
 import os
@@ -25,7 +26,7 @@ file_info: dict[str, Any] = {
     "combined_color_dicts": {},
     "size_info": (),
     "shown_files": [],
-    "temp_folder_path": ""
+    "temp_folder_path": "",
 }
 
 
@@ -59,7 +60,7 @@ def open_url_in_browser(url: str) -> None:
 
 def get_svg_width_height(path: str) -> tuple[float, float]:
     """Get svg width and height in inches"""
-    for event, elem in etree.iterparse(path, events=('start', 'end'), huge_tree=True):
+    for event, elem in etree.iterparse(path, events=("start", "end"), huge_tree=True):
         if event == "start":
             if "width" in elem.attrib:
                 root = elem
@@ -85,69 +86,70 @@ def get_svg_width_height(path: str) -> tuple[float, float]:
     if "in" in svg_width:
         svg_width_inches = float(svg_width.replace("in", ""))
     elif "px" in svg_width:
-        svg_width_inches = float(svg_width.replace("px", ""))/96
+        svg_width_inches = float(svg_width.replace("px", "")) / 96
     elif "cm" in svg_width:
-        svg_width_inches = float(svg_width.replace("cm", ""))/2.54
+        svg_width_inches = float(svg_width.replace("cm", "")) / 2.54
     elif "mm" in svg_width:
-        svg_width_inches = float(svg_width.replace("mm", ""))/25.4
+        svg_width_inches = float(svg_width.replace("mm", "")) / 25.4
     else:
-        svg_width_inches = float(svg_width)/96
+        svg_width_inches = float(svg_width) / 96
 
     if "in" in svg_height:
         svg_height_inches = float(svg_height.replace("in", ""))
     elif "px" in svg_height:
-        svg_height_inches = float(svg_height.replace("px", ""))/96
+        svg_height_inches = float(svg_height.replace("px", "")) / 96
     elif "cm" in svg_height:
-        svg_height_inches = float(svg_height.replace("cm", ""))/2.54
+        svg_height_inches = float(svg_height.replace("cm", "")) / 2.54
     elif "mm" in svg_height:
-        svg_height_inches = float(svg_height.replace("mm", ""))/25.4
+        svg_height_inches = float(svg_height.replace("mm", "")) / 25.4
     else:
-        svg_height_inches = float(svg_height)/96
+        svg_height_inches = float(svg_height) / 96
 
-    svg_width_inches = round(svg_width_inches * 1000)/1000
-    svg_height_inches = round(svg_height_inches * 1000)/1000
+    svg_width_inches = round(svg_width_inches * 1000) / 1000
+    svg_height_inches = round(svg_height_inches * 1000) / 1000
 
     return svg_width_inches, svg_height_inches
 
 
-def select_files(files: tuple = (), dialog_title: str = "SELECT DESIGN FILE(s)") -> tuple:
+def select_files(
+    files: tuple = (), dialog_title: str = "SELECT DESIGN FILE(s)"
+) -> tuple:
     """Calls get_files and file diagnositcs returns a list of files"""
     if len(files) == 0:
         files = get_files(dialog_title)  # prompt user to select files
     else:
-        if not files_exist(files): # check if given files exist
+        if not files_exist(files):  # check if given files exist
             print("Please reselect files, could not locate all selected files")
             files = get_files(dialog_title)  # prompt user to select files
     print("Currently Loaded Files: ")
     for file in files:
         print(file)
-    if len(files) == 0 and len(file_info["files"]) > 0: #reselect files canceled
-        if not files_exist(file_info["files"]): # check if given files exist
+    if len(files) == 0 and len(file_info["files"]) > 0:  # reselect files canceled
+        if not files_exist(file_info["files"]):  # check if given files exist
             print("Please reselect files, could not locate all selected files")
             files = get_files(dialog_title)  # prompt user to select files
-    if len(files) == 0 and len(file_info["files"]) > 0: #still canceled and there's no files chosen
+    if (
+        len(files) == 0 and len(file_info["files"]) > 0
+    ):  # still canceled and there's no files chosen
         for file in file_info["files"]:
             print(file)
         return file_info["files"]
 
-    file_info["temp_folder_path"] = join(
-        os.path.dirname(files[0]),
-        "ppp_temp"
-    )
+    file_info["temp_folder_path"] = join(os.path.dirname(files[0]), "ppp_temp")
     # to handle multiple instances of ppp running simultaneously, each one should handle its' own temp folder
     folder_loop_count = 1
     while os.path.isdir(file_info["temp_folder_path"]):
         file_info["temp_folder_path"] = join(
-            os.path.dirname(files[0]),
-            r"ppp_temp" + str(folder_loop_count)
+            os.path.dirname(files[0]), r"ppp_temp" + str(folder_loop_count)
         )
         folder_loop_count += 1
 
     file_info["files"] = files
-    file_info["shown_files"] = [None]*len(files)
+    file_info["shown_files"] = [None] * len(files)
     get_all_color_dicts()
     get_all_size_info()
     return files
+
 
 def files_exist(files: tuple):
     """Checks if a list of files all exist and prints an error if any don't. Returns False if any don't exist."""
@@ -158,6 +160,7 @@ def files_exist(files: tuple):
             print("Cannot find selected file:")
             print(file)
     return all_exist
+
 
 def get_files(title: str = "") -> tuple:
     """Opens dialog box to select files and returns a tuple of the selected files"""
@@ -170,7 +173,7 @@ def get_files(title: str = "") -> tuple:
         title=title,
         initialdir=initial_dir,
         filetypes=(("SVG files", "*.svg*"), ("all files", "*.*")),
-        initialfile=latest_file
+        initialfile=latest_file,
     )
     # if nothing selected, askopenfilenames returns a blank string
     if recieved_files == "":
@@ -181,7 +184,7 @@ def get_files(title: str = "") -> tuple:
 
 def get_hex_value(rgb: tuple[int, ...]) -> str:
     """rgb must be in the form of a tuple of integers, returns a hex string"""
-    hex_value = f'#{rgb[0]:02x}{rgb[1]:02x}{rgb[2]:02x}'
+    hex_value = f"#{rgb[0]:02x}{rgb[1]:02x}{rgb[2]:02x}"
     return hex_value
 
 
@@ -191,7 +194,7 @@ def build_color_dict(input_file: str) -> tuple[dict, bool]:
     current_color = ""
     color_change_count = 0
     # if the file is properly formatted, this will find the colors
-    for _, elem in etree.iterparse(input_file, events=('end',), huge_tree=True):
+    for _, elem in etree.iterparse(input_file, events=("end",), huge_tree=True):
         hex_string: str = ""
         if elem.tag.endswith("text"):
             continue
@@ -201,7 +204,8 @@ def build_color_dict(input_file: str) -> tuple[dict, bool]:
         elif elem.tag.endswith("g"):
             if "style" in elem.attrib:
                 stroke_string = re.search(
-                    r"(?<=stroke:)(.*?)(?=;)", elem.attrib["style"])
+                    r"(?<=stroke:)(.*?)(?=;)", elem.attrib["style"]
+                )
                 if stroke_string is not None:
                     hex_string = parse_stroke_color(stroke_string.group())
         # if there is a fill with no stroke, vpype will assign it a stroke color
@@ -216,7 +220,7 @@ def build_color_dict(input_file: str) -> tuple[dict, bool]:
         elem.clear()
     # otherwise we look in all the rest
     if not color_dict:
-        with open(input_file, 'r', encoding="utf-8") as file:
+        with open(input_file, "r", encoding="utf-8") as file:
             content = file.read()
             strokes = re.findall(r'(?:stroke=")(.*?)(?:")', content)
             for stroke in strokes:
@@ -232,7 +236,7 @@ def parse_stroke_color(s: str) -> str:
     c = ""
     # check for rgb and convert to hex
     if "rgb" in s:
-        rgb = re.findall(r'(?:rgb\()(.*?)(?:\))', s)[0].split(",")
+        rgb = re.findall(r"(?:rgb\()(.*?)(?:\))", s)[0].split(",")
         c = get_hex_value((int(rgb[0]), int(rgb[1]), int(rgb[2])))
     elif "#" in s:
         c = s
@@ -265,18 +269,18 @@ def generate_random_color() -> str:
     """Generates a unique random color, adds it to color dict"""
     # generate first color
     rgb: tuple[int, int, int] = (
-        math.floor(random.random()*256),
-        math.floor(random.random()*256),
-        math.floor(random.random()*256)
+        math.floor(random.random() * 256),
+        math.floor(random.random() * 256),
+        math.floor(random.random() * 256),
     )
     rgb_hex: str = get_hex_value(rgb)
 
     # keep generating colors if matching
     while rgb_hex in file_info["combined_color_dicts"]:
         rgb = (
-            math.floor(random.random()*256),
-            math.floor(random.random()*256),
-            math.floor(random.random()*256)
+            math.floor(random.random() * 256),
+            math.floor(random.random() * 256),
+            math.floor(random.random() * 256),
         )
         rgb_hex = get_hex_value(rgb)
 
@@ -331,7 +335,7 @@ def on_closing(win) -> None:
     """Cleanup for all Tk Inter windows"""
 
     # Cleanup any shown file when window is closed
-    file_info["shown_files"] = [None]*len(file_info["files"]) 
+    file_info["shown_files"] = [None] * len(file_info["files"])
 
     check_delete_temp_folder()
     win.quit()
@@ -348,7 +352,7 @@ def find_closest_dimensions(width: float, height: float) -> int:
         "11x17 in": [11, 17],
         "A3": [11.7, 16.5],
         "17x23 in": [17, 23],
-        "A2": [16.5, 23.4]
+        "A2": [16.5, 23.4],
     }
     closest_id: int = 0
     closest_w: float = 8.5
@@ -368,10 +372,8 @@ def run_subprocess(command: str) -> None:
 
 
 def thread_vpypelines(
-        commands: list[str],
-        show_commands: list[str],
-        app: str, show_info: dict
-    ) -> None:
+    commands: list[str], show_commands: list[str], app: str, show_info: dict
+) -> None:
     """Set up multithreading for each file in the batch"""
     if len(show_info) > 0:
         commands = [show_commands[show_info["index"]]]
@@ -379,22 +381,26 @@ def thread_vpypelines(
         "",
         "Running " + app + f" on {len(commands)} file(s). First pipeline:",
         commands[0],
-        sep="\n"
+        sep="\n",
     )
     threads = []
     for index, command in enumerate(commands):
         moving_file = False
         current_shown_file = file_info["shown_files"][index]
         if current_shown_file is not None:
-            if current_shown_file["command"] == show_commands[index] and len(show_info) == 0:
-                moving_file = True #already ran same pipeline and file exists
+            if (
+                current_shown_file["command"] == show_commands[index]
+                and len(show_info) == 0
+            ):
+                moving_file = True  # already ran same pipeline and file exists
 
         if moving_file:
             thread = threading.Thread(
                 target=rename_replace,
                 args=(
                     current_shown_file["show_path"],
-                    current_shown_file["output_path"])
+                    current_shown_file["output_path"],
+                ),
             )
         else:
             thread = threading.Thread(target=run_subprocess, args=(command,))
@@ -408,5 +414,5 @@ def thread_vpypelines(
         file_info["shown_files"][show_info["index"]] = {
             "command": show_commands[show_info["index"]],
             "show_path": show_info["show_path"],
-            "output_path": show_info["output_path"]
+            "output_path": show_info["output_path"],
         }
