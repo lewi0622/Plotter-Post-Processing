@@ -2,10 +2,11 @@
 
 from os import path
 from posixpath import join
-from tkinter import Canvas, Tk, ttk
+from tkinter import CENTER, Canvas, ttk
 from typing import Any
 
-from utils import file_info
+from settings import THEME_SETTINGS
+from utils import file_info, open_url_in_browser
 
 
 def separator(parent: Any, r: int, span: int) -> int:
@@ -140,3 +141,16 @@ def create_toast(
     toast = ttk.Button(root, text=message)
     toast.place(relx=0.5, rely=1, anchor="s")
     root.after(duration_milliseconds, toast.destroy)
+
+
+def create_url_label(parent, text: str, url: str) -> ttk.Label:
+    """Creates a styled label with URL binding on click"""
+    label = ttk.Label(
+        parent,
+        text=text,
+        justify=CENTER,
+        foreground=THEME_SETTINGS["link_color"],
+        cursor="hand2",
+    )
+    label.bind("<Button-1>", lambda e: open_url_in_browser(url))
+    return label
