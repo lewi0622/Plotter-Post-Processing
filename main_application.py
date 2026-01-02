@@ -10,10 +10,8 @@ import process
 import settings
 from gui_helpers import disable_combobox_scroll, make_topmost_temp, set_title_icon
 from links import PPP_URLS, VPYPE_URLS
-from settings import THEME_SETTINGS
+from settings import THEME_SETTINGS, VERSION
 from utils import file_info, on_closing, open_url_in_browser, select_files
-
-version = "1.2.0"
 
 
 def main():
@@ -65,9 +63,9 @@ def main():
 
     disable_combobox_scroll(main_app)
 
-    set_title_icon(main_app, f"Plotter Post Processing v{version}")
+    set_title_icon(main_app, f"Plotter Post Processing v{VERSION}")
 
-    print("\n", f"Plotter Post Processing v{version}", "\n")
+    print("\n", f"Plotter Post Processing v{VERSION}", "\n")
 
     current_row += 1
 

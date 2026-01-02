@@ -1,0 +1,26 @@
+[project]
+name = "Plotter-Post-Processing"
+version = "1.2.0"
+description = "A tool for post-processing SVG files for plotter use"
+readme = "README.md"
+requires-python = ">=3.11, <=3.13"
+authors = [
+    {name = "Eric Lewiston", email = "LewistonFaceArt@gmail.com"}
+]
+keywords = []
+classifiers = []
+
+dependencies = []
+
+[project.optional-dependencies]
+dev =[]
+test = []
+
+[project.urls]
+Homepage = ""
+Documentation = ""
+Repository = ""
+Issues = ""
+
+[tool.setuptools]
+packages = []
