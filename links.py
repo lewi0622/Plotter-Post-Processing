@@ -23,7 +23,11 @@ VPYPE_URLS: dict[str, str] = {
     "filter": "https://vpype.readthedocs.io/en/latest/reference.html#filter",
     "rect": "https://vpype.readthedocs.io/en/stable/reference.html#rect",
     "reverse": "https://vpype.readthedocs.io/en/latest/reference.html#reverse",
+    "separate_files": "https://vpype.readthedocs.io/en/latest/cookbook.html#saving-each-layer-as-a-separate-file",
 }
+
+OCCULT_URLS: dict[str, str] = {"occult": "https://github.com/LoicGoulefert/occult"}
+
 
 PPP_URLS: dict[str, str] = {
     "playlist": "https://www.youtube.com/playlist?list=PL9Kq-2ltl3B4Dl3438KB67FPoJSAxnbli",
