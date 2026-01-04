@@ -49,6 +49,11 @@ across_layers = 0
 reparse = 0
 reparse_interleaved = 1
 
+[paint]
+split_all = 0
+split_dist = "4"
+rotate = "0"
+
 [process]
 window_size = "555x870"
 bbox = 0

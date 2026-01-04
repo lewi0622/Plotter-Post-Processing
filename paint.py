@@ -4,7 +4,6 @@ from posixpath import join
 from tkinter import *
 from tkinter import ttk
 
-import settings
 from gui_helpers import (
     create_scrollbar,
     create_toast,
@@ -15,6 +14,7 @@ from gui_helpers import (
     set_title_icon,
 )
 from links import PPP_URLS, VPYPE_URLS
+from settings import GLOBAL_DEFAULTS, PAINT_DEFAULTS, init, set_theme
 from utils import *
 
 
@@ -206,7 +206,7 @@ end \
     create_url_label(window, "Split All and Merge", VPYPE_URLS["splitall"]).grid(
         row=current_row, column=0
     )
-    split_all = IntVar(window, value=0)
+    split_all = IntVar(window, value=PAINT_DEFAULTS["split_all"])
     ttk.Checkbutton(window, text="splitall", variable=split_all).grid(
         sticky="w", row=current_row, column=1
     )
@@ -216,7 +216,7 @@ end \
     )
 
     split_dist_entry = ttk.Entry(window, width=7)
-    split_dist_entry.insert(0, "4")
+    split_dist_entry.insert(0, PAINT_DEFAULTS["split_dist"])
     split_dist_entry.grid(row=current_row, column=3)
 
     current_row = separator(window, current_row, max_col)
@@ -248,7 +248,7 @@ end \
         ).grid(row=current_row, column=2)
 
         rotate_entry = ttk.Entry(frame, width=7)
-        rotate_entry.insert(0, "0")
+        rotate_entry.insert(0, PAINT_DEFAULTS["rotate"])
         rotate_entry.grid(sticky="e", row=current_row, column=3)
 
         current_row += 1
@@ -257,8 +257,12 @@ end \
             row=current_row, column=0
         )
 
+        # TODO add dropdown options for populating x, y locations in different patterns
+        # total number of dips (default is number of colors)
+        # X spacing value or patterns, Y spacing value or patterns, cycle through dips if fewer dips than colors
+
         dip_loc_x_entry = ttk.Entry(frame, width=7)
-        dip_loc_x_entry.insert(0, f"{i * 2 + 1}")
+        dip_loc_x_entry.insert(0, f"{i * 1 + 1}")
         dip_loc_x_entry.grid(sticky="w", row=current_row, column=1)
 
         ttk.Label(frame, text="Translate Y (in):").grid(row=current_row, column=2)
@@ -294,14 +298,14 @@ end \
 
     window.protocol("WM_DELETE_WINDOW", lambda arg=window: on_closing(arg))
 
-    settings.set_theme(window)
+    set_theme(window)
     window.mainloop()
 
     return tuple(return_val)
 
 
 if __name__ == "__main__":
-    settings.init()
+    init()
     selected_files = select_files()
     if len(selected_files) == 0:
         print("No Design Files Selected")
