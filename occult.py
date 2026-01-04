@@ -3,21 +3,21 @@ import subprocess
 from posixpath import join
 from tkinter import CENTER, IntVar, Tk, ttk
 
-import settings
 from gui_helpers import (
+    create_attribute_parse,
     create_url_label,
     disable_combobox_scroll,
     make_topmost_temp,
     separator,
     set_title_icon,
 )
-from links import OCCULT_URLS, PPP_URLS, VPYPE_URLS
+from links import OCCULT_URLS, PPP_URLS
+from settings import GLOBAL_DEFAULTS, OCCULT_DEFAULTS, init, set_theme
 from utils import (
     check_make_temp_folder,
     file_info,
     generate_random_color,
     on_closing,
-    open_url_in_browser,
     rename_replace,
     select_files,
 )
@@ -120,7 +120,7 @@ def main(input_files=()):
 
     color_list = []
     # generate color list for each potential -k
-    for file in input_files:
+    for _file in input_files:
         color_list.append(generate_random_color())
 
     max_col = 4
@@ -160,47 +160,41 @@ def main(input_files=()):
 
     current_row = separator(window, current_row, max_col)
 
-    create_url_label(
-        window,
-        "Attribute Parse\nSuggested: stroke or d/points/x1/y1/x2/y2",
-        VPYPE_URLS["attribute_parse"],
-    ).grid(row=current_row, column=0)
-
-    attribute_parse_entry = ttk.Entry(window, width=12)
-
+    entry_text = GLOBAL_DEFAULTS["parse_stroke_color"]
     if any(file_info["interleaved?"]):
-        attribute_parse_entry.insert(
-            0, f"-a d -a points -a x1 -a x2 -a y1 -a y2"
-        )  # attribute d is used by p5js-svg, but when saved by vpype, it converts everything to lines
-    else:
-        attribute_parse_entry.insert(0, f"-a stroke")
+        entry_text = GLOBAL_DEFAULTS["parse_individual_lines"]
 
+    parse_label, attribute_parse_entry = create_attribute_parse(window, entry_text)
+    parse_label.grid(row=current_row, column=0)
     attribute_parse_entry.grid(sticky="w", row=current_row, column=1)
 
     current_row = separator(window, current_row, max_col)
 
-    occult = IntVar(window, value=1)
+    occult = IntVar(window, value=OCCULT_DEFAULTS["occult"])
     ttk.Checkbutton(window, text="Occult", variable=occult).grid(
         sticky="w", row=current_row, column=0
     )
-    occult_keep_lines = IntVar(window, value=0)
+    occult_keep_lines = IntVar(window, value=OCCULT_DEFAULTS["keep_lines"])
     ttk.Checkbutton(
         window, text="Keep occulted lines", variable=occult_keep_lines
     ).grid(sticky="w", row=current_row, column=1)
     current_row += 1
 
-    occult_ignore = IntVar(window, value=1)
+    occult_ignore = IntVar(window, value=OCCULT_DEFAULTS["ignore_layers"])
     ttk.Checkbutton(window, text="Ignores layers", variable=occult_ignore).grid(
         sticky="w", row=current_row, column=0
     )
-    occult_across = IntVar(window, value=0)
+    occult_across = IntVar(window, value=OCCULT_DEFAULTS["across_layers"])
     ttk.Checkbutton(
         window, text="Occult across layers,\nnot within", variable=occult_across
     ).grid(sticky="w", row=current_row, column=1)
 
     current_row += 1
 
-    reparse_with_stroke = IntVar(window, value=int(any(file_info["interleaved?"])))
+    reparse_val = OCCULT_DEFAULTS["reparse"]
+    if any(file_info["interleaved?"]):
+        reparse_val = OCCULT_DEFAULTS["reparse_interleaved"]
+    reparse_with_stroke = IntVar(window, value=reparse_val)
     ttk.Checkbutton(
         window, text="Re-read parse file as -a stroke", variable=reparse_with_stroke
     ).grid(sticky="w", row=current_row, column=0)
@@ -221,14 +215,14 @@ def main(input_files=()):
 
     window.protocol("WM_DELETE_WINDOW", lambda arg=window: on_closing(arg))
 
-    settings.set_theme(window)
+    set_theme(window)
     window.mainloop()
 
     return tuple(return_val)
 
 
 if __name__ == "__main__":
-    settings.init()
+    init()
     selected_files = select_files()
     if len(selected_files) == 0:
         print("No Design Files Selected")

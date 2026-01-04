@@ -1,6 +1,6 @@
 [global]
 parse_stroke_color = "-a stroke"
-parse_individual_lines = "-a d -a points -a x1 -a x2 -a y1 -a y2"
+parse_individual_lines = "-a d -a points -a x1 -a x2 -a y1 -a y2" #to parse individual lines, -a d -a points is useful for p5.js-svg. If a file has already been processed with vpype, using x1, y1, x2, y2 is more helpful
 page_sizes = ["Letter", "A4", "11x17 in", "A3", "17x23 in", "A2"]
 letter_width = "8.5"
 letter_height = "11"
@@ -40,6 +40,14 @@ linesort = 1
 line_shuffle = 0
 separate_files = 0
 remove_placeholder = "e.g. 1, 3-5"
+
+[occult]
+occult = 1
+keep_lines = 0
+ignore_layers = 1
+across_layers = 0
+reparse = 0
+reparse_interleaved = 1
 
 [process]
 window_size = "555x870"
