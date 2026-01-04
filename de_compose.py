@@ -3,8 +3,8 @@ import subprocess
 from posixpath import join
 from tkinter import CENTER, IntVar, Tk, ttk
 
-import settings
 from gui_helpers import (
+    create_attribute_parse,
     create_url_label,
     disable_combobox_scroll,
     make_topmost_temp,
@@ -14,9 +14,8 @@ from gui_helpers import (
     set_title_icon,
 )
 from links import PPP_URLS, VPYPE_URLS
+from settings import DECOMPOSE_DEFAULTS, GLOBAL_DEFAULTS, init, set_theme
 from utils import *
-
-DEFAULTS: dict[str, str] = {"remove_placeholder": "e.g. 1, 3-5"}
 
 
 def main(input_files=()):
@@ -151,7 +150,7 @@ def main(input_files=()):
             return num
 
         layers_to_remove = layer_parse(
-            remove_layer_entry.get(), DEFAULTS["remove_placeholder"]
+            remove_layer_entry.get(), DECOMPOSE_DEFAULTS["remove_placeholder"]
         )
 
         remove_any = len(layers_to_remove) > 0
@@ -270,12 +269,6 @@ def main(input_files=()):
         window,
         "Plotter Post Processing deCompose Tutorial",
         PPP_URLS["decompose"],
-    )
-    ttk.Label(
-        window,
-        text="Plotter Post Processing deCompose Tutorial",
-        foreground=settings.THEME_SETTINGS["link_color"],
-        cursor="hand2",
     ).grid(row=current_row, column=0, columnspan=max_col)
     current_row += 1
 
@@ -286,11 +279,10 @@ def main(input_files=()):
 
     current_row = separator(window, current_row, max_col)
 
-    create_url_label(window, "Attribute Parse", VPYPE_URLS["attribute_parse"]).grid(
-        row=current_row, column=0
+    parse_label, pre_attribute_parse_entry = create_attribute_parse(
+        window, GLOBAL_DEFAULTS["parse_stroke_color"]
     )
-    pre_attribute_parse_entry = ttk.Entry(window, width=12)
-    pre_attribute_parse_entry.insert(0, f"-a stroke")
+    parse_label.grid(row=current_row, column=0)
     pre_attribute_parse_entry.grid(sticky="w", row=current_row, column=1)
 
     current_row += 1
@@ -299,7 +291,7 @@ def main(input_files=()):
         sticky="e", row=current_row, column=0
     )
 
-    pre_linesort = IntVar(window, value=0)
+    pre_linesort = IntVar(window, value=DECOMPOSE_DEFAULTS["pre_linesort"])
     ttk.Checkbutton(window, text="linesort", variable=pre_linesort).grid(
         sticky="w", row=current_row, column=1
     )
@@ -308,44 +300,44 @@ def main(input_files=()):
         sticky="e", row=current_row, column=2
     )
 
-    pre_line_shuffle = IntVar(window, value=0)
+    pre_line_shuffle = IntVar(window, value=DECOMPOSE_DEFAULTS["pre_line_shuffle"])
     ttk.Checkbutton(window, text="lineshuffle", variable=pre_line_shuffle).grid(
         sticky="w", row=current_row, column=3
     )
 
     current_row = separator(window, current_row, max_col)
 
-    separate = IntVar(window, value=0)
+    separate = IntVar(window, value=DECOMPOSE_DEFAULTS["separate"])
     ttk.Checkbutton(window, text="Separate design in N layers", variable=separate).grid(
         sticky="w", row=current_row, column=0
     )
 
     ttk.Label(window, justify=CENTER, text="N").grid(row=current_row, column=1)
     n_layers_entry = ttk.Entry(window, width=7)
-    n_layers_entry.insert(0, "2")
+    n_layers_entry.insert(0, DECOMPOSE_DEFAULTS["n_layers"])
     n_layers_entry.grid(pady=(0, 10), sticky="w", row=current_row, column=2)
 
     current_row += 1
 
-    separator_type = IntVar(window, value=1)
-    ttk.Radiobutton(window, text="Uniform", variable=separator_type, value=0).grid(
-        row=current_row, column=0
-    )
+    separator_type = IntVar(window, value=DECOMPOSE_DEFAULTS["separate_by_dist"])
+    ttk.Radiobutton(
+        window,
+        text="Uniform",
+        variable=separator_type,
+        value=DECOMPOSE_DEFAULTS["separate_uniformly"],
+    ).grid(row=current_row, column=0)
     ttk.Radiobutton(
         window,
         text="By Distance (parse as single layer)",
         variable=separator_type,
-        value=1,
+        value=DECOMPOSE_DEFAULTS["separate_by_dist"],
     ).grid(row=current_row, column=2)
     current_row += 1
 
-    create_url_label(window, "Attribute Parse", VPYPE_URLS["attribute_parse"]).grid(
-        row=current_row, column=0
+    parse_label, uniform_attribute_parse_entry = create_attribute_parse(
+        window, GLOBAL_DEFAULTS["parse_individual_lines"]
     )
-    uniform_attribute_parse_entry = ttk.Entry(window, width=12)
-    uniform_attribute_parse_entry.insert(
-        0, f"-a d -a points -a x1 -a x2 -a y1 -a y2"
-    )  # attribute d is used by p5js-svg, but when saved by vpype, it converts everything to lines
+    parse_label.grid(row=current_row, column=0)
     uniform_attribute_parse_entry.grid(sticky="w", row=current_row, column=1)
 
     create_url_label(window, "Split Distance (in)", VPYPE_URLS["splitdist"]).grid(
@@ -353,7 +345,7 @@ def main(input_files=()):
     )
 
     split_dist_entry = ttk.Entry(window, width=7)
-    split_dist_entry.insert(0, "20")
+    split_dist_entry.insert(0, DECOMPOSE_DEFAULTS["split_dist"])
     split_dist_entry.grid(sticky="w", row=current_row, column=3)
     current_row += 1
 
@@ -361,19 +353,17 @@ def main(input_files=()):
         row=current_row, column=2
     )
 
-    split_all = IntVar(window, value=0)
+    split_all = IntVar(window, value=DECOMPOSE_DEFAULTS["split_all"])
     ttk.Checkbutton(window, text="splitall", variable=split_all).grid(
         sticky="w", row=current_row, column=3
     )
 
     current_row = separator(window, current_row, max_col)
 
-    create_url_label(window, "Attribute Parse", VPYPE_URLS["attribute_parse"]).grid(
-        row=current_row, column=0
+    parse_label, remove_attribute_parse_entry = create_attribute_parse(
+        window, GLOBAL_DEFAULTS["parse_stroke_color"]
     )
-
-    remove_attribute_parse_entry = ttk.Entry(window, width=12)
-    remove_attribute_parse_entry.insert(0, f"-a stroke")
+    parse_label.grid(row=current_row, column=0)
     remove_attribute_parse_entry.grid(sticky="w", row=current_row, column=1)
 
     create_url_label(window, "Remove Layers", VPYPE_URLS["ldelete"]).grid(
@@ -383,35 +373,36 @@ def main(input_files=()):
     remove_layer_list = []
 
     remove_layer_entry = ttk.Entry(window, width=12)
-    remove_layer_entry.insert(0, DEFAULTS["remove_placeholder"])
+    remove_layer_entry.insert(0, DECOMPOSE_DEFAULTS["remove_placeholder"])
     remove_layer_entry.grid(sticky="w", row=current_row, column=3)
 
     remove_layer_entry.bind(
         "<Button-1>",
-        lambda x: on_focus_in(remove_layer_entry, DEFAULTS["remove_placeholder"]),
+        lambda x: on_focus_in(
+            remove_layer_entry, DECOMPOSE_DEFAULTS["remove_placeholder"]
+        ),
     )
     remove_layer_entry.bind(
         "<FocusOut>",
-        lambda x: on_focus_out(remove_layer_entry, DEFAULTS["remove_placeholder"]),
+        lambda x: on_focus_out(
+            remove_layer_entry, DECOMPOSE_DEFAULTS["remove_placeholder"]
+        ),
     )
 
     current_row = separator(window, current_row, max_col)
 
-    create_url_label(window, "Attribute Parse", VPYPE_URLS["attribute_parse"]).grid(
-        row=current_row, column=0
+    parse_label, post_attribute_parse_entry = create_attribute_parse(
+        window, GLOBAL_DEFAULTS["parse_stroke_color"]
     )
-
-    post_attribute_parse_entry = ttk.Entry(window, width=12)
-    post_attribute_parse_entry.insert(0, f"-a stroke")
+    parse_label.grid(row=current_row, column=0)
     post_attribute_parse_entry.grid(sticky="w", row=current_row, column=1)
-
     current_row += 1
 
     create_url_label(window, "Sort Lines", VPYPE_URLS["linesort"]).grid(
         sticky="e", row=current_row, column=0
     )
 
-    linesort = IntVar(window, value=1)
+    linesort = IntVar(window, value=DECOMPOSE_DEFAULTS["linesort"])
     ttk.Checkbutton(window, text="linesort", variable=linesort).grid(
         sticky="w", row=current_row, column=1
     )
@@ -420,19 +411,17 @@ def main(input_files=()):
         sticky="e", row=current_row, column=2
     )
 
-    line_shuffle = IntVar(window, value=0)
+    line_shuffle = IntVar(window, value=DECOMPOSE_DEFAULTS["line_shuffle"])
     ttk.Checkbutton(window, text="lineshuffle", variable=line_shuffle).grid(
         sticky="w", row=current_row, column=3
     )
 
     current_row = separator(window, current_row, max_col)
 
-    create_url_label(window, "Attribute Parse", VPYPE_URLS["attribute_parse"]).grid(
-        row=current_row, column=0
+    parse_label, files_attribute_parse_entry = create_attribute_parse(
+        window, GLOBAL_DEFAULTS["parse_stroke_color"]
     )
-
-    files_attribute_parse_entry = ttk.Entry(window, width=12)
-    files_attribute_parse_entry.insert(0, f"-a stroke")
+    parse_label.grid(row=current_row, column=0)
     files_attribute_parse_entry.grid(sticky="w", row=current_row, column=1)
 
     create_url_label(
@@ -441,7 +430,7 @@ def main(input_files=()):
         VPYPE_URLS["separate_files"],
     ).grid(row=current_row, column=2)
 
-    separate_files = IntVar(window, value=0)
+    separate_files = IntVar(window, value=DECOMPOSE_DEFAULTS["separate_files"])
     ttk.Checkbutton(window, text="Separate\nFiles", variable=separate_files).grid(
         sticky="w", row=current_row, column=3
     )
@@ -462,14 +451,14 @@ def main(input_files=()):
 
     window.protocol("WM_DELETE_WINDOW", lambda arg=window: on_closing(arg))
 
-    settings.set_theme(window)
+    set_theme(window)
     window.mainloop()
 
     return tuple(return_val)
 
 
 if __name__ == "__main__":
-    settings.init()
+    init()
     selected_files = select_files()
     if len(selected_files) == 0:
         print("No Design Files Selected")

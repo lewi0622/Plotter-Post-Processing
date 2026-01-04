@@ -5,6 +5,7 @@ from posixpath import join
 from tkinter import CENTER, END, Canvas, ttk
 from typing import Any
 
+from links import VPYPE_URLS
 from settings import GLOBAL_DEFAULTS, THEME_SETTINGS
 from utils import file_info, find_closest_dimensions, open_url_in_browser
 
@@ -194,3 +195,18 @@ def layout_selection_changed(combo_box: Any, width_entry: Any, height_entry: Any
         width_key, height_key = page_size_map[selection]
         width_entry.insert(0, GLOBAL_DEFAULTS[width_key])
         height_entry.insert(0, GLOBAL_DEFAULTS[height_key])
+
+
+def create_attribute_parse(window: Any, parsetext: str = "") -> ttk.Entry:
+    """Creates the attribute parse label and entry"""
+    label = create_url_label(
+        window,
+        "Attribute Parse",
+        VPYPE_URLS["attribute_parse"],
+    )
+
+    entry = ttk.Entry(window, width=12)
+
+    entry.insert(0, parsetext)
+
+    return label, entry

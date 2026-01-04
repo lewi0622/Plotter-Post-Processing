@@ -45,7 +45,7 @@ with open("defaults.toml", "rb") as f:
     settings_data = tomllib.load(f)
     GLOBAL_DEFAULTS = settings_data.get("global", {})
     COMPOSE_DEFAULTS = settings_data.get("compose", {})
-    DECOMPOSE_DEFAULTS = settings_data.get("decompose", {})
+    DECOMPOSE_DEFAULTS = settings_data.get("de_compose", {})
     MAIN_APPLICATION_DEFAULTS = settings_data.get("main_application", {})
     OCCULT_DEFAULTS = settings_data.get("occult", {})
     PAINT_DEFAULTS = settings_data.get("paint", {})
