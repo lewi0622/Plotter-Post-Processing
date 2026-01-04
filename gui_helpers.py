@@ -2,11 +2,11 @@
 
 from os import path
 from posixpath import join
-from tkinter import CENTER, Canvas, ttk
+from tkinter import CENTER, END, Canvas, ttk
 from typing import Any
 
-from settings import THEME_SETTINGS
-from utils import file_info, open_url_in_browser
+from settings import GLOBAL_DEFAULTS, THEME_SETTINGS
+from utils import file_info, find_closest_dimensions, open_url_in_browser
 
 
 def separator(parent: Any, r: int, span: int) -> int:
@@ -154,3 +154,43 @@ def create_url_label(parent, text: str, url: str) -> ttk.Label:
     )
     label.bind("<Button-1>", lambda e: open_url_in_browser(url))
     return label
+
+
+def create_page_layout_combobox(
+    parent: Any, w: float, h: float, w_entry: Any, h_entry: Any
+) -> ttk.Combobox:
+    """Creates page layout combobox, selects nearest sized paper, and binds to selection changed event."""
+    current_value_index = find_closest_dimensions(w, h)
+    box = ttk.Combobox(
+        parent, width=7, state="readonly", values=GLOBAL_DEFAULTS["page_sizes"]
+    )
+    box.current(current_value_index)
+
+    box.bind(
+        "<<ComboboxSelected>>",
+        lambda _e: layout_selection_changed(box, w_entry, h_entry),
+    )
+    layout_selection_changed(box, w_entry, h_entry)
+
+    return box
+
+
+def layout_selection_changed(combo_box: Any, width_entry: Any, height_entry: Any):
+    """Event from changing the layout dropdown box, sets the width and height accordingly"""
+    page_size_map = {
+        "Letter": ("letter_width", "letter_height"),
+        "A4": ("a4_width", "a4_height"),
+        "11x17 in": ("11x17_width", "11x17_height"),
+        "A3": ("a3_width", "a3_height"),
+        "17x23 in": ("17x23_width", "17x23_height"),
+        "A2": ("a2_width", "a2_height"),
+    }
+
+    selection = combo_box.get()
+    width_entry.delete(0, END)
+    height_entry.delete(0, END)
+
+    if selection in page_size_map:
+        width_key, height_key = page_size_map[selection]
+        width_entry.insert(0, GLOBAL_DEFAULTS[width_key])
+        height_entry.insert(0, GLOBAL_DEFAULTS[height_key])

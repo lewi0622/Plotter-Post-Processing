@@ -4,16 +4,18 @@ from tkinter import CENTER, END, IntVar, Tk, ttk
 from typing import Any
 
 from gui_helpers import (
+    create_page_layout_combobox,
     create_scrollbar,
     create_url_label,
     disable_combobox_scroll,
     generate_file_names,
+    layout_selection_changed,
     make_topmost_temp,
     separator,
     set_title_icon,
 )
 from links import PPP_URLS, VPYPE_URLS
-from settings import GLOBAL_DEFAULTS, PROCESS_DEFAULTS, THEME_SETTINGS, init, set_theme
+from settings import GLOBAL_DEFAULTS, PROCESS_DEFAULTS, init, set_theme
 from utils import (
     check_make_temp_folder,
     file_info,
@@ -195,31 +197,25 @@ def main(input_files: tuple = ()) -> tuple:
 
         return (commands, show_commands)
 
-    def layout_selection_changed(e=None) -> None:
-        """Event from changing the layout dropdown box, sets the width and height accordingly"""
-        selection = layout_combobox.get()
-        layout_width_entry.delete(0, END)
-        layout_height_entry.delete(0, END)
-        if selection == "Letter":
-            layout_width_entry.insert(0, GLOBAL_DEFAULTS["letter_width"])
-            layout_height_entry.insert(0, GLOBAL_DEFAULTS["letter_height"])
-            layout.set(1)
-        elif selection == "A4":
-            layout_width_entry.insert(0, GLOBAL_DEFAULTS["a4_width"])
-            layout_height_entry.insert(0, GLOBAL_DEFAULTS["a4_height"])
-        elif selection == "11x17 in":
-            layout_width_entry.insert(0, GLOBAL_DEFAULTS["11x17_width"])
-            layout_height_entry.insert(0, GLOBAL_DEFAULTS["11x17_height"])
-        elif selection == "A3":
-            layout_width_entry.insert(0, GLOBAL_DEFAULTS["a3_width"])
-            layout_height_entry.insert(0, GLOBAL_DEFAULTS["a3_height"])
-        elif selection == "17x23 in":
-            layout_width_entry.insert(0, GLOBAL_DEFAULTS["17x23_width"])
-            layout_height_entry.insert(0, GLOBAL_DEFAULTS["17x23_height"])
-        elif selection == "A2":
-            layout_width_entry.insert(0, GLOBAL_DEFAULTS["a2_width"])
-            layout_height_entry.insert(0, GLOBAL_DEFAULTS["a2_height"])
-            layout.set(0)
+    # def layout_selection_changed(e=None) -> None:
+    #     """Event from changing the layout dropdown box, sets the width and height accordingly"""
+    #     page_size_map = {
+    #         "Letter": ("letter_width", "letter_height"),
+    #         "A4": ("a4_width", "a4_height"),
+    #         "11x17 in": ("11x17_width", "11x17_height"),
+    #         "A3": ("a3_width", "a3_height"),
+    #         "17x23 in": ("17x23_width", "17x23_height"),
+    #         "A2": ("a2_width", "a2_height"),
+    #     }
+
+    #     selection = layout_combobox.get()
+    #     layout_width_entry.delete(0, END)
+    #     layout_height_entry.delete(0, END)
+
+    #     if selection in page_size_map:
+    #         width_key, height_key = page_size_map[selection]
+    #         layout_width_entry.insert(0, GLOBAL_DEFAULTS[width_key])
+    #         layout_height_entry.insert(0, GLOBAL_DEFAULTS[height_key])
 
     last_shown_command = [""]
 
@@ -258,7 +254,7 @@ def main(input_files: tuple = ()) -> tuple:
         row=current_row, column=0
     )
     attribute_parse_entry = ttk.Entry(frame, width=7)
-    attribute_parse_entry.insert(0, f"-a stroke")
+    attribute_parse_entry.insert(0, GLOBAL_DEFAULTS["parse_stroke_color"])
     attribute_parse_entry.grid(sticky="w", row=current_row, column=1)
 
     create_url_label(
@@ -494,7 +490,6 @@ def main(input_files: tuple = ()) -> tuple:
         row=current_row, column=2
     )
     layout_width_entry = ttk.Entry(frame, width=7)
-    layout_width_entry.insert(0, PROCESS_DEFAULTS["layout_w"])
     layout_width_entry.grid(sticky="w", row=current_row, column=3)
     current_row += 1
 
@@ -502,27 +497,25 @@ def main(input_files: tuple = ()) -> tuple:
         row=current_row, column=2
     )
     layout_height_entry = ttk.Entry(frame, width=7)
-    layout_height_entry.insert(0, PROCESS_DEFAULTS["layout_h"])
     layout_height_entry.grid(sticky="w", row=current_row, column=3)
 
-    page_size_values = ["Letter", "A4", "11x17 in", "A3", "17x23 in", "A2"]
-    current_value_index = find_closest_dimensions(svg_width_inches, svg_height_inches)
     ttk.Label(frame, justify=CENTER, text="Page Size").grid(row=current_row, column=0)
-    layout_combobox = ttk.Combobox(
-        frame, width=7, state="readonly", values=page_size_values
-    )
-    layout_combobox.current(current_value_index)
-    layout_combobox.grid(sticky="w", row=current_row, column=1)
-    layout_combobox.bind("<<ComboboxSelected>>", layout_selection_changed)
-    layout_selection_changed()
+
+    create_page_layout_combobox(
+        frame,
+        svg_width_inches,
+        svg_height_inches,
+        layout_width_entry,
+        layout_height_entry,
+    ).grid(sticky="w", row=current_row, column=1)
+
     current_row += 1
 
-    layout_landscape_label = ttk.Label(
+    ttk.Label(
         frame,
         justify=CENTER,
         text="By default, the larger layout size is the height,\nLandscape flips the orientation",
-    )
-    layout_landscape_label.grid(row=current_row, column=0, columnspan=2)
+    ).grid(row=current_row, column=0, columnspan=2)
     layout_landscape = IntVar(frame, value=PROCESS_DEFAULTS["layout_landscape"])
     ttk.Checkbutton(frame, text="Landscape", variable=layout_landscape).grid(
         sticky="w", row=current_row, column=2
