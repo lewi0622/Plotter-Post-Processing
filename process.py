@@ -197,26 +197,6 @@ def main(input_files: tuple = ()) -> tuple:
 
         return (commands, show_commands)
 
-    # def layout_selection_changed(e=None) -> None:
-    #     """Event from changing the layout dropdown box, sets the width and height accordingly"""
-    #     page_size_map = {
-    #         "Letter": ("letter_width", "letter_height"),
-    #         "A4": ("a4_width", "a4_height"),
-    #         "11x17 in": ("11x17_width", "11x17_height"),
-    #         "A3": ("a3_width", "a3_height"),
-    #         "17x23 in": ("17x23_width", "17x23_height"),
-    #         "A2": ("a2_width", "a2_height"),
-    #     }
-
-    #     selection = layout_combobox.get()
-    #     layout_width_entry.delete(0, END)
-    #     layout_height_entry.delete(0, END)
-
-    #     if selection in page_size_map:
-    #         width_key, height_key = page_size_map[selection]
-    #         layout_width_entry.insert(0, GLOBAL_DEFAULTS[width_key])
-    #         layout_height_entry.insert(0, GLOBAL_DEFAULTS[height_key])
-
     last_shown_command = [""]
 
     svg_width_inches = file_info["size_info"][0][0]  # first file first item
@@ -234,6 +214,9 @@ def main(input_files: tuple = ()) -> tuple:
     window.geometry(PROCESS_DEFAULTS["window_size"])
 
     set_title_icon(window, "Process")
+
+    window.grid_rowconfigure(0, weight=1)
+    window.grid_columnconfigure(0, weight=1)
 
     frame = create_scrollbar(window)
 

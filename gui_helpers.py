@@ -75,12 +75,8 @@ def on_focus_out(entry: Any, placeholder: str):
         entry.insert(0, placeholder)
 
 
-def create_scrollbar(root: Any, row=0, span=1):
+def create_scrollbar(root: Any, row: int = 0, span: int = 1):
     """Creates and returns a scrollframe that all other widgets should attach themselves to"""
-    # Configure root grid
-    root.grid_rowconfigure(0, weight=1)
-    root.grid_columnconfigure(0, weight=1)
-
     # Container frame
     container = ttk.Frame(root)
     container.grid(row=row, column=0, columnspan=span, sticky="nsew")
