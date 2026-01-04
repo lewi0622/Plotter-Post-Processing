@@ -15,8 +15,8 @@ from gui_helpers import (
     set_title_icon,
 )
 from links import PPP_URLS, VPYPE_URLS
-from settings import THEME_SETTINGS, VERSION
-from utils import file_info, on_closing, open_url_in_browser, select_files
+from settings import VERSION
+from utils import file_info, on_closing, select_files
 
 
 def main():
