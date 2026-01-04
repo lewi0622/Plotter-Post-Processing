@@ -8,7 +8,12 @@ import occult
 import paint
 import process
 import settings
-from gui_helpers import disable_combobox_scroll, make_topmost_temp, set_title_icon
+from gui_helpers import (
+    create_url_label,
+    disable_combobox_scroll,
+    make_topmost_temp,
+    set_title_icon,
+)
 from links import PPP_URLS, VPYPE_URLS
 from settings import THEME_SETTINGS, VERSION
 from utils import file_info, on_closing, open_url_in_browser, select_files
@@ -102,16 +107,7 @@ def main():
     ).grid(padx=(10, 10), pady=(2, 10), row=current_row, column=1, columnspan=2)
     current_row += 1
 
-    documentation_label = ttk.Label(
-        main_app,
-        text="Vpype Documentation",
-        foreground=THEME_SETTINGS["link_color"],
-        cursor="hand2",
-    )
-    documentation_label.bind(
-        "<Button-1>", lambda e: open_url_in_browser(VPYPE_URLS["vpype"])
-    )
-    documentation_label.grid(
+    create_url_label(main_app, "Vpype Documentation", VPYPE_URLS["vpype"]).grid(
         pady=(0, 10),
         padx=(10, 0),
         sticky="w",
@@ -122,16 +118,9 @@ def main():
 
     current_row += 1
 
-    youtube_label = ttk.Label(
-        main_app,
-        text="Plotter Post Processing Tutorials",
-        foreground=THEME_SETTINGS["link_color"],
-        cursor="hand2",
-    )
-    youtube_label.bind(
-        "<Button-1>", lambda e: open_url_in_browser(PPP_URLS["playlist"])
-    )
-    youtube_label.grid(
+    create_url_label(
+        main_app, "Plotter Post Processing Tutorials", PPP_URLS["playlist"]
+    ).grid(
         pady=(0, 10),
         padx=(10, 0),
         sticky="w",
