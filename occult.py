@@ -5,12 +5,13 @@ from tkinter import CENTER, IntVar, Tk, ttk
 
 import settings
 from gui_helpers import (
+    create_url_label,
     disable_combobox_scroll,
     make_topmost_temp,
     separator,
     set_title_icon,
 )
-from links import PPP_URLS, VPYPE_URLS
+from links import OCCULT_URLS, PPP_URLS, VPYPE_URLS
 from utils import (
     check_make_temp_folder,
     file_info,
@@ -139,28 +140,15 @@ def main(input_files=()):
 
     current_row += 1
 
-    title = ttk.Label(
-        window,
-        text="Occult Help",
-        foreground=settings.THEME_SETTINGS["link_color"],
-        cursor="hand2",
+    create_url_label(window, "Occult Help", OCCULT_URLS["occult"]).grid(
+        row=current_row, column=0, columnspan=max_col
     )
-    title.bind(
-        "<Button-1>",
-        lambda e: open_url_in_browser("https://github.com/LoicGoulefert/occult"),
-    )
-    title.grid(row=current_row, column=0, columnspan=max_col)
 
     current_row += 1
 
-    youtube_label = ttk.Label(
-        window,
-        text="Plotter Post Processing Occult Tutorial",
-        foreground=settings.THEME_SETTINGS["link_color"],
-        cursor="hand2",
-    )
-    youtube_label.bind("<Button-1>", lambda e: open_url_in_browser(PPP_URLS["occult"]))
-    youtube_label.grid(row=current_row, column=0, columnspan=max_col)
+    create_url_label(
+        window, "Plotter Post Processing Occult Tutorial", PPP_URLS["occult"]
+    ).grid(row=current_row, column=0, columnspan=max_col)
 
     current_row += 1
 
@@ -172,17 +160,12 @@ def main(input_files=()):
 
     current_row = separator(window, current_row, max_col)
 
-    attribute_parse_label = ttk.Label(
+    create_url_label(
         window,
-        justify=CENTER,
-        text="Attribute Parse\nSuggested: stroke or d/points/x1/y1/x2/y2",
-        foreground=settings.THEME_SETTINGS["link_color"],
-        cursor="hand2",
-    )
-    attribute_parse_label.bind(
-        "<Button-1>", lambda e: open_url_in_browser(VPYPE_URLS["attribute_parse"])
-    )
-    attribute_parse_label.grid(row=current_row, column=0)
+        "Attribute Parse\nSuggested: stroke or d/points/x1/y1/x2/y2",
+        VPYPE_URLS["attribute_parse"],
+    ).grid(row=current_row, column=0)
+
     attribute_parse_entry = ttk.Entry(window, width=12)
 
     if any(file_info["interleaved?"]):

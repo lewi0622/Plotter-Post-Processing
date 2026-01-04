@@ -8,6 +8,7 @@ import settings
 from gui_helpers import (
     create_scrollbar,
     create_toast,
+    create_url_label,
     disable_combobox_scroll,
     make_topmost_temp,
     separator,
@@ -167,24 +168,14 @@ end \
 
     set_title_icon(window, "Paint")
 
-    title = ttk.Label(
-        window,
-        text="Vpype Paint Recipe",
-        foreground=settings.THEME_SETTINGS["link_color"],
-        cursor="hand2",
+    create_url_label(window, "Vpype Paint Recipe", VPYPE_URLS["dipping"]).grid(
+        pady=(10, 0), row=current_row, column=0, columnspan=max_col
     )
-    title.bind("<Button-1>", lambda e: open_url_in_browser(VPYPE_URLS["dipping"]))
-    title.grid(pady=(10, 0), row=current_row, column=0, columnspan=max_col)
     current_row += 1
 
-    youtube_label = ttk.Label(
-        window,
-        text="Plotter Post Processing Paint Tutorial",
-        foreground=settings.THEME_SETTINGS["link_color"],
-        cursor="hand2",
-    )
-    youtube_label.bind("<Button-1>", lambda e: open_url_in_browser(PPP_URLS["paint"]))
-    youtube_label.grid(row=current_row, column=0, columnspan=max_col)
+    create_url_label(
+        window, "Plotter Post Processing Paint Tutorial", PPP_URLS["paint"]
+    ).grid(row=current_row, column=0, columnspan=max_col)
     current_row += 1
 
     ttk.Label(
@@ -199,16 +190,11 @@ end \
     ).grid(row=current_row, column=0, columnspan=max_col)
     current_row += 1
 
-    dip_help_label = ttk.Label(
+    create_url_label(
         window,
-        text="Dip locations match number of colors in file, file parsed with -a stroke.",
-        foreground=settings.THEME_SETTINGS["link_color"],
-        cursor="hand2",
-    )
-    dip_help_label.bind(
-        "<Button-1>", lambda e: open_url_in_browser(VPYPE_URLS["attribute_parse"])
-    )
-    dip_help_label.grid(row=current_row, column=0, columnspan=max_col)
+        "Dip locations match number of colors in file, file parsed with -a stroke.",
+        VPYPE_URLS["attribute_parse"],
+    ).grid(row=current_row, column=0, columnspan=max_col)
     current_row += 1
 
     ttk.Label(
@@ -217,31 +203,17 @@ end \
     ).grid(row=current_row, column=0, columnspan=max_col)
     current_row += 1
 
-    split_all_label = ttk.Label(
-        window,
-        text="Split All and Merge",
-        foreground=settings.THEME_SETTINGS["link_color"],
-        cursor="hand2",
+    create_url_label(window, "Split All and Merge", VPYPE_URLS["splitall"]).grid(
+        row=current_row, column=0
     )
-    split_all_label.bind(
-        "<Button-1>", lambda e: open_url_in_browser(VPYPE_URLS["splitall"])
-    )
-    split_all_label.grid(row=current_row, column=0)
     split_all = IntVar(window, value=0)
     ttk.Checkbutton(window, text="splitall", variable=split_all).grid(
         sticky="w", row=current_row, column=1
     )
 
-    split_dist_label = ttk.Label(
-        window,
-        text="Split Distance (in)",
-        foreground=settings.THEME_SETTINGS["link_color"],
-        cursor="hand2",
+    create_url_label(window, "Split Distance (in)", VPYPE_URLS["splitdist"]).grid(
+        row=current_row, column=2
     )
-    split_dist_label.bind(
-        "<Button-1>", lambda e: open_url_in_browser(VPYPE_URLS["splitdist"])
-    )
-    split_dist_label.grid(row=current_row, column=2)
 
     split_dist_entry = ttk.Entry(window, width=7)
     split_dist_entry.insert(0, "4")
@@ -271,33 +243,20 @@ end \
         dip_layer_combobox.current(0)
         dip_layer_combobox.grid(sticky="w", row=current_row, column=1)
 
-        rotate_label = ttk.Label(
-            frame,
-            justify=CENTER,
-            text="Rotate Dip Clockwise (deg):",
-            foreground=settings.THEME_SETTINGS["link_color"],
-            cursor="hand2",
-        )
-        rotate_label.bind(
-            "<Button-1>", lambda e: open_url_in_browser(VPYPE_URLS["rotate"])
-        )
-        rotate_label.grid(row=current_row, column=2)
+        create_url_label(
+            frame, "Rotate Dip Clockwise (deg):", VPYPE_URLS["rotate"]
+        ).grid(row=current_row, column=2)
+
         rotate_entry = ttk.Entry(frame, width=7)
         rotate_entry.insert(0, "0")
         rotate_entry.grid(sticky="e", row=current_row, column=3)
 
         current_row += 1
 
-        translate_X_label = ttk.Label(
-            frame,
-            text="Translate X (in):",
-            foreground=settings.THEME_SETTINGS["link_color"],
-            cursor="hand2",
+        create_url_label(frame, "Translate X (in):", VPYPE_URLS["translate"]).grid(
+            row=current_row, column=0
         )
-        translate_X_label.bind(
-            "<Button-1>", lambda e: open_url_in_browser(VPYPE_URLS["translate"])
-        )
-        translate_X_label.grid(row=current_row, column=0)
+
         dip_loc_x_entry = ttk.Entry(frame, width=7)
         dip_loc_x_entry.insert(0, f"{i * 2 + 1}")
         dip_loc_x_entry.grid(sticky="w", row=current_row, column=1)

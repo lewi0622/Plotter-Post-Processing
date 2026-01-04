@@ -5,6 +5,7 @@ from tkinter import CENTER, IntVar, Tk, ttk
 
 import settings
 from gui_helpers import (
+    create_url_label,
     disable_combobox_scroll,
     make_topmost_temp,
     on_focus_in,
@@ -260,20 +261,22 @@ def main(input_files=()):
 
     set_title_icon(window, "deCompose")
 
-    title = ttk.Label(window, text="deCompose")
-    title.grid(pady=(10, 0), row=current_row, column=0, columnspan=max_col)
+    ttk.Label(window, text="deCompose").grid(
+        pady=(10, 0), row=current_row, column=0, columnspan=max_col
+    )
     current_row += 1
 
-    youtube_label = ttk.Label(
+    create_url_label(
+        window,
+        "Plotter Post Processing deCompose Tutorial",
+        PPP_URLS["decompose"],
+    )
+    ttk.Label(
         window,
         text="Plotter Post Processing deCompose Tutorial",
         foreground=settings.THEME_SETTINGS["link_color"],
         cursor="hand2",
-    )
-    youtube_label.bind(
-        "<Button-1>", lambda e: open_url_in_browser(PPP_URLS["decompose"])
-    )
-    youtube_label.grid(row=current_row, column=0, columnspan=max_col)
+    ).grid(row=current_row, column=0, columnspan=max_col)
     current_row += 1
 
     ttk.Label(
@@ -283,50 +286,28 @@ def main(input_files=()):
 
     current_row = separator(window, current_row, max_col)
 
-    pre_attribute_parse_label = ttk.Label(
-        window,
-        justify=CENTER,
-        text="Attribute Parse",
-        foreground=settings.THEME_SETTINGS["link_color"],
-        cursor="hand2",
+    create_url_label(window, "Attribute Parse", VPYPE_URLS["attribute_parse"]).grid(
+        row=current_row, column=0
     )
-    pre_attribute_parse_label.bind(
-        "<Button-1>", lambda e: open_url_in_browser(VPYPE_URLS["attribute_parse"])
-    )
-    pre_attribute_parse_label.grid(row=current_row, column=0)
     pre_attribute_parse_entry = ttk.Entry(window, width=12)
     pre_attribute_parse_entry.insert(0, f"-a stroke")
     pre_attribute_parse_entry.grid(sticky="w", row=current_row, column=1)
 
     current_row += 1
 
-    pre_linesort_label = ttk.Label(
-        window,
-        justify=CENTER,
-        text="Sort Lines",
-        foreground=settings.THEME_SETTINGS["link_color"],
-        cursor="hand2",
+    create_url_label(window, "Sort Lines", VPYPE_URLS["linesort"]).grid(
+        sticky="e", row=current_row, column=0
     )
-    pre_linesort_label.bind(
-        "<Button-1>", lambda e: open_url_in_browser(VPYPE_URLS["linesort"])
-    )
-    pre_linesort_label.grid(sticky="e", row=current_row, column=0)
+
     pre_linesort = IntVar(window, value=0)
     ttk.Checkbutton(window, text="linesort", variable=pre_linesort).grid(
         sticky="w", row=current_row, column=1
     )
 
-    pre_lineshuffle_label = ttk.Label(
-        window,
-        justify=CENTER,
-        text="Shuffle Lines",
-        foreground=settings.THEME_SETTINGS["link_color"],
-        cursor="hand2",
+    create_url_label(window, "Shuffle Lines", VPYPE_URLS["lineshuffle"]).grid(
+        sticky="e", row=current_row, column=2
     )
-    pre_lineshuffle_label.bind(
-        "<Button-1>", lambda e: open_url_in_browser(VPYPE_URLS["lineshuffle"])
-    )
-    pre_lineshuffle_label.grid(sticky="e", row=current_row, column=2)
+
     pre_line_shuffle = IntVar(window, value=0)
     ttk.Checkbutton(window, text="lineshuffle", variable=pre_line_shuffle).grid(
         sticky="w", row=current_row, column=3
@@ -358,51 +339,28 @@ def main(input_files=()):
     ).grid(row=current_row, column=2)
     current_row += 1
 
-    uniform_attribute_parse_label = ttk.Label(
-        window,
-        justify=CENTER,
-        text="Attribute Parse",
-        foreground=settings.THEME_SETTINGS["link_color"],
-        cursor="hand2",
+    create_url_label(window, "Attribute Parse", VPYPE_URLS["attribute_parse"]).grid(
+        row=current_row, column=0
     )
-    uniform_attribute_parse_label.bind(
-        "<Button-1>", lambda e: open_url_in_browser(VPYPE_URLS["attribute_parse"])
-    )
-    uniform_attribute_parse_label.grid(row=current_row, column=0)
     uniform_attribute_parse_entry = ttk.Entry(window, width=12)
     uniform_attribute_parse_entry.insert(
         0, f"-a d -a points -a x1 -a x2 -a y1 -a y2"
     )  # attribute d is used by p5js-svg, but when saved by vpype, it converts everything to lines
     uniform_attribute_parse_entry.grid(sticky="w", row=current_row, column=1)
 
-    split_dist_label = ttk.Label(
-        window,
-        text="Split Distance (in)",
-        foreground=settings.THEME_SETTINGS["link_color"],
-        cursor="hand2",
+    create_url_label(window, "Split Distance (in)", VPYPE_URLS["splitdist"]).grid(
+        row=current_row, column=2
     )
-    split_dist_label.bind(
-        "<Button-1>", lambda e: open_url_in_browser(VPYPE_URLS["splitdist"])
-    )
-    split_dist_label.grid(row=current_row, column=2)
+
     split_dist_entry = ttk.Entry(window, width=7)
     split_dist_entry.insert(0, "20")
     split_dist_entry.grid(sticky="w", row=current_row, column=3)
     current_row += 1
 
-    split_all_label = ttk.Label(
-        window,
-        text="Split All and Merge",
-        foreground=settings.THEME_SETTINGS["link_color"],
-        cursor="hand2",
+    create_url_label(window, "Split All and Merge", VPYPE_URLS["splitall"]).grid(
+        row=current_row, column=2
     )
-    split_all_label.bind(
-        "<Button-1>",
-        lambda e: open_url_in_browser(
-            "https://vpype.readthedocs.io/en/latest/reference.html#splitall"
-        ),
-    )
-    split_all_label.grid(row=current_row, column=2)
+
     split_all = IntVar(window, value=0)
     ttk.Checkbutton(window, text="splitall", variable=split_all).grid(
         sticky="w", row=current_row, column=3
@@ -410,32 +368,18 @@ def main(input_files=()):
 
     current_row = separator(window, current_row, max_col)
 
-    remove_attribute_parse_label = ttk.Label(
-        window,
-        justify=CENTER,
-        text="Attribute Parse",
-        foreground=settings.THEME_SETTINGS["link_color"],
-        cursor="hand2",
+    create_url_label(window, "Attribute Parse", VPYPE_URLS["attribute_parse"]).grid(
+        row=current_row, column=0
     )
-    remove_attribute_parse_label.bind(
-        "<Button-1>", lambda e: open_url_in_browser(VPYPE_URLS["attribute_parse"])
-    )
-    remove_attribute_parse_label.grid(row=current_row, column=0)
+
     remove_attribute_parse_entry = ttk.Entry(window, width=12)
     remove_attribute_parse_entry.insert(0, f"-a stroke")
     remove_attribute_parse_entry.grid(sticky="w", row=current_row, column=1)
 
-    remove_layer_label = ttk.Label(
-        window,
-        justify=CENTER,
-        text="Remove Layers",
-        foreground=settings.THEME_SETTINGS["link_color"],
-        cursor="hand2",
+    create_url_label(window, "Remove Layers", VPYPE_URLS["ldelete"]).grid(
+        row=current_row, column=2
     )
-    remove_layer_label.bind(
-        "<Button-1>", lambda e: open_url_in_browser(VPYPE_URLS["ldelete"])
-    )
-    remove_layer_label.grid(row=current_row, column=2)
+
     remove_layer_list = []
 
     remove_layer_entry = ttk.Entry(window, width=12)
@@ -453,50 +397,29 @@ def main(input_files=()):
 
     current_row = separator(window, current_row, max_col)
 
-    post_attribute_parse_label = ttk.Label(
-        window,
-        justify=CENTER,
-        text="Attribute Parse",
-        foreground=settings.THEME_SETTINGS["link_color"],
-        cursor="hand2",
+    create_url_label(window, "Attribute Parse", VPYPE_URLS["attribute_parse"]).grid(
+        row=current_row, column=0
     )
-    post_attribute_parse_label.bind(
-        "<Button-1>", lambda e: open_url_in_browser(VPYPE_URLS["attribute_parse"])
-    )
-    post_attribute_parse_label.grid(row=current_row, column=0)
+
     post_attribute_parse_entry = ttk.Entry(window, width=12)
     post_attribute_parse_entry.insert(0, f"-a stroke")
     post_attribute_parse_entry.grid(sticky="w", row=current_row, column=1)
 
     current_row += 1
 
-    linesort_label = ttk.Label(
-        window,
-        justify=CENTER,
-        text="Sort Lines",
-        foreground=settings.THEME_SETTINGS["link_color"],
-        cursor="hand2",
+    create_url_label(window, "Sort Lines", VPYPE_URLS["linesort"]).grid(
+        sticky="e", row=current_row, column=0
     )
-    linesort_label.bind(
-        "<Button-1>", lambda e: open_url_in_browser(VPYPE_URLS["linesort"])
-    )
-    linesort_label.grid(sticky="e", row=current_row, column=0)
+
     linesort = IntVar(window, value=1)
     ttk.Checkbutton(window, text="linesort", variable=linesort).grid(
         sticky="w", row=current_row, column=1
     )
 
-    lineshuffle_label = ttk.Label(
-        window,
-        justify=CENTER,
-        text="Shuffle Lines",
-        foreground=settings.THEME_SETTINGS["link_color"],
-        cursor="hand2",
+    create_url_label(window, "Shuffle Lines", VPYPE_URLS["lineshuffle"]).grid(
+        sticky="e", row=current_row, column=2
     )
-    lineshuffle_label.bind(
-        "<Button-1>", lambda e: open_url_in_browser(VPYPE_URLS["lineshuffle"])
-    )
-    lineshuffle_label.grid(sticky="e", row=current_row, column=2)
+
     line_shuffle = IntVar(window, value=0)
     ttk.Checkbutton(window, text="lineshuffle", variable=line_shuffle).grid(
         sticky="w", row=current_row, column=3
@@ -504,35 +427,20 @@ def main(input_files=()):
 
     current_row = separator(window, current_row, max_col)
 
-    files_attribute_parse_label = ttk.Label(
-        window,
-        justify=CENTER,
-        text="Attribute Parse",
-        foreground=settings.THEME_SETTINGS["link_color"],
-        cursor="hand2",
+    create_url_label(window, "Attribute Parse", VPYPE_URLS["attribute_parse"]).grid(
+        row=current_row, column=0
     )
-    files_attribute_parse_label.bind(
-        "<Button-1>", lambda e: open_url_in_browser(VPYPE_URLS["attribute_parse"])
-    )
-    files_attribute_parse_label.grid(row=current_row, column=0)
+
     files_attribute_parse_entry = ttk.Entry(window, width=12)
     files_attribute_parse_entry.insert(0, f"-a stroke")
     files_attribute_parse_entry.grid(sticky="w", row=current_row, column=1)
 
-    separate_files_label = ttk.Label(
+    create_url_label(
         window,
-        justify=CENTER,
-        text="Separate SVG Layers into individual files\n(doesn't work with Show)",
-        foreground=settings.THEME_SETTINGS["link_color"],
-        cursor="hand2",
-    )
-    separate_files_label.bind(
-        "<Button-1>",
-        lambda e: open_url_in_browser(
-            "https://vpype.readthedocs.io/en/latest/cookbook.html#saving-each-layer-as-a-separate-file"
-        ),
-    )
-    separate_files_label.grid(row=current_row, column=2)
+        "Separate SVG Layers into individual files\n(doesn't work with Show)",
+        VPYPE_URLS["separate_files"],
+    ).grid(row=current_row, column=2)
+
     separate_files = IntVar(window, value=0)
     ttk.Checkbutton(window, text="Separate\nFiles", variable=separate_files).grid(
         sticky="w", row=current_row, column=3
