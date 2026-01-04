@@ -1,25 +1,26 @@
 import os
 import subprocess
 from posixpath import join
-from tkinter import CENTER, END, IntVar, Tk, ttk
+from tkinter import CENTER, IntVar, Tk, ttk
 from typing import Any
 
-import settings
 from gui_helpers import (
+    create_page_layout_combobox,
     create_scrollbar,
+    create_url_label,
     disable_combobox_scroll,
+    layout_selection_changed,
     make_topmost_temp,
     separator,
     set_title_icon,
 )
-from links import PPP_URLS
+from links import PPP_URLS, VPYPE_URLS
+from settings import COMPOSE_DEFAULTS, GLOBAL_DEFAULTS, init, set_theme
 from utils import (
     check_make_temp_folder,
     file_info,
     generate_random_color,
-    max_colors_per_file,
     on_closing,
-    open_url_in_browser,
     rename_replace,
     select_files,
 )
@@ -161,26 +162,6 @@ def main(input_files=()):
 
         return args
 
-    def layout_selection_changed(event):
-        """Event from changing the layout dropdown box, sets the width and height accordingly"""
-        selection = layout_combobox.get()
-        layout_width_entry.delete(0, END)
-        layout_height_entry.delete(0, END)
-        if selection == "Letter":
-            layout_width_entry.insert(0, "8.5")
-            layout_height_entry.insert(0, "11")
-            layout.set(1)
-        elif selection == "A4":
-            layout_width_entry.insert(0, "8.3")
-            layout_height_entry.insert(0, "11.7")
-        elif selection == "A3":
-            layout_width_entry.insert(0, "11.7")
-            layout_height_entry.insert(0, "16.5")
-        elif selection == "A2":
-            layout_width_entry.insert(0, "16.5")
-            layout_height_entry.insert(0, "23.4")
-            layout.set(0)
-
     global return_val, last_shown_command, compose_color_list, compose_info_list
     return_val = ()
     last_shown_command = ""
@@ -209,14 +190,11 @@ def main(input_files=()):
     )
     current_row += 1
 
-    youtube_label = ttk.Label(
+    create_url_label(
         window,
-        text="Plotter Post Processing Compose Tutorial",
-        foreground=settings.THEME_SETTINGS["link_color"],
-        cursor="hand2",
-    )
-    youtube_label.bind("<Button-1>", lambda e: open_url_in_browser(PPP_URLS["compose"]))
-    youtube_label.grid(row=current_row, column=0, columnspan=max_col)
+        "For help, visit the Plotter Post Processing Compose Tutorial",
+        PPP_URLS["compose"],
+    ).grid(row=current_row, column=0, columnspan=max_col)
 
     current_row += 1
 
@@ -236,8 +214,9 @@ def main(input_files=()):
     current_row = separator(window, current_row, max_col)
 
     # grid options
-    grid_label = ttk.Label(window, justify=CENTER, text="Merge Multiple SVGs into Grid")
-    grid_label.grid(row=current_row, column=0, columnspan=max_col)
+    ttk.Label(window, justify=CENTER, text="Merge Multiple SVGs into Grid").grid(
+        row=current_row, column=0, columnspan=max_col
+    )
     current_row += 1
 
     ttk.Label(window, justify=CENTER, text="Grid Col Width(in):").grid(
@@ -266,8 +245,8 @@ def main(input_files=()):
     # insert after creation of the size entries so
     grid_col_width_entry.insert(0, f"{svg_width_inches}")
     grid_row_height_entry.insert(0, f"{svg_height_inches}")
-    grid_col_entry.insert(0, "1")
-    grid_row_entry.insert(0, "1")
+    grid_col_entry.insert(0, COMPOSE_DEFAULTS["column_number"])
+    grid_row_entry.insert(0, COMPOSE_DEFAULTS["row_number"])
 
     current_row = separator(window, current_row, max_col)
 
@@ -297,23 +276,30 @@ def main(input_files=()):
         compose_info["order"] = compose_order
         current_row += 1
 
-        ttk.Label(
-            frame, text=f"Colors in file: {len(file_info['color_dicts'][index])}"
-        ).grid(row=current_row, column=0)
-
-        attribute = IntVar(frame, value=0)
-        if max_colors_per_file() == 1:
-            attribute = IntVar(frame, value=1)
-        compose_info["attribute"] = attribute
-        ttk.Radiobutton(frame, text="single layer", variable=attribute, value=0).grid(
-            row=current_row, column=1
+        color_count = len(file_info["color_dicts"][index])
+        ttk.Label(frame, text=f"Colors in file: {color_count}").grid(
+            row=current_row, column=0
         )
+
+        attribute = IntVar(frame, value=COMPOSE_DEFAULTS["single_layer"])
+        if color_count > 1:
+            attribute.set(COMPOSE_DEFAULTS["stroke_layers"])
+        compose_info["attribute"] = attribute
         ttk.Radiobutton(
-            frame, text="stroke layer(s)", variable=attribute, value=1
+            frame,
+            text="single layer",
+            variable=attribute,
+            value=COMPOSE_DEFAULTS["single_layer"],
+        ).grid(row=current_row, column=1)
+        ttk.Radiobutton(
+            frame,
+            text="stroke layer(s)",
+            variable=attribute,
+            value=COMPOSE_DEFAULTS["stroke_layers"],
         ).grid(row=current_row, column=2)
         current_row += 1
 
-        overwrite_color = IntVar(frame, value=0)
+        overwrite_color = IntVar(frame, value=COMPOSE_DEFAULTS["overwrite_color"])
         compose_info["overwrite_color"] = overwrite_color
         ttk.Checkbutton(
             frame, text="If single layer, overwrite color?", variable=overwrite_color
@@ -327,28 +313,18 @@ def main(input_files=()):
 
     current_row = separator(window, current_row, max_col)
 
-    condense = IntVar(window, value=1)
+    condense = IntVar(window, value=COMPOSE_DEFAULTS["condense_color_layers"])
     ttk.Checkbutton(
         window, text="Condense same color layers into single layer", variable=condense
     ).grid(sticky="w", row=current_row, column=0)
 
     current_row += 1
 
-    layout_label = ttk.Label(
-        window,
-        justify=CENTER,
-        text="Layout centers scaled\ndesign in page size)",
-        foreground=settings.THEME_SETTINGS["link_color"],
-        cursor="hand2",
-    )
-    layout_label.bind(
-        "<Button-1>",
-        lambda e: open_url_in_browser(
-            "https://vpype.readthedocs.io/en/latest/reference.html#layout"
-        ),
-    )
-    layout_label.grid(row=current_row, column=0)
-    layout = IntVar(window, value=1)
+    create_url_label(
+        window, "Layout centers scaled\ndesign in page size)", VPYPE_URLS["layout"]
+    ).grid(row=current_row, column=0)
+
+    layout = IntVar(window, value=COMPOSE_DEFAULTS["layout"])
     ttk.Checkbutton(window, text="Layout?", variable=layout).grid(
         sticky="w", row=current_row, column=1
     )
@@ -357,33 +333,33 @@ def main(input_files=()):
         row=current_row, column=2
     )
     layout_width_entry = ttk.Entry(window, width=7)
-    layout_width_entry.insert(0, f"8.5")
     layout_width_entry.grid(sticky="w", row=current_row, column=3)
     current_row += 1
 
     ttk.Label(window, justify=CENTER, text="Page Size").grid(row=current_row, column=0)
-    layout_combobox = ttk.Combobox(
-        window, width=7, state="readonly", values=["Letter", "A4", "A3", "A2"]
-    )
-    layout_combobox.current(0)
-    layout_combobox.grid(sticky="w", row=current_row, column=1)
-    layout_combobox.bind("<<ComboboxSelected>>", layout_selection_changed)
 
     ttk.Label(window, justify=CENTER, text="Page Layout Height(in):").grid(
         row=current_row, column=2
     )
     layout_height_entry = ttk.Entry(window, width=7)
-    layout_height_entry.insert(0, f"11")
     layout_height_entry.grid(sticky="w", row=current_row, column=3)
+
+    create_page_layout_combobox(
+        window,
+        svg_width_inches,
+        svg_height_inches,
+        layout_width_entry,
+        layout_height_entry,
+    ).grid(sticky="w", row=current_row, column=1)
     current_row += 1
 
-    layout_landscape_label = ttk.Label(
+    ttk.Label(
         window,
         justify=CENTER,
         text="By default, the larger layout size is the height,\nLandscape flips the orientation",
-    )
-    layout_landscape_label.grid(row=current_row, column=0, columnspan=2)
-    layout_landscape = IntVar(window, value=1)
+    ).grid(row=current_row, column=0, columnspan=2)
+
+    layout_landscape = IntVar(window, value=COMPOSE_DEFAULTS["layout_landscape"])
     ttk.Checkbutton(window, text="Landscape", variable=layout_landscape).grid(
         sticky="w", row=current_row, column=2
     )
@@ -400,14 +376,14 @@ def main(input_files=()):
 
     window.protocol("WM_DELETE_WINDOW", lambda arg=window: on_closing(arg))
 
-    settings.set_theme(window)
+    set_theme(window)
     window.mainloop()
 
     return tuple(return_val)
 
 
 if __name__ == "__main__":
-    settings.init()
+    init()
     selected_files = select_files()
     if len(selected_files) == 0:
         print("No Design Files Selected")
