@@ -1,4 +1,4 @@
-"""Functions for stored graphical settings"""
+"""Functions for stored project settings"""
 
 import sys
 import tomllib
@@ -29,17 +29,10 @@ def set_theme(root: Any) -> None:
         sv_ttk.set_theme(THEME, root)
 
 
+# Load version and default settings from toml files
 with open("pyproject.toml", "rb") as f:
     pyproject_data = tomllib.load(f)
     VERSION = pyproject_data.get("project", {}).get("version", "")
-
-GLOBAL_DEFAULTS: dict[str, Any] = {}
-COMPOSE_DEFAULTS: dict[str, Any] = {}
-DECOMPOSE_DEFAULTS: dict[str, Any] = {}
-MAIN_APPLICATION_DEFAULTS: dict[str, Any] = {}
-OCCULT_DEFAULTS: dict[str, Any] = {}
-PAINT_DEFAULTS: dict[str, Any] = {}
-PROCESS_DEFAULTS: dict[str, Any] = {}
 
 with open("defaults.toml", "rb") as f:
     settings_data = tomllib.load(f)
