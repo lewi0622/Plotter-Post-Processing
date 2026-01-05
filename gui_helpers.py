@@ -84,7 +84,7 @@ def create_scrollbar(root: Any, row: int = 0, span: int = 1):
     container.grid_rowconfigure(0, weight=1)
     container.grid_columnconfigure(0, weight=1)
 
-    canvas = Canvas(container)
+    canvas = Canvas(container, highlightthickness=0)
     canvas.grid(row=row, column=0, sticky="nsew")
 
     # Scrollbar
