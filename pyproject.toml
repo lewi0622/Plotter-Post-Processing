@@ -1,6 +1,6 @@
 [project]
 name = "Plotter-Post-Processing"
-version = "1.2.0"
+version = "1.3.0"
 description = "A tool for post-processing SVG files for plotter use"
 readme = "README.md"
 requires-python = ">=3.11, <=3.13"
