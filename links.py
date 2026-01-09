@@ -35,7 +35,7 @@ PPP_URLS: dict[str, str] = {
     "installation": "https://www.youtube.com/watch?v=9a-bJFNydFQ&list=PL9Kq-2ltl3B4Dl3438KB67FPoJSAxnbli&index=2",
     "updating": "https://www.youtube.com/watch?v=efySJRbtFKQ&list=PL9Kq-2ltl3B4Dl3438KB67FPoJSAxnbli&index=3",
     "occult": "https://www.youtube.com/watch?v=FsCB30ovM3M&list=PL9Kq-2ltl3B4Dl3438KB67FPoJSAxnbli&index=4",
-    "decompose": "https://www.youtube.com/watch?v=yKCYRsWuM60&list=PL9Kq-2ltl3B4Dl3438KB67FPoJSAxnbli&index=5",
+    "decompose": "https://www.youtube.com/watch?v=udtSMdce2r8&list=PL9Kq-2ltl3B4Dl3438KB67FPoJSAxnbli&index=8",
     "compose": "https://www.youtube.com/watch?v=vLzsAa7OzjM&list=PL9Kq-2ltl3B4Dl3438KB67FPoJSAxnbli&index=6",
     "process": "https://www.youtube.com/watch?v=oUNUyBV6oDA&list=PL9Kq-2ltl3B4Dl3438KB67FPoJSAxnbli&index=7",
     "paint": "https://www.youtube.com/watch?v=PCdTkyd2ADI&list=PL9Kq-2ltl3B4Dl3438KB67FPoJSAxnbli&index=8",
