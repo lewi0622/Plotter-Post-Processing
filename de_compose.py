@@ -23,7 +23,7 @@ def main(input_files=()):
 
     def run_vpypeline():
         global return_val
-        return_val = output_file_list
+        check_make_temp_folder()
         if (
             not separate_files.get()
             and len(input_files) == 1
@@ -39,6 +39,8 @@ def main(input_files=()):
             )
             if separate_files.get():
                 return_val = str.splitlines(result.stdout)
+            else:
+                return_val = output_file_list
 
         print("Closing deCompose")
         on_closing(window)
