@@ -95,7 +95,7 @@ def main(input_files=()):
         if pre_linesort.get() or pre_line_shuffle.get():
             sort = True
             last_parse = pre_attribute_parse_entry.get()
-            args += f" read {last_parse} --no-crop {file_input} "
+            args += f' read {last_parse} --no-crop "{file_input}" '
 
         # presort/shuffle
         if pre_linesort.get():
@@ -114,7 +114,7 @@ def main(input_files=()):
 
             if separator_type.get():  # by distance
                 last_parse = "single_layer"
-                args += f" read --no-crop {file_input} "  # read as single layer
+                args += f' read --no-crop "{file_input}" '  # read as single layer
 
                 if split_all.get():
                     args += " splitall "
@@ -175,12 +175,11 @@ def main(input_files=()):
             post_parse = post_attribute_parse_entry.get()
 
             if last_parse == "":
-                args += f" read {post_parse} --no-crop {file_input} "
+                args += f' read {post_parse} --no-crop "{file_input}" '
             elif last_parse != post_parse:
                 args += f' write "{show_temp_file}" ldelete all '  # TODO this would be a problem if I moved to multi-threading
                 file_input = show_temp_file
-                args += f" read {post_parse} --no-crop {file_input} "
-
+                args += f' read {post_parse} --no-crop "{file_input}" '
             last_parse = post_parse
 
         if linesort.get():
@@ -194,12 +193,11 @@ def main(input_files=()):
             separate_parse = files_attribute_parse_entry.get()
 
             if last_parse == "":
-                args += f" read {separate_parse} --no-crop {file_input} "
+                args += f' read {separate_parse} --no-crop "{file_input}" '
             elif last_parse != separate_parse:
                 args += f' write "{show_temp_file}" ldelete all '  # TODO this would be a problem if I moved to multi-threading
                 file_input = show_temp_file
-                args += f" read {separate_parse} --no-crop {file_input} "
-
+                args += f' read {separate_parse} --no-crop "{file_input}" '
             last_parse = separate_parse
 
             args += r' eval "%k=_i%" '
@@ -228,7 +226,7 @@ def main(input_files=()):
                 output_file_list = []
                 return ""
             else:  # if show is selected with no operations, parse as stroke and show
-                args += f" read -a stroke --no-crop {file_input} "
+                args += f' read -a stroke --no-crop "{file_input}" '
 
         if show:
             args += f' write "{show_temp_file}" end show'
