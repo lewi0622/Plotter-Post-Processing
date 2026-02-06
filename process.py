@@ -1,6 +1,6 @@
 """General Vpype post-processing steps"""
 
-from tkinter import CENTER, END, IntVar, Tk, ttk
+from tkinter import CENTER, IntVar, Tk, ttk
 from typing import Any
 
 from gui_helpers import (
@@ -9,7 +9,6 @@ from gui_helpers import (
     create_url_label,
     disable_combobox_scroll,
     generate_file_names,
-    layout_selection_changed,
     make_topmost_temp,
     separator,
     set_title_icon,
@@ -19,7 +18,6 @@ from settings import GLOBAL_DEFAULTS, PROCESS_DEFAULTS, init, set_theme
 from utils import (
     check_make_temp_folder,
     file_info,
-    find_closest_dimensions,
     generate_random_color,
     on_closing,
     select_files,

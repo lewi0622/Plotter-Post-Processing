@@ -9,13 +9,12 @@ from gui_helpers import (
     create_scrollbar,
     create_url_label,
     disable_combobox_scroll,
-    layout_selection_changed,
     make_topmost_temp,
     separator,
     set_title_icon,
 )
 from links import PPP_URLS, VPYPE_URLS
-from settings import COMPOSE_DEFAULTS, GLOBAL_DEFAULTS, init, set_theme
+from settings import COMPOSE_DEFAULTS, init, set_theme
 from utils import (
     check_make_temp_folder,
     file_info,
