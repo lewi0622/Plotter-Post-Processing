@@ -96,9 +96,15 @@ def main(input_files=()):
 
         built_info_list = []
         for index in range(number_of_file_reads):
-            info = sorted_info_list[
-                index % len(sorted_info_list)
-            ]  # will wrap around the the list to populate the whole grid with designs
+            if index >= len(sorted_info_list):
+                if empty_tiles.get() == COMPOSE_DEFAULTS["repeat_deisgns"]:
+                    info = sorted_info_list[
+                        index % len(sorted_info_list)
+                    ]  # will wrap around the the list to populate the whole grid with designs
+                else:
+                    break
+            else:
+                info = sorted_info_list[index]
             built_info_list.append(info)
 
         output_file_list = []
@@ -245,6 +251,47 @@ def main(input_files=()):
     grid_row_height_entry.insert(0, f"{svg_height_inches}")
     grid_col_entry.insert(0, COMPOSE_DEFAULTS["column_number"])
     grid_row_entry.insert(0, COMPOSE_DEFAULTS["row_number"])
+
+    current_row += 1
+
+    # empty tiles
+    ttk.Label(window, justify=CENTER, text="Extra Grid Tiles:").grid(
+        row=current_row, column=0, columnspan=2, sticky="e"
+    )
+
+    empty_tiles = IntVar(window, value=COMPOSE_DEFAULTS["empty_tiles"])
+    ttk.Radiobutton(
+        window,
+        text="Leave Empty",
+        variable=empty_tiles,
+        value=COMPOSE_DEFAULTS["leave_empty"],
+    ).grid(row=current_row, column=2, sticky="w")
+    ttk.Radiobutton(
+        window,
+        text="Repeat Designs",
+        variable=empty_tiles,
+        value=COMPOSE_DEFAULTS["repeat_deisgns"],
+    ).grid(row=current_row, column=3, sticky="w")
+
+    current_row += 1
+
+    # Spare files
+    ttk.Label(window, justify=CENTER, text="Spare Design Files:").grid(
+        row=current_row, column=0, columnspan=2, sticky="e"
+    )
+    spare_files = IntVar(window, value=COMPOSE_DEFAULTS["spare_files"])
+    ttk.Radiobutton(
+        window,
+        text="New File(s)",
+        variable=spare_files,
+        value=COMPOSE_DEFAULTS["new_file"],
+    ).grid(row=current_row, column=2, sticky="w")
+    ttk.Radiobutton(
+        window,
+        text="Ignore Files",
+        variable=spare_files,
+        value=COMPOSE_DEFAULTS["ignore_files"],
+    ).grid(row=current_row, column=3, sticky="w")
 
     current_row = separator(window, current_row, max_col)
 

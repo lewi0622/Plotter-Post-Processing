@@ -6,8 +6,14 @@ page_sizes_inches = {Letter = ["8.5","11"], Postcards = ["8","11.8"], A4 = ["8.3
 [compose]
 column_number = 1
 row_number = 1
-single_layer = 0    # radio button val
-stroke_layers = 1   # radio button val
+empty_tiles = 0
+leave_empty = 0     # empty_tiles radio button val
+repeat_deisgns = 1  # empty_tiles radio button val
+spare_files = 0
+new_file = 0        # spare_files radio button val
+ignore_files = 1    # spare_files radio button val
+single_layer = 0    # design radio button val
+stroke_layers = 1   # design radio button val
 overwrite_color = 0
 condense_color_layers = 1
 layout = 1
