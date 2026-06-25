@@ -1,4 +1,5 @@
 import os
+import re
 import subprocess
 from posixpath import join
 from tkinter import CENTER, IntVar, Tk, ttk
@@ -26,6 +27,7 @@ def main(input_files=()):
         check_make_temp_folder()
         if (
             not separate_files.get()
+            and not save_removed_layers.get()
             and len(input_files) == 1
             and last_shown_command == build_vpypeline(True)
         ):
@@ -63,11 +65,16 @@ def main(input_files=()):
         # build output files list
         input_file_list = list(input_files)
         output_file_list = []
-        for index, filename in enumerate(input_file_list):
+        removed_layers_file_list = []
+        for filename in input_file_list:
             head, tail = os.path.split(filename)
             name, _ext = os.path.splitext(tail)
             show_temp_file = join(file_info["temp_folder_path"], name + "_deC.svg")
             output_filename = join(head, name + "_deC.svg")
+
+            if save_removed_layers.get() and not show:
+                removed_layers_filename = join(head, name + "_deC_removed.svg")
+                removed_layers_file_list.append(removed_layers_filename)
 
             output_file_list.append(output_filename)
 
@@ -81,6 +88,13 @@ def main(input_files=()):
 
         args = f'vpype eval "files_in={input_file_list}" eval "files_out={output_file_list}" '
         args += r' eval "random_colors=' + f"{color_list}" + '"'
+
+        if save_removed_layers.get() and not show:
+            args += (
+                r' eval "removed_layers_files_out='
+                + f"{removed_layers_file_list}"
+                + '"'
+            )
 
         repeat_num = len(input_file_list)
         if show:
@@ -158,7 +172,29 @@ def main(input_files=()):
         remove_any = len(layers_to_remove) > 0
 
         if remove_any:
-            # print(save_removed_layers.get())
+            if save_removed_layers.get() and not show:
+                # appending now so it doesn't show up in pipeline, needs to be passed back to main tho
+                output_file_list += removed_layers_file_list
+                replay = re.search(r"(read).*", args)
+
+                remove_parse = remove_attribute_parse_entry.get()
+                if last_parse == "":
+                    args += f' read {remove_parse} --no-crop "{file_input}" '
+                elif last_parse != remove_parse:
+                    args += f' write "{show_temp_file}" ldelete all '  # TODO this would be a problem if I moved to multi-threading
+                    file_input = show_temp_file
+                    args += f' read {remove_parse} --no-crop "{file_input}" '
+                # dont' overwrite last_parse since we're going to replay args after this
+
+                # use -keep layers instead of deleting them
+                args += f" ldelete -k {",".join(map(str, layers_to_remove))} "
+
+                args += r" write %removed_layers_files_out[_i]% "
+
+                args += " ldelete all "
+
+                if replay:  # replay get things back to where they were
+                    args += f" {replay.group()} "
 
             remove_parse = remove_attribute_parse_entry.get()
             if last_parse == "":
@@ -170,8 +206,7 @@ def main(input_files=()):
 
             last_parse = remove_parse
 
-            for layer in layers_to_remove:
-                args += f" ldelete {layer} "
+            args += f" ldelete {",".join(map(str, layers_to_remove))} "
 
         # Post sort/shuffle
         if linesort.get() or line_shuffle.get():
@@ -389,15 +424,15 @@ def main(input_files=()):
         ),
     )
 
-    # current_row += 1
-    # save_removed_layers = IntVar(
-    #     window, value=DECOMPOSE_DEFAULTS["save_removed_layers"]
-    # )
-    # ttk.Checkbutton(
-    #     window,
-    #     text="Save Removed Layers in Separate File",
-    #     variable=save_removed_layers,
-    # ).grid(sticky="e", row=current_row, column=2, columnspan=2)
+    current_row += 1
+    save_removed_layers = IntVar(
+        window, value=DECOMPOSE_DEFAULTS["save_removed_layers"]
+    )
+    ttk.Checkbutton(
+        window,
+        text="Save Removed Layers in Separate File",
+        variable=save_removed_layers,
+    ).grid(sticky="e", row=current_row, column=2, columnspan=2)
 
     current_row = separator(window, current_row, max_col)
 
