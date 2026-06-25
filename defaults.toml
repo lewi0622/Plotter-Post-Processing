@@ -26,6 +26,7 @@ linesort = 1
 line_shuffle = 0
 separate_files = 0
 remove_placeholder = "e.g. 1, 3-5"
+save_removed_layers = 0
 
 [occult]
 re_read = 0

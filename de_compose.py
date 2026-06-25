@@ -158,6 +158,8 @@ def main(input_files=()):
         remove_any = len(layers_to_remove) > 0
 
         if remove_any:
+            # print(save_removed_layers.get())
+
             remove_parse = remove_attribute_parse_entry.get()
             if last_parse == "":
                 args += f' read {remove_parse} --no-crop "{file_input}" '
@@ -238,7 +240,7 @@ def main(input_files=()):
 
         return args
 
-    global return_val, last_shown_command, remove_layer_list, color_list
+    global return_val, last_shown_command, color_list
     return_val = ()
 
     last_shown_command = ""
@@ -370,8 +372,6 @@ def main(input_files=()):
         row=current_row, column=2
     )
 
-    remove_layer_list = []
-
     remove_layer_entry = ttk.Entry(window, width=12)
     remove_layer_entry.insert(0, DECOMPOSE_DEFAULTS["remove_placeholder"])
     remove_layer_entry.grid(sticky="w", row=current_row, column=3)
@@ -389,6 +389,16 @@ def main(input_files=()):
         ),
     )
 
+    # current_row += 1
+    # save_removed_layers = IntVar(
+    #     window, value=DECOMPOSE_DEFAULTS["save_removed_layers"]
+    # )
+    # ttk.Checkbutton(
+    #     window,
+    #     text="Save Removed Layers in Separate File",
+    #     variable=save_removed_layers,
+    # ).grid(sticky="e", row=current_row, column=2, columnspan=2)
+
     current_row = separator(window, current_row, max_col)
 
     parse_label, post_attribute_parse_entry = create_attribute_parse(
@@ -399,7 +409,7 @@ def main(input_files=()):
     current_row += 1
 
     create_url_label(window, "Sort Lines", VPYPE_URLS["linesort"]).grid(
-        sticky="e", row=current_row, column=0
+        row=current_row, column=0
     )
 
     linesort = IntVar(window, value=DECOMPOSE_DEFAULTS["linesort"])
@@ -408,7 +418,7 @@ def main(input_files=()):
     )
 
     create_url_label(window, "Shuffle Lines", VPYPE_URLS["lineshuffle"]).grid(
-        sticky="e", row=current_row, column=2
+        row=current_row, column=2
     )
 
     line_shuffle = IntVar(window, value=DECOMPOSE_DEFAULTS["line_shuffle"])
