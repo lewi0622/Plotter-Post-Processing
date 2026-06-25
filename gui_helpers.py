@@ -159,7 +159,10 @@ def create_page_layout_combobox(
     """Creates page layout combobox, selects nearest sized paper, and binds to selection changed event."""
     current_value_index = find_closest_dimensions(w, h)
     box = ttk.Combobox(
-        parent, width=7, state="readonly", values=GLOBAL_DEFAULTS["page_sizes"]
+        parent,
+        width=7,
+        state="readonly",
+        values=list(GLOBAL_DEFAULTS["page_sizes_inches"].keys()),
     )
     box.current(current_value_index)
 
@@ -174,23 +177,17 @@ def create_page_layout_combobox(
 
 def layout_selection_changed(combo_box: Any, width_entry: Any, height_entry: Any):
     """Event from changing the layout dropdown box, sets the width and height accordingly"""
-    page_size_map = {
-        "Letter": ("letter_width", "letter_height"),
-        "A4": ("a4_width", "a4_height"),
-        "11x17 in": ("11x17_width", "11x17_height"),
-        "A3": ("a3_width", "a3_height"),
-        "17x23 in": ("17x23_width", "17x23_height"),
-        "A2": ("a2_width", "a2_height"),
-    }
+    page_size_map = GLOBAL_DEFAULTS["page_sizes_inches"]
 
     selection = combo_box.get()
     width_entry.delete(0, END)
     height_entry.delete(0, END)
 
     if selection in page_size_map:
-        width_key, height_key = page_size_map[selection]
-        width_entry.insert(0, GLOBAL_DEFAULTS[width_key])
-        height_entry.insert(0, GLOBAL_DEFAULTS[height_key])
+        page_width, page_height = page_size_map[selection]
+
+        width_entry.insert(0, page_width)
+        height_entry.insert(0, page_height)
 
 
 def create_attribute_parse(window: Any, parsetext: str = "") -> ttk.Entry:

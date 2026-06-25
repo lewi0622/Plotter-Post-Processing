@@ -1,21 +1,7 @@
 [global]
 parse_stroke_color = "-a stroke"
 parse_individual_lines = "-a d -a points -a x1 -a x2 -a y1 -a y2" #to parse individual lines, -a d -a points is useful for p5.js-svg. If a file has already been processed with vpype, using x1, y1, x2, y2 is more helpful
-page_sizes = ["Letter", "A4", "11x17 in", "A3", "17x23 in", "A2"]
-letter_width = "8.5"
-letter_height = "11"
-a4_width = "8.3"
-a4_height = "11.7"
-11x17_width = "11"
-11x17_height = "17"
-a3_width = "11.17"
-a3_height = "16.5"
-17x23_width = "17"
-17x23_height = "23"
-a2_width = "16.5"
-a2_height = "23.4"
-postcards_width = "8"
-postcards_height = "11.8"
+page_sizes_inches = {Letter = ["8.5","11"], Postcards = ["8","11.8"], A4 = ["8.3", "11.7"], 11x17 = ["11","17"], A3 = ["11.17","23"], 17x23 = ["17", "23"], A2 = ["16.5","23.4"]}
 
 [compose]
 column_number = 1
