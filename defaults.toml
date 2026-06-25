@@ -28,6 +28,7 @@ separate_files = 0
 remove_placeholder = "e.g. 1, 3-5"
 
 [occult]
+re_read = 0
 occult = 1
 keep_lines = 0
 ignore_layers = 1

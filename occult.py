@@ -61,6 +61,7 @@ def main(input_files=()):
         for filename in input_file_list:
             head, tail = os.path.split(filename)
             name, _ext = os.path.splitext(tail)
+            re_read_temp_file = join(file_info["temp_folder_path"], "re_read_temp.svg")
             show_temp_file = join(file_info["temp_folder_path"], name + "_O.svg")
             output_filename = join(head, name + "_O.svg")
             output_file_list.append(output_filename)
@@ -77,10 +78,19 @@ def main(input_files=()):
         # repeat for both single and batch operations
         args += f" repeat {repeat_num} "
 
+        # RE_READING
+        if re_read.get():
+            args += f" read {GLOBAL_DEFAULTS["parse_individual_lines"]} --no-crop %files_in[_i]% "
+            args += f" write {re_read_temp_file} "
+            args += " ldelete all "
+
         # FILE READING
         parse = attribute_parse_entry.get()
 
-        args += f" read {parse} --no-crop %files_in[_i]% "
+        if re_read.get():
+            args += f" read {parse} --no-crop {re_read_temp_file} "
+        else:
+            args += f" read {parse} --no-crop %files_in[_i]% "
 
         args += r' forlayer eval "%last_layer=_lid%" end '
         if occult.get():
@@ -156,6 +166,15 @@ def main(input_files=()):
         justify=CENTER,
         text=f"{len(input_files)} Design file(s) selected \nDesign file Width(in): {svg_width_inches}, Height(in): {svg_height_inches}",
     ).grid(row=current_row, column=0, columnspan=max_col)
+
+    current_row = separator(window, current_row, max_col)
+
+    re_read = IntVar(window, value=OCCULT_DEFAULTS["re_read"])
+    ttk.Checkbutton(
+        window,
+        text="Read, Write, and Read (can help with malformed SVGs)",
+        variable=re_read,
+    ).grid(sticky="w", row=current_row, column=0, columnspan=2)
 
     current_row = separator(window, current_row, max_col)
 
