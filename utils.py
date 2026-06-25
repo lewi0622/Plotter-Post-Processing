@@ -92,6 +92,9 @@ def get_svg_width_height(path: str) -> tuple[float, float]:
         svg_width_inches = float(svg_width.replace("cm", "")) / 2.54
     elif "mm" in svg_width:
         svg_width_inches = float(svg_width.replace("mm", "")) / 25.4
+    elif "%" in svg_width:
+        viewbox: str = root.attrib["viewBox"].split()
+        svg_width_inches = float(svg_width.replace("%", "")) / 100 * float(viewbox[2])
     else:
         svg_width_inches = float(svg_width) / 96
 
@@ -103,6 +106,9 @@ def get_svg_width_height(path: str) -> tuple[float, float]:
         svg_height_inches = float(svg_height.replace("cm", "")) / 2.54
     elif "mm" in svg_height:
         svg_height_inches = float(svg_height.replace("mm", "")) / 25.4
+    elif "%" in svg_height:
+        viewbox: str = root.attrib["viewBox"].split()
+        svg_height_inches = float(svg_height.replace("%", "")) / 100 * float(viewbox[3])
     else:
         svg_height_inches = float(svg_height) / 96
 
@@ -320,7 +326,7 @@ def rename_replace(old_filename: str, new_filename: str) -> None:
 def check_make_temp_folder() -> None:
     """Creates the temp folder"""
     if not os.path.isdir(file_info["temp_folder_path"]):
-        print(f"Making temp folder at {file_info["temp_folder_path"]}")
+        print(f"Making temp folder at {file_info['temp_folder_path']}")
         os.mkdir(file_info["temp_folder_path"])
 
 
