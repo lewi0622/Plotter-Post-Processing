@@ -30,7 +30,7 @@ def main(input_files=()):
             and last_shown_command == build_vpypeline(True)
         ):
             rename_replace(show_temp_file, output_file_list[0])
-            print("Same command as shown file, not re-running Vpype pipeline")
+            return_val = output_file_list
         else:
             command = build_vpypeline(False)
             print("Running: \n", command)
