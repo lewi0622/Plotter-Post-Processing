@@ -171,6 +171,8 @@ def files_exist(files: tuple):
 
 def get_files(title: str = "") -> tuple:
     """Opens dialog box to select files and returns a tuple of the selected files"""
+    global initial_dir
+
     list_of_files = glob.glob(initial_dir + r"\*.svg")
     latest_file = ""
     if len(list_of_files) != 0:
@@ -186,6 +188,8 @@ def get_files(title: str = "") -> tuple:
     if recieved_files == "":
         return ()
     else:
+        # change initial dir to latest selected dir
+        initial_dir = os.path.split(recieved_files[0])[0]
         return recieved_files
 
 
