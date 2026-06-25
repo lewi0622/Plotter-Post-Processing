@@ -128,7 +128,7 @@ def select_files(
         if not files_exist(files):  # check if given files exist
             print("Please reselect files, could not locate all selected files")
             files = get_files(dialog_title)  # prompt user to select files
-    print("Currently Loaded Files: ")
+    print(f"Currently Loaded {len(files)} Files: ")
     for file in files:
         print(file)
     if len(files) == 0 and len(file_info["files"]) > 0:  # reselect files canceled
