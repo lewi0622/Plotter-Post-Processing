@@ -1,5 +1,6 @@
 import os
 import subprocess
+from math import ceil
 from posixpath import join
 from tkinter import CENTER, IntVar, Tk, ttk
 from typing import Any
@@ -35,7 +36,9 @@ def main(input_files=()):
     def run_vpypeline():
         global return_val
 
-        if last_shown_command == build_vpypeline(True):
+        if spare_files.get() == COMPOSE_DEFAULTS[
+            "ignore_files"
+        ] and last_shown_command == build_vpypeline(True):
             rename_replace(show_temp_file, output_file_list[0])
         else:
             command = build_vpypeline(False)
@@ -90,79 +93,87 @@ def main(input_files=()):
             compose_info_list, key=lambda d: d["order"].get(), reverse=True
         )
 
-        number_of_file_reads = len(sorted_info_list)
-        if grid:
-            number_of_file_reads = slots
-
-        built_info_list = []
-        for index in range(number_of_file_reads):
-            if index >= len(sorted_info_list):
-                if empty_tiles.get() == COMPOSE_DEFAULTS["repeat_deisgns"]:
-                    info = sorted_info_list[
-                        index % len(sorted_info_list)
-                    ]  # will wrap around the the list to populate the whole grid with designs
-                else:
-                    break
-            else:
-                info = sorted_info_list[index]
-            built_info_list.append(info)
+        number_of_output_files = 1
+        if spare_files.get() == COMPOSE_DEFAULTS["new_file"] and not show:
+            number_of_output_files = ceil(len(sorted_info_list) / slots)
 
         output_file_list = []
+        built_info_collection = []
+        for output_file_index in range(number_of_output_files):
+            built_info_list = []
+            for input_file_index in range(
+                output_file_index * slots, (output_file_index + 1) * slots
+            ):
+                if input_file_index >= len(sorted_info_list):
+                    if empty_tiles.get() == COMPOSE_DEFAULTS["repeat_deisgns"]:
+                        info = sorted_info_list[
+                            input_file_index % len(sorted_info_list)
+                        ]  # will wrap around the the list to populate the whole grid with designs
+                    else:
+                        break
+                else:
+                    info = sorted_info_list[input_file_index]
+                built_info_list.append(info)
+            built_info_collection.append(built_info_list)
 
-        filename = built_info_list[0]["file"]
-        head, tail = os.path.split(filename)
-        name, _ext = os.path.splitext(tail)
-        show_temp_file = join(file_info["temp_folder_path"], name + "_C.svg")
-        output_filename = join(head, name + "_C.svg")
-        output_file_list.append(output_filename)
+            filename = built_info_list[0]["file"]
+            head, tail = os.path.split(filename)
+            name, _ext = os.path.splitext(tail)
+            show_temp_file = join(
+                file_info["temp_folder_path"], name + "_C.svg"
+            )  # TODO is this correct?
+            output_filename = join(head, name + "_C.svg")
+            output_file_list.append(output_filename)
 
         args = r"vpype "
 
-        # Load files on top of one another, translates if gridded
-        for index, info in enumerate(built_info_list):
+        for output_file_index, built_info_list in enumerate(built_info_collection):
+            # Load files on top of one another, translates if gridded
+            for index, info in enumerate(built_info_list):
 
-            # determine number of incoming stroke layers
-            incoming_layer_number = 1
-            if info["attribute"].get():
-                file_info_index = file_info["files"].index(info["file"])
-                incoming_layer_number = len(file_info["color_dicts"][file_info_index])
+                # determine number of incoming stroke layers
+                incoming_layer_number = 1
+                if info["attribute"].get():
+                    file_info_index = file_info["files"].index(info["file"])
+                    incoming_layer_number = len(
+                        file_info["color_dicts"][file_info_index]
+                    )
 
-            # move existing layers up to make room for new ones
-            if index > 0:
-                # shift layers up the number of incoming layers
-                args += (
-                    f' forlayer lmove "%_lid%" "%_lid+{incoming_layer_number}%" end '
-                )
+                # move existing layers up to make room for new ones
+                if index > 0:
+                    # shift layers up the number of incoming layers
+                    args += f' forlayer lmove "%_lid%" "%_lid+{incoming_layer_number}%" end '
 
-            # read new layers in
-            if info["attribute"].get():
-                args += f' read -a stroke --no-crop "{info["file"]}" '
+                # read new layers in
+                if info["attribute"].get():
+                    args += f' read -a stroke --no-crop "{info["file"]}" '
+                else:
+                    args += f' read --no-crop --layer 1 "{info["file"]}" '
+                    if info["overwrite_color"].get():
+                        args += f' color -l 1 {info["color_info"].get()}'
+
+                # translate for grid
+                if grid:
+                    args += f' translate -l {",".join(map(str,range(1, incoming_layer_number+1)))} {translation_list[index]["x"]}in {translation_list[index]["y"]}in '
+
+            # layout as letter centers graphics within given page size
+            if layout.get():
+                args += r" layout "
+                if layout_landscape.get():
+                    args += r" -l "
+                args += f" {layout_width_entry.get()}x{layout_height_entry.get()}in "
+
+            if show:
+                args += f' write "{show_temp_file}" '
+                if condense.get():  # reread rewrite file
+                    args += f' ldelete all read -a stroke --no-crop "{show_temp_file}" write "{show_temp_file}" '
+                args += " show "
             else:
-                args += f' read --no-crop --layer 1 "{info["file"]}" '
-                if info["overwrite_color"].get():
-                    args += f' color -l 1 {info["color_info"].get()}'
-
-            # translate for grid
-            if grid:
-                for layer_num in range(incoming_layer_number):
-                    args += f' translate -l {layer_num + 1} {translation_list[index]["x"]}in {translation_list[index]["y"]}in '
-
-        # layout as letter centers graphics within given page size
-        if layout.get():
-            args += r" layout "
-            if layout_landscape.get():
-                args += r" -l "
-            args += f" {layout_width_entry.get()}x{layout_height_entry.get()}in "
-
-        if show:
-            args += f' write "{show_temp_file}" '
-            if condense.get():  # reread rewrite file
-                args += f' ldelete all read -a stroke --no-crop "{show_temp_file}" write "{show_temp_file}" '
-            args += " show "
-        else:
-            args += f' write "{output_filename}" '
-            if condense.get():  # reread rewrite file
-                args += f' ldelete all read -a stroke --no-crop "{output_filename}" write "{output_filename}" '
+                args += f' write "{output_file_list[output_file_index]}" '
+                if condense.get():  # reread rewrite file
+                    args += f' ldelete all read -a stroke --no-crop "{output_file_list[output_file_index]}" write "{output_file_list[output_file_index]}" '
+                if (output_file_index + 1) < len(built_info_collection):
+                    args += " ldelete all "
 
         return args
 

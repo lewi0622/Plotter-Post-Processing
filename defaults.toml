@@ -6,7 +6,7 @@ page_sizes_inches = {Letter = ["8.5","11"], Postcards = ["8","11.8"], A4 = ["8.3
 [compose]
 column_number = 1
 row_number = 1
-empty_tiles = 0
+empty_tiles = 1
 leave_empty = 0     # empty_tiles radio button val
 repeat_deisgns = 1  # empty_tiles radio button val
 spare_files = 0
