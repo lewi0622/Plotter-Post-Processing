@@ -2,7 +2,7 @@
 
 from os import path
 from posixpath import join
-from tkinter import CENTER, END, Canvas, ttk
+from tkinter import CENTER, END, Canvas, TclError, ttk
 from typing import Any
 
 from links import VPYPE_URLS
@@ -58,7 +58,8 @@ def set_title_icon(parent: Any, title: str):
     icon_path = join(path.dirname(__file__), "images/LewistonFace.ico")
     try:
         parent.iconbitmap(icon_path)
-    except:
+    except TclError:
+        print(f"Couldn't set window icon at {icon_path}")
         pass
     make_topmost_temp(parent)
 

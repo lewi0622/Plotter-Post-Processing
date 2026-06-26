@@ -89,7 +89,7 @@ def main(input_files: tuple = ()) -> tuple:
                 bbox_w = float(bbox_w)
                 bbox_h = float(bbox_h)
 
-            except:
+            except ValueError:
                 print("Bounding Box values unable to be parsed into floats")
 
             args += (
@@ -114,7 +114,7 @@ def main(input_files: tuple = ()) -> tuple:
 
             if crop_w > 0 and crop_h > 0:
                 args += f" crop {crop_x}in {crop_y}in {crop_w}in {crop_h}in "
-        except:
+        except ValueError:
             print("Crop values unable to be parsed into floats")
 
         if rotate_entry.get() != 0:
@@ -157,7 +157,8 @@ def main(input_files: tuple = ()) -> tuple:
             num_multipass = int(num_multipass)
             if num_multipass > 1:
                 args += f" multipass -n {num_multipass} "
-        except:
+        except ValueError:
+            print(f"Couldn't parse {num_multipass} into an integer")
             pass
 
         if lineshuffle.get():

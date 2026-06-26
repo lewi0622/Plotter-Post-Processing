@@ -46,9 +46,7 @@ propset -l %_lid% -t float vp_pen_width %stroke_width% \
 end \
 write "{output_file}" """
         print("Generating Dips with: \n", command)
-        result = subprocess.run(
-            command, stdout=subprocess.PIPE, universal_newlines=True
-        )
+        subprocess.run(command, stdout=subprocess.PIPE, universal_newlines=True)
 
         create_toast(window, 4000, f"Saved DIP file at: \n{output_file}")
 
@@ -62,9 +60,7 @@ write "{output_file}" """
         else:
             command = build_vpypeline(False)
             print("Running: \n", command)
-            result = subprocess.run(
-                command, stdout=subprocess.PIPE, universal_newlines=True
-            )
+            subprocess.run(command, stdout=subprocess.PIPE, universal_newlines=True)
         return_val = output_file_list
         print("Closing Paint")
         on_closing(window)
@@ -75,7 +71,7 @@ write "{output_file}" """
         check_make_temp_folder()
         last_shown_command = build_vpypeline(True)
         print("Showing: \n", last_shown_command)
-        result = subprocess.run(
+        subprocess.run(
             last_shown_command, stdout=subprocess.PIPE, universal_newlines=True
         )
         make_topmost_temp(window)
