@@ -80,7 +80,7 @@ def main(input_files=()):
 
         # RE_READING
         if re_read.get():
-            args += f" read {GLOBAL_DEFAULTS["parse_individual_lines"]} --no-crop %files_in[_i]% "
+            args += f" read {GLOBAL_DEFAULTS['parse_individual_lines']} --no-crop %files_in[_i]% "
             args += f" write {re_read_temp_file} "
             args += " ldelete all "
 
@@ -102,7 +102,7 @@ def main(input_files=()):
             if occult_keep_lines.get():
                 args += r" -k "
                 args += r' forlayer eval "%kept_layer=_lid%" end '
-                args += f' eval "%last_color=random_colors[_i]%" '
+                args += r' eval "%last_color=random_colors[_i]%" '
                 # recolor kept lines if there are any kept lines
                 args += r' forlayer eval "%if(kept_layer<last_layer+1):last_color=_color%" end '
                 args += r" color -l %kept_layer% %last_color% "
@@ -116,7 +116,7 @@ def main(input_files=()):
         else:
             args += r" write %files_out[_i]% end "
             if reparse_with_stroke.get():
-                args += f"ldelete all read -a stroke --no-crop %files_out[_i]% write %files_out[_i]% "
+                args += r"ldelete all read -a stroke --no-crop %files_out[_i]% write %files_out[_i]% "
 
         return args
 

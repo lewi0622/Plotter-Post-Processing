@@ -16,7 +16,15 @@ from gui_helpers import (
 )
 from links import PPP_URLS, VPYPE_URLS
 from settings import DECOMPOSE_DEFAULTS, GLOBAL_DEFAULTS, init, set_theme
-from utils import *
+from utils import (
+    check_make_temp_folder,
+    file_info,
+    generate_random_color,
+    max_colors_per_file,
+    on_closing,
+    rename_replace,
+    select_files,
+)
 
 
 def main(input_files=()):
@@ -187,7 +195,7 @@ def main(input_files=()):
                 # dont' overwrite last_parse since we're going to replay args after this
 
                 # use -keep layers instead of deleting them
-                args += f" ldelete -k {",".join(map(str, layers_to_remove))} "
+                args += f" ldelete -k {','.join(map(str, layers_to_remove))} "
 
                 args += r" write %removed_layers_files_out[_i]% "
 
@@ -206,7 +214,7 @@ def main(input_files=()):
 
             last_parse = remove_parse
 
-            args += f" ldelete {",".join(map(str, layers_to_remove))} "
+            args += f" ldelete {','.join(map(str, layers_to_remove))} "
 
         # Post sort/shuffle
         if linesort.get() or line_shuffle.get():

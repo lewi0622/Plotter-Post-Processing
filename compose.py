@@ -130,7 +130,6 @@ def main(input_files=()):
         for output_file_index, built_info_list in enumerate(built_info_collection):
             # Load files on top of one another, translates if gridded
             for index, info in enumerate(built_info_list):
-
                 # determine number of incoming stroke layers
                 incoming_layer_number = 1
                 if info["attribute"].get():
@@ -150,11 +149,11 @@ def main(input_files=()):
                 else:
                     args += f' read --no-crop --layer 1 "{info["file"]}" '
                     if info["overwrite_color"].get():
-                        args += f' color -l 1 {info["color_info"].get()}'
+                        args += f" color -l 1 {info['color_info'].get()}"
 
                 # translate for grid
                 if grid:
-                    args += f' translate -l {",".join(map(str,range(1, incoming_layer_number+1)))} {translation_list[index]["x"]}in {translation_list[index]["y"]}in '
+                    args += f" translate -l {','.join(map(str, range(1, incoming_layer_number + 1)))} {translation_list[index]['x']}in {translation_list[index]['y']}in "
 
             # layout as letter centers graphics within given page size
             if layout.get():
@@ -323,7 +322,7 @@ def main(input_files=()):
             row=current_row, column=0, columnspan=2
         )
 
-        ttk.Label(frame, text=f"Order: ").grid(row=current_row, column=2)
+        ttk.Label(frame, text="Order: ").grid(row=current_row, column=2)
         compose_order = ttk.Combobox(
             frame, width=4, state="readonly", values=[*range(len(input_files))]
         )

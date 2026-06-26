@@ -1,8 +1,7 @@
 import os
 import subprocess
 from posixpath import join
-from tkinter import *
-from tkinter import ttk
+from tkinter import IntVar, Tk, ttk
 
 from gui_helpers import (
     create_scrollbar,
@@ -14,8 +13,16 @@ from gui_helpers import (
     set_title_icon,
 )
 from links import PPP_URLS, VPYPE_URLS
-from settings import GLOBAL_DEFAULTS, PAINT_DEFAULTS, init, set_theme
-from utils import *
+from settings import PAINT_DEFAULTS, init, set_theme
+from utils import (
+    check_make_temp_folder,
+    file_info,
+    get_directory_name,
+    max_colors_per_file,
+    on_closing,
+    rename_replace,
+    select_files,
+)
 
 
 def main(input_files=()):
