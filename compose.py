@@ -91,7 +91,7 @@ def main(input_files=()):
         )
 
         number_of_output_files = 1
-        if spare_files.get() == COMPOSE_DEFAULTS["new_file"] and not show:
+        if grid and spare_files.get() == COMPOSE_DEFAULTS["new_file"] and not show:
             number_of_output_files = ceil(len(sorted_info_list) / slots)
 
         output_file_list = []
@@ -101,6 +101,9 @@ def main(input_files=()):
             section = []
             start = output_index * slots
             end = start + slots
+
+            if not grid:  # load all files on top of each other if grid is not used
+                end = len(sorted_info_list)
 
             for input_index in range(start, end):
                 if input_index >= len(sorted_info_list):
