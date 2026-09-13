@@ -62,10 +62,9 @@ def open_url_in_browser(url: str) -> None:
 def get_svg_width_height(path: str) -> tuple[float, float]:
     """Get svg width and height in inches"""
     for event, elem in etree.iterparse(path, events=("start", "end"), huge_tree=True):
-        if event == "start":
-            if "width" in elem.attrib:
-                root = elem
-                break
+        if event == "start" and "width" in elem.attrib:
+            root = elem
+            break
 
     svg_width: str
     svg_height: str
@@ -212,13 +211,10 @@ def build_color_dict(input_file: str) -> tuple[dict, bool]:
         elif "stroke" in elem.attrib:
             hex_string = parse_stroke_color(elem.attrib["stroke"])
         # handling color transformations within g tags a la DrawingBotV3 style outputs
-        elif elem.tag.endswith("g"):
-            if "style" in elem.attrib:
-                stroke_string = re.search(
-                    r"(?<=stroke:)(.*?)(?=;)", elem.attrib["style"]
-                )
-                if stroke_string is not None:
-                    hex_string = parse_stroke_color(stroke_string.group())
+        elif "style" in elem.attrib:
+            stroke_string = re.search(r"(?<=stroke:)(.*?)(?=;)", elem.attrib["style"])
+            if stroke_string is not None:
+                hex_string = parse_stroke_color(stroke_string.group())
         # if there is a fill with no stroke, vpype will assign it a stroke color
         elif "fill" in elem.attrib:
             hex_string = parse_stroke_color(elem.attrib["fill"])
@@ -271,8 +267,7 @@ def max_colors_per_file() -> int:
     """Finds the max of distinct colors in any given file"""
     max_num_color: int = 0
     for color_dict in file_info["color_dicts"]:
-        if len(color_dict) > max_num_color:
-            max_num_color = len(color_dict)
+        max_num_color = max(max_num_color, len(color_dict))
     return max_num_color
 
 
