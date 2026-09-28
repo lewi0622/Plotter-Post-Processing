@@ -244,18 +244,23 @@ def parse_stroke_color(s: str) -> str:
     # check for rgb and convert to hex
     if "rgb" in s:
         rgb = re.findall(r"(?:rgb\()(.*?)(?:\))", s)[0].split(",")
+        if (
+            len(rgb) == 1 and "%" in rgb[0]
+        ):  # percentage case ['88.235% 16.471% 19.216% / 0.7']
+            pct_string = rgb[0].split("/")[0]  # get rid of alpha
+            rgb = [float(x.replace("%", "")) * 2.55 for x in pct_string.split()]
         c = get_hex_value((int(rgb[0]), int(rgb[1]), int(rgb[2])))
     elif "#" in s:
         c = s
-    elif "black" in s:
+    elif "black" in s.lower():
         c = "#000000"
-    elif "yellow" in s:
+    elif "yellow" in s.lower():
         c = "#FFFF00"
-    elif "aqua" in s:
+    elif "aqua" in s.lower():
         c = "#00FFFF"
-    elif "fuchsia" in s:
+    elif "fuchsia" in s.lower():
         c = "#FF00FF"
-    elif "none" in s:
+    elif "none" in s.lower():
         pass
     else:
         print("Can't parse: ", s)
