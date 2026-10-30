@@ -86,10 +86,9 @@ def main(input_files=()):
 
         sorted_info_list = sorted(
             compose_info_list,
-            key=lambda entry: entry["order"].get(),
+            key=lambda entry: int(entry["order"].get()),
             reverse=True,
         )
-
         number_of_output_files = 1
         if grid and spare_files.get() == COMPOSE_DEFAULTS["new_file"] and not show:
             number_of_output_files = ceil(len(sorted_info_list) / slots)
