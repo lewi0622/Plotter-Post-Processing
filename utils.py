@@ -127,6 +127,8 @@ def select_files(
         if not files_exist(files):  # check if given files exist
             print("Please reselect files, could not locate all selected files")
             files = get_files(dialog_title)  # prompt user to select files
+
+    files = sorted(list(files), key=numeric_then_alphabetical_key)
     print(f"Currently Loaded {len(files)} Files: ")
     for file in files:
         print(file)
@@ -155,6 +157,21 @@ def select_files(
     get_all_color_dicts()
     get_all_size_info()
     return files
+
+
+def numeric_then_alphabetical_key(path):
+    filename = os.path.basename(
+        path
+    ).lower()  # .lower() ensures case-insensitive sorting
+    match = re.match(r"^\d+", filename)
+
+    if match:
+        # If it has a leading number, group it by the integer value
+        return (int(match.group()), filename)
+    else:
+        # If no leading number, use -1 (or float('inf')) so they group together,
+        # then sort alphabetically by filename
+        return (-1, filename)
 
 
 def files_exist(files: tuple):
