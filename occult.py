@@ -55,6 +55,10 @@ def main(input_files=()):
         global output_file_list
         global color_list
 
+        # Same color for all files, only generate one color
+        if occult_keep_colors.get() == OCCULT_DEFAULTS["keep_same"]:
+            color_list = [generate_random_color()]
+
         # build output files list
         input_file_list = list(input_files)
         output_file_list = []
@@ -69,7 +73,8 @@ def main(input_files=()):
         args = r"vpype "
         args += r' eval "files_in=' + f"{input_file_list}" + '"'
         args += r' eval "files_out=' + f"{output_file_list}" + '"'
-        args += r' eval "random_colors=' + f"{color_list}" + '"'
+        if occult_keep_lines.get():
+            args += r' eval "random_colors=' + f"{color_list}" + '"'
 
         if show:
             repeat_num = 1
@@ -102,7 +107,10 @@ def main(input_files=()):
             if occult_keep_lines.get():
                 args += r" -k "
                 args += r' forlayer eval "%kept_layer=_lid%" end '
-                args += r' eval "%last_color=random_colors[_i]%" '
+                if occult_keep_colors.get() == OCCULT_DEFAULTS["keep_random"]:
+                    args += r' eval "%last_color=random_colors[_i]%" '
+                else:
+                    args += r' eval "%last_color=random_colors[0]%" '
                 # recolor kept lines if there are any kept lines
                 args += r' forlayer eval "%if(kept_layer<last_layer+1):last_color=_color%" end '
                 args += r" color -l %kept_layer% %last_color% "
@@ -192,10 +200,6 @@ def main(input_files=()):
     ttk.Checkbutton(window, text="Occult", variable=occult).grid(
         sticky="w", row=current_row, column=0
     )
-    occult_keep_lines = IntVar(window, value=OCCULT_DEFAULTS["keep_lines"])
-    ttk.Checkbutton(
-        window, text="Keep occulted lines", variable=occult_keep_lines
-    ).grid(sticky="w", row=current_row, column=1)
     current_row += 1
 
     occult_ignore = IntVar(window, value=OCCULT_DEFAULTS["ignore_layers"])
@@ -204,10 +208,33 @@ def main(input_files=()):
     )
     occult_across = IntVar(window, value=OCCULT_DEFAULTS["across_layers"])
     ttk.Checkbutton(
-        window, text="Occult across layers,\nnot within", variable=occult_across
+        window, text="Occult across layers, not within", variable=occult_across
     ).grid(sticky="w", row=current_row, column=1)
+    current_row += 1
+
+    occult_keep_lines = IntVar(window, value=OCCULT_DEFAULTS["keep_lines"])
+    ttk.Checkbutton(
+        window, text="Keep occulted lines", variable=occult_keep_lines
+    ).grid(sticky="w", row=current_row, column=0)
 
     current_row += 1
+
+    occult_keep_colors = IntVar(window, value=OCCULT_DEFAULTS["keep_random"])
+    if (len(input_files)) > 1:
+        ttk.Radiobutton(
+            window,
+            text="Random Keep color per file",
+            variable=occult_keep_colors,
+            value=OCCULT_DEFAULTS["keep_random"],
+        ).grid(sticky="w", row=current_row, column=0)
+        ttk.Radiobutton(
+            window,
+            text="Same Keep color for all files",
+            variable=occult_keep_colors,
+            value=OCCULT_DEFAULTS["keep_same"],
+        ).grid(sticky="w", row=current_row, column=1)
+
+    current_row = separator(window, current_row, max_col)
 
     reparse_val = OCCULT_DEFAULTS["reparse"]
     if any(file_info["interleaved?"]):
