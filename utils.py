@@ -128,20 +128,28 @@ def select_files(
             print("Please reselect files, could not locate all selected files")
             files = get_files(dialog_title)  # prompt user to select files
 
-    files = sorted(list(files), key=numeric_then_alphabetical_key)
-    print(f"Currently Loaded {len(files)} Files: ")
-    for file in files:
-        print(file)
-    if len(files) == 0 and len(file_info["files"]) > 0:  # reselect files canceled
-        if not files_exist(file_info["files"]):  # check if given files exist
-            print("Please reselect files, could not locate all selected files")
-            files = get_files(dialog_title)  # prompt user to select files
     if (
         len(files) == 0 and len(file_info["files"]) > 0
     ):  # still canceled and there's no files chosen
-        for file in file_info["files"]:
-            print(file)
-        return file_info["files"]
+        if not files_exist(file_info["files"]):  # check if given files exist
+            for file in file_info["files"]:
+                if not os.path.exists(file):
+                    print(f"Removing {file} from list of files, could not locate file")
+                    file_info["files"] = tuple(
+                        f for f in file_info["files"] if f != file
+                    )  # remove missing files from list
+            files = file_info["files"]
+        else:
+            print("No files selected, using previously selected files")
+            print(f"Currently Loaded {len(file_info['files'])} Files: ")
+            for file in file_info["files"]:
+                print(file)
+            return file_info["files"]  # return previously selected files
+
+    files = sorted(files, key=numeric_then_alphabetical_key)
+    print(f"Currently Loaded {len(files)} Files: ")
+    for file in files:
+        print(file)
 
     file_info["temp_folder_path"] = join(os.path.dirname(files[0]), "ppp_temp")
     # to handle multiple instances of ppp running simultaneously, each one should handle its' own temp folder
@@ -174,14 +182,15 @@ def numeric_then_alphabetical_key(path):
         return (-1, filename)
 
 
-def files_exist(files: tuple):
+def files_exist(files: tuple, print_error: bool = True) -> bool:
     """Checks if a list of files all exist and prints an error if any don't. Returns False if any don't exist."""
     all_exist = True
     for file in files:
         if not os.path.exists(file):
             all_exist = False
-            print("Cannot find selected file:")
-            print(file)
+            if print_error:
+                print("Cannot find selected file:")
+                print(file)
     return all_exist
 
 
