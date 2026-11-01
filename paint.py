@@ -27,7 +27,7 @@ from utils import (
 
 def main(input_files=()):
     def generate_dips():
-        input_file = list(input_files)[0]
+        input_file = next(iter(input_files))
         dip_detail_list = populate_dip_details()
         output_file = input_file.replace(".svg", "_DIPS.svg")
 
@@ -46,7 +46,7 @@ propset -l %_lid% -t float vp_pen_width %stroke_width% \
 end \
 write "{output_file}" """
         print("Generating Dips with: \n", command)
-        subprocess.run(command, stdout=subprocess.PIPE, universal_newlines=True)
+        subprocess.run(command, stdout=subprocess.PIPE, text=True, check=False)
 
         create_toast(window, 4000, f"Saved DIP file at: \n{output_file}")
 
@@ -60,7 +60,7 @@ write "{output_file}" """
         else:
             command = build_vpypeline(False)
             print("Running: \n", command)
-            subprocess.run(command, stdout=subprocess.PIPE, universal_newlines=True)
+            subprocess.run(command, stdout=subprocess.PIPE, text=True, check=False)
         return_val = output_file_list
         print("Closing Paint")
         on_closing(window)
@@ -72,7 +72,7 @@ write "{output_file}" """
         last_shown_command = build_vpypeline(True)
         print("Showing: \n", last_shown_command)
         subprocess.run(
-            last_shown_command, stdout=subprocess.PIPE, universal_newlines=True
+            last_shown_command, stdout=subprocess.PIPE, text=True, check=False
         )
         make_topmost_temp(window)
 

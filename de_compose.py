@@ -45,7 +45,7 @@ def main(input_files=()):
             command = build_vpypeline(False)
             print("Running: \n", command)
             result = subprocess.run(
-                command, stdout=subprocess.PIPE, universal_newlines=True
+                command, stdout=subprocess.PIPE, text=True, check=False
             )
             if separate_files.get():
                 return_val = str.splitlines(result.stdout)

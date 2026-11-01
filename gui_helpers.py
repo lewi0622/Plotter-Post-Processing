@@ -60,7 +60,6 @@ def set_title_icon(parent: Any, title: str):
         parent.iconbitmap(icon_path)
     except TclError:
         print(f"Couldn't set window icon at {icon_path}")
-        pass
     make_topmost_temp(parent)
 
 

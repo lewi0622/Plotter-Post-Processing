@@ -159,7 +159,6 @@ def main(input_files: tuple = ()) -> tuple:
                 args += f" multipass -n {num_multipass} "
         except ValueError:
             print(f"Couldn't parse {num_multipass} into an integer")
-            pass
 
         if lineshuffle.get():
             args += " lineshuffle "

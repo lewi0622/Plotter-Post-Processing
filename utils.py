@@ -418,24 +418,26 @@ def thread_vpypelines(
     )
     threads = []
     for index, command in enumerate(commands):
-        moving_file = False
         current_shown_file = file_info["shown_files"][index]
-        if current_shown_file is not None:
+
+        # check for shown file and if the command is the same, move the file
+        try:
             if (
                 current_shown_file["command"] == show_commands[index]
                 and len(show_info) == 0
             ):
-                moving_file = True  # already ran same pipeline and file exists
-
-        if moving_file:
-            thread = threading.Thread(
-                target=rename_replace,
-                args=(
-                    current_shown_file["show_path"],
-                    current_shown_file["output_path"],
-                ),
-            )
-        else:
+                thread = threading.Thread(
+                    target=rename_replace,
+                    args=(
+                        current_shown_file["show_path"],
+                        current_shown_file["output_path"],
+                    ),
+                )
+            else:
+                # shown file is different, so we need to run the pipeline
+                thread = threading.Thread(target=run_subprocess, args=(command,))
+        except TypeError:
+            # current_shown_file is None, so we need to run the pipeline
             thread = threading.Thread(target=run_subprocess, args=(command,))
         thread.start()
         threads.append(thread)
