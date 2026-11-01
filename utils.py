@@ -257,6 +257,8 @@ def build_color_dict(input_file: str) -> tuple[dict, bool]:
 
 def parse_stroke_color(s: str) -> str:
     """converts a string of a color representation into a hex string"""
+    from css_colors import css_colors
+
     c = ""
     # check for rgb and convert to hex
     if "rgb" in s:
@@ -269,14 +271,8 @@ def parse_stroke_color(s: str) -> str:
         c = get_hex_value((int(rgb[0]), int(rgb[1]), int(rgb[2])))
     elif "#" in s:
         c = s
-    elif "black" in s.lower():
-        c = "#000000"
-    elif "yellow" in s.lower():
-        c = "#FFFF00"
-    elif "aqua" in s.lower():
-        c = "#00FFFF"
-    elif "fuchsia" in s.lower():
-        c = "#FF00FF"
+    elif s.lower() in css_colors:
+        c = css_colors[s.lower()]
     elif "none" in s.lower():
         pass
     else:
