@@ -20,7 +20,6 @@ from utils import (
     file_info,
     generate_random_color,
     on_closing,
-    select_files,
     thread_vpypelines,
 )
 
@@ -531,6 +530,8 @@ def main(input_files: tuple = ()) -> tuple:
 
 
 if __name__ == "__main__":
+    from utils import select_files
+
     init()
     selected_files: tuple = select_files()
     if len(selected_files) == 0:

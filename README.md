@@ -20,6 +20,9 @@ For an overview of the features and how to use the tool, view my [playlist on yo
 - Paint
     - Insert dips into design at specified intervals
     - Specify dip locations and patterns
+- Pen Offset
+    - Translate layers to compensate for differences in pen barrel diameters
+    - Optionally crop translated geometry to the page boundaries
 - File handling
     - Batch up the same Vpype operations on an arbitrary number of files
     - Automatically pass the files from one operation to the next
@@ -38,4 +41,3 @@ Last tested using on:
 - Occult Version 0.4.0
 - Optional:
     - sv_ttk 2.6.1 for prettier UIs
-

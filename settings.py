@@ -42,4 +42,5 @@ with open("defaults.toml", "rb") as f:
     MAIN_APPLICATION_DEFAULTS = settings_data.get("main_application", {})
     OCCULT_DEFAULTS = settings_data.get("occult", {})
     PAINT_DEFAULTS = settings_data.get("paint", {})
+    PEN_OFFSET_DEFAULTS = settings_data.get("pen_offset", {})
     PROCESS_DEFAULTS = settings_data.get("process", {})

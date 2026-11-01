@@ -6,6 +6,7 @@ import compose
 import de_compose
 import occult
 import paint
+import pen_offset
 import process
 import settings
 from gui_helpers import (
@@ -47,6 +48,12 @@ def main():
         returned_files = paint.main(file_info["files"])
         paint.window.destroy()
         verify_output_files(returned_files, "Paint")
+
+    def run_pen_offset():
+        main_app.wm_state("icon")
+        returned_files = pen_offset.main(file_info["files"])
+        pen_offset.window.destroy()
+        verify_output_files(returned_files, "Pen Offset")
 
     def run_compose():
         main_app.wm_state("icon")
@@ -93,6 +100,9 @@ def main():
     )
     ttk.Button(main_app, text="deCompose", command=run_decompose).grid(
         padx=(10, 10), pady=(2, 2), row=current_row, column=1
+    )
+    ttk.Button(main_app, text="Pen Offset", command=run_pen_offset).grid(
+        padx=(10, 10), pady=(2, 2), row=current_row, column=2
     )
 
     current_row += 1

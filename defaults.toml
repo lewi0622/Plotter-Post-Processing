@@ -50,6 +50,27 @@ split_all = 0
 split_dist = "4"
 rotate = "0"
 
+[pen_offset]
+nominal_pen = "LePen Flex"
+default_parse = "-a stroke"
+crop_to_page = 1
+
+[pen_offset.pens]
+# Values with multiple measurements in issue #44 use their midpoint; entries are editable in the UI.
+Gellyroll = "0.3440"
+"Posca PC-3M" = "0.5285"
+"Micron 08" = "0.3889"
+"Signo Broad" = "0.4040"
+"Stabilo Pen 68" = "0.3143"
+"LePen Flex" = "0.3245"
+"Pilot Precise V5" = "0.3685"
+"Sharpie Fine Point" = "0.4543"
+"Aqua Brush Duo" = "0.4055"
+"FW Mixed Media Paint Marker" = "0.4360"
+"Rotring Isograph" = "0.4118"
+"Bic Cristal" = "0.3053"
+"Faber Castell Pitt Pen" = "0.4238"
+
 [process]
 window_size = "555x870"
 bbox = 0

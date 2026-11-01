@@ -103,6 +103,12 @@ def create_scrollbar(root: Any, row: int = 0, span: int = 1):
     canvas.create_window((0, 0), window=scrollable_frame, anchor="nw")
 
     def _on_mousewheel(event):
+        event_widget = str(event.widget)
+        if root.tk.call("winfo", "class", event_widget) == "Listbox" and root.tk.call(
+            "winfo", "toplevel", event_widget
+        ) != str(root.winfo_toplevel()):
+            return "break"
+
         if event.delta:  # Windows / macOS
             canvas.yview_scroll(-1 * int(event.delta / 120), "units")
         else:  # Linux
