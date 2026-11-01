@@ -35,10 +35,7 @@ def main(input_files=()):
 
     def run_vpypeline():
         global return_val
-
-        if spare_files.get() == COMPOSE_DEFAULTS[
-            "ignore_files"
-        ] and last_shown_command == build_vpypeline(True):
+        if len(output_file_list) == 1 and last_shown_command == build_vpypeline(True):
             rename_replace(show_temp_file, output_file_list[0])
         else:
             command = build_vpypeline(False)
