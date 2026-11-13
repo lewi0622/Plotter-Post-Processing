@@ -2,6 +2,7 @@
 
 from tkinter import Tk, ttk
 
+import clipper
 import compose
 import de_compose
 import occult
@@ -36,6 +37,12 @@ def main():
         returned_files = occult.main(file_info["files"])
         occult.window.destroy()
         verify_output_files(returned_files, "Occult")
+
+    def run_clipper():
+        main_app.wm_state("icon")
+        returned_files = clipper.main(file_info["files"])
+        clipper.window.destroy()
+        verify_output_files(returned_files, "Clipper")
 
     def run_process():
         main_app.wm_state("icon")
@@ -105,6 +112,10 @@ def main():
         padx=(10, 10), pady=(2, 2), row=current_row, column=2
     )
 
+    current_row += 1
+    ttk.Button(main_app, text="Clipper", command=run_clipper).grid(
+        padx=(10, 10), pady=(2, 2), row=current_row, column=0
+    )
     current_row += 1
 
     ttk.Button(main_app, text="Re-Select Files", command=select_files).grid(
